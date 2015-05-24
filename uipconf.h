@@ -7,24 +7,6 @@
 #include <stdbool.h>
 
 /**
- * 8 bit datatype
- *
- * This typedef defines the 8-bit type used throughout uIP.
- *
- * \hideinitializer
- */
-typedef uint8_t u8_t;
-
-/**
- * 16 bit datatype
- *
- * This typedef defines the 16-bit type used throughout uIP.
- *
- * \hideinitializer
- */
-typedef uint16_t u16_t;
-
-/**
  * Statistics datatype
  *
  * This typedef defines the dataype used for keeping statistics in
@@ -94,14 +76,14 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_BROADCAST		0
+#define UIP_CONF_BROADCAST      0
 
 /**
  * The maximum amount of concurrent UDP connections.
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP_CONNS		0
+#define UIP_CONF_UDP_CONNS      0
 
 /**
  *  Turn on IP packet re-assembly.
