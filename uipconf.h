@@ -1,5 +1,5 @@
-#ifndef _UIPCONF_H
-#define _UIPCONF_H
+#ifndef __UIPCONF_H__
+#define __UIPCONF_H__
 
 #include <inttypes.h>
 #include <avr/io.h>
@@ -55,28 +55,28 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP             0
+#define UIP_CONF_UDP
 
 /**
  * UDP checksums on or off
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP_CHECKSUMS   0
+#define UIP_CONF_UDP_CHECKSUMS
 
 /**
  * uIP statistics on or off
  *
  * \hideinitializer
  */
-#define UIP_CONF_STATISTICS      1
+#define UIP_CONF_STATISTICS
 
 /**
  * Broadcast support. Needed for dhcp
  *
  * \hideinitializer
  */
-#define UIP_CONF_BROADCAST      0
+#define UIP_CONF_BROADCAST
 
 /**
  * The maximum amount of concurrent UDP connections.
