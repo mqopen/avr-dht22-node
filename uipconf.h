@@ -55,28 +55,28 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP
+#define UIP_CONF_UDP            0
 
 /**
  * UDP checksums on or off
  *
  * \hideinitializer
  */
-#define UIP_CONF_UDP_CHECKSUMS
+#define UIP_CONF_UDP_CHECKSUMS  0
 
 /**
  * uIP statistics on or off
  *
  * \hideinitializer
  */
-#define UIP_CONF_STATISTICS
+#define UIP_CONF_STATISTICS     1
 
 /**
  * Broadcast support. Needed for dhcp
  *
  * \hideinitializer
  */
-#define UIP_CONF_BROADCAST
+#define UIP_CONF_BROADCAST      0
 
 /**
  * The maximum amount of concurrent UDP connections.
