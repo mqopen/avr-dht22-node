@@ -109,33 +109,34 @@ const uip_ipaddr_t uip_hostaddr = {
     HTONS((UIP_IPADDR0 << 8) | UIP_IPADDR1),
     HTONS((UIP_IPADDR2 << 8) | UIP_IPADDR3)
 };
+
 const uip_ipaddr_t uip_draddr = {
     HTONS((UIP_DRIPADDR0 << 8) | UIP_DRIPADDR1),
     HTONS((UIP_DRIPADDR2 << 8) | UIP_DRIPADDR3)
 };
+
 const uip_ipaddr_t uip_netmask = {
     HTONS((UIP_NETMASK0 << 8) | UIP_NETMASK1),
     HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)
 };
 #else
-uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
+uip_ipaddr_t uip_hostaddr;
+uip_ipaddr_t uip_draddr;
+uip_ipaddr_t uip_netmask;
 #endif /* UIP_FIXEDADDR */
 
 static const uip_ipaddr_t all_ones_addr =
 #if UIP_CONF_IPV6
 {0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff};
 #else /* UIP_CONF_IPV6 */
-    {
-        0xffff, 0xffff
-    };
+{0xffff, 0xffff};
 #endif /* UIP_CONF_IPV6 */
+
 static const uip_ipaddr_t all_zeroes_addr =
 #if UIP_CONF_IPV6
 {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 #else /* UIP_CONF_IPV6 */
-    {
-        0x0000, 0x0000
-    };
+{0x0000, 0x0000};
 #endif /* UIP_CONF_IPV6 */
 
 
@@ -154,58 +155,57 @@ struct uip_eth_addr uip_ethaddr = {{0, 0, 0, 0, 0, 0}};
 #endif
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
-uint8_t uip_buf[UIP_BUFSIZE + 2];   /* The packet buffer that contains
-                    incoming packets. */
+/* The packet buffer that contains incoming packets. */
+uint8_t uip_buf[UIP_BUFSIZE + 2];
 #endif /* UIP_CONF_EXTERNAL_BUFFER */
 
-void *uip_appdata;               /* The uip_appdata pointer points to
-                    application data. */
-void *uip_sappdata;              /* The uip_appdata pointer points to
-                    the application data which is to
-                    be sent. */
+/* The uip_appdata pointer points to application data. */
+void *uip_appdata;
+
+/* The uip_appdata pointer points to the application data which is to be sent. */
+void *uip_sappdata;
+
 #if UIP_URGDATA > 0
-void *uip_urgdata;               /* The uip_urgdata pointer points to
-                    urgent data (out-of-band data), if
-                    present. */
-uint16_t uip_urglen, uip_surglen;
+/* The uip_urgdata pointer points to urgent data (out-of-band data), if present. */
+void *uip_urgdata;
+uint16_t uip_urglen;
+uint16_t uip_surglen;
 #endif /* UIP_URGDATA > 0 */
 
+/* The uip_len is either 8 or 16 bits, depending on the maximum packet size. */
 uint16_t uip_len, uip_slen;
-/* The uip_len is either 8 or 16 bits,
-depending on the maximum packet
-            size. */
 
-volatile uint8_t uip_flags;     /* The uip_flags variable is used for
-                communication between the TCP/IP stack
-                and the application program. */
-struct uip_conn *uip_conn;   /* uip_conn always points to the current
-                connection. */
+/* The uip_flags variable is used for communication between the TCP/IP stack
+and the application program. */
+volatile uint8_t uip_flags;
 
+/* uip_conn always points to the current connection. */
+struct uip_conn *uip_conn;
+
+/* The uip_conns array holds all TCP connections. */
 struct uip_conn uip_conns[UIP_CONNS];
-/* The uip_conns array holds all TCP
-connections. */
+
+/* The uip_listenports list all currently listning ports. */
 uint16_t uip_listenports[UIP_LISTENPORTS];
-/* The uip_listenports list all currently
-listning ports. */
+
 #if UIP_UDP
 struct uip_udp_conn *uip_udp_conn;
 struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
 #endif /* UIP_UDP */
 
-static uint16_t ipid;           /* Ths ipid variable is an increasing
-                number that is used for the IP ID
-                field. */
+/* Ths ipid variable is an increasing number that is used for the IP ID field. */
+static uint16_t ipid;
 
 void uip_setipid(uint16_t id) {
     ipid = id;
 }
 
-static uint8_t iss[4];          /* The iss variable is used for the TCP
-                initial sequence number. */
+/* The iss variable is used for the TCP initial sequence number. */
+static uint8_t iss[4];
 
 #if UIP_ACTIVE_OPEN
-static uint16_t lastport;       /* Keeps track of the last port used for
-                a new connection. */
+/* Keeps track of the last port used for a new connection. */
+static uint16_t lastport;
 #endif /* UIP_ACTIVE_OPEN */
 
 /* Temporary variables. */
@@ -291,7 +291,6 @@ void uip_add32(uint8_t *op32, uint16_t op16) {
 #endif /* UIP_ARCH_ADD32 */
 
 #if ! UIP_ARCH_CHKSUM
-
 static uint16_t chksum(uint16_t sum, const uint8_t *data, uint16_t len) {
     uint16_t t;
     const uint8_t *dataptr;
@@ -338,7 +337,6 @@ uint16_t uip_ipchksum(void) {
 static uint16_t upper_layer_chksum(uint8_t proto) {
     uint16_t upper_layer_len;
     uint16_t sum;
-
 #if UIP_CONF_IPV6
     upper_layer_len = (((uint16_t)(BUF->len[0]) << 8) + BUF->len[1]);
 #else /* UIP_CONF_IPV6 */
@@ -351,11 +349,8 @@ static uint16_t upper_layer_chksum(uint8_t proto) {
     sum = upper_layer_len + proto;
     /* Sum IP source and destination addresses. */
     sum = chksum(sum, (uint8_t *)&BUF->srcipaddr[0], 2 * sizeof(uip_ipaddr_t));
-
     /* Sum TCP header and data. */
-    sum = chksum(sum, &uip_buf[UIP_IPH_LEN + UIP_LLH_LEN],
-                 upper_layer_len);
-
+    sum = chksum(sum, &uip_buf[UIP_IPH_LEN + UIP_LLH_LEN], upper_layer_len);
     return (sum == 0) ? 0xffff : htons(sum);
 }
 
@@ -388,7 +383,6 @@ void uip_init(void) {
 #if UIP_ACTIVE_OPEN
     lastport = 1024;
 #endif /* UIP_ACTIVE_OPEN */
-
 #if UIP_UDP
     for (c = 0; c < UIP_UDP_CONNS; ++c) {
         uip_udp_conns[c].lport = 0;
@@ -397,8 +391,6 @@ void uip_init(void) {
 #endif
     }
 #endif /* UIP_UDP */
-
-
     /* IPv4 initialization. */
 #if UIP_FIXEDADDR == 0
     /*  uip_hostaddr[0] = uip_hostaddr[1] = 0;*/
@@ -406,13 +398,13 @@ void uip_init(void) {
 }
 
 #if UIP_ACTIVE_OPEN
-struct uip_conn * uip_connect(uip_ipaddr_t *ripaddr, uint16_t rport) {
-    register struct uip_conn *conn, *cconn;
+struct uip_conn *uip_connect(uip_ipaddr_t *ripaddr, uint16_t rport) {
+    register struct uip_conn *conn;
+    register struct uip_conn *cconn;
 
     /* Find an unused local port. */
 again:
     ++lastport;
-
     if (lastport >= 32000)
         lastport = 4096;
 
@@ -459,7 +451,6 @@ again:
     conn->lport = htons(lastport);
     conn->rport = rport;
     uip_ipaddr_copy(&conn->ripaddr, ripaddr);
-
     return conn;
 }
 #endif /* UIP_ACTIVE_OPEN */
@@ -471,7 +462,6 @@ struct uip_udp_conn * uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport) {
     /* Find an unused local port. */
 again:
     ++lastport;
-
     if (lastport >= 32000)
         lastport = 4096;
 
@@ -479,7 +469,6 @@ again:
         if (uip_udp_conns[c].lport == htons(lastport))
             goto again;
     }
-
 
     conn = NULL;
     for (c = 0; c < UIP_UDP_CONNS; ++c) {
@@ -499,7 +488,6 @@ again:
     else
         uip_ipaddr_copy(&conn->ripaddr, ripaddr);
     conn->ttl = UIP_TTL;
-
     return conn;
 }
 #endif /* UIP_UDP */
@@ -528,18 +516,16 @@ void uip_listen(uint16_t port) {
 #define UIP_REASS_BUFSIZE (UIP_BUFSIZE - UIP_LLH_LEN)
 static uint8_t uip_reassbuf[UIP_REASS_BUFSIZE];
 static uint8_t uip_reassbitmap[UIP_REASS_BUFSIZE / (8 * 8)];
-static const uint8_t bitmap_bits[8] = {0xff, 0x7f, 0x3f, 0x1f,
-                                    0x0f, 0x07, 0x03, 0x01
-                                   };
+static const uint8_t bitmap_bits[8] = {0xff, 0x7f, 0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01 };
 static uint16_t uip_reasslen;
 static uint8_t uip_reassflags;
 #define UIP_REASS_FLAG_LASTFRAG 0x01
 static uint8_t uip_reasstmr;
-
 #define IP_MF   0x20
 
 static uint8_t uip_reass(void) {
-    uint16_t offset, len;
+    uint16_t offset;
+    uint16_t len;
     uint16_t i;
 
     /* If ip_reasstmr is zero, no packet is present in the buffer, so we
@@ -665,9 +651,7 @@ void uip_process(uint8_t flag) {
     if (flag == UIP_UDP_SEND_CONN)
         goto udp_send;
 #endif /* UIP_UDP */
-
     uip_sappdata = uip_appdata = &uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN];
-
     /* Check if we were invoked because of a poll request for a
        particular connection. */
     if (flag == UIP_POLL_REQUEST) {

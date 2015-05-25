@@ -58,4 +58,4 @@ void uip_neighbor_update(uip_ipaddr_t ipaddr);
 struct uip_neighbor_addr *uip_neighbor_lookup(uip_ipaddr_t ipaddr);
 void uip_neighbor_periodic(void);
 
-#endif /* __UIP-NEIGHBOR_H__ */
+#endif /* __UIP_NEIGHBOR_H__ */
