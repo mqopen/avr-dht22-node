@@ -15,7 +15,6 @@
  *
  */
 
-
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * All rights reserved.
@@ -69,7 +68,8 @@ typedef uip_ip4addr_t uip_ipaddr_t;
 #endif /* UIP_CONF_IPV6 */
 
 
-/* First, the functions that should be called from the
+/*
+ * First, the functions that should be called from the
  * system. Initialization, the periodic timer and incoming packets are
  * handled by the following three functions.
  */
@@ -423,10 +423,11 @@ extern uint8_t uip_buf[UIP_BUFSIZE + 2];
 /** @} */
 
 
-/* Functions that are used by the uIP application program. Opening and
+/*
+ * Functions that are used by the uIP application program. Opening and
  * closing connections, sending and receiving data, etc. is all
  * handled by the functions below.
-*/
+ */
 /**
  * \defgroup uipappfunc uIP application functions
  * @{
@@ -611,8 +612,10 @@ void uip_send(const void *data, int len);
                               } while(0)
 
 
-/* uIP tests that can be made to determine in what state the current
-   connection is, and what the application function should do. */
+/*
+ * uIP tests that can be made to determine in what state the current
+ * connection is, and what the application function should do.
+ */
 
 /**
  * Is the current connection a UDP connection?
@@ -1100,7 +1103,8 @@ uint16_t htons(uint16_t val);
 extern void *uip_appdata;
 
 #if UIP_URGDATA > 0
-/* uint8_t *uip_urgdata:
+/*
+ * uint8_t *uip_urgdata:
  *
  * This pointer points to any urgent data that has been received. Only
  * present if compiled with support for urgent data (UIP_URGDATA).
@@ -1177,6 +1181,7 @@ struct uip_conn {
  * connection.
  */
 extern struct uip_conn *uip_conn;
+
 /* The array containing all uIP connections. */
 extern struct uip_conn uip_conns[UIP_CONNS];
 /**
@@ -1283,59 +1288,76 @@ extern volatile uint8_t uip_flags;
    should *NOT* be accessed directly, but only through the uIP
    functions/macros. */
 
-#define UIP_ACKDATA   1     /* Signifies that the outstanding data was
-                   acked and the application should send
-                   out new data instead of retransmitting
-                   the last data. */
-#define UIP_NEWDATA   2     /* Flags the fact that the peer has sent
-                   us new data. */
-#define UIP_REXMIT    4     /* Tells the application to retransmit the
-                   data that was last sent. */
-#define UIP_POLL      8     /* Used for polling the application, to
-                   check if the application has data that
-                   it wants to send. */
-#define UIP_CLOSE     16    /* The remote host has closed the
-                   connection, thus the connection has
-                   gone away. Or the application signals
-                   that it wants to close the
-                   connection. */
-#define UIP_ABORT     32    /* The remote host has aborted the
-                   connection, thus the connection has
-                   gone away. Or the application signals
-                   that it wants to abort the
-                   connection. */
-#define UIP_CONNECTED 64    /* We have got a connection from a remote
-                               host and have set up a new connection
-                               for it, or an active connection has
-                               been successfully established. */
+/*
+ * Signifies that the outstanding data was acked and the application should send
+ * out new data instead of retransmitting the last data.
+ */
+#define UIP_ACKDATA   1
 
-#define UIP_TIMEDOUT  128   /* The connection has been aborted due to
-                   too many retransmissions. */
+/* Flags the fact that the peer has sent us new data. */
+#define UIP_NEWDATA   2
 
-/* uip_process(flag):
+/* Tells the application to retransmit the data that was last sent. */
+#define UIP_REXMIT    4
+
+/*
+ * Used for polling the application, to check if the application has data
+ * that it wants to send.
+ */
+#define UIP_POLL      8
+
+/*
+ * The remote host has closed the connection, thus the connection has
+ * gone away. Or the application signals that it wants to close the connection.
+ */
+#define UIP_CLOSE     16
+
+/*
+ * The remote host has aborted the connection, thus the connection has
+ * gone away. Or the application signals that it wants to abort the connection.
+ */
+#define UIP_ABORT     32
+
+/*
+ * We have got a connection from a remote host and have set up a new connection
+ * for it, or an active connection has been successfully established.
+ */
+#define UIP_CONNECTED 64
+
+/* The connection has been aborted due to too many retransmissions. */
+#define UIP_TIMEDOUT  128
+
+/*
+ * uip_process(flag):
  *
  * The actual uIP function which does all the work.
  */
 void uip_process(uint8_t flag);
 
-/* The following flags are passed as an argument to the uip_process()
-   function. They are used to distinguish between the two cases where
-   uip_process() is called. It can be called either because we have
-   incoming data that should be processed, or because the periodic
-   timer has fired. These values are never used directly, but only in
-   the macrose defined in this file. */
+/*
+ * The following flags are passed as an argument to the uip_process()
+ * function. They are used to distinguish between the two cases where
+ * uip_process() is called. It can be called either because we have
+ * incoming data that should be processed, or because the periodic
+ * timer has fired. These values are never used directly, but only in
+ * the macrose defined in this file.
+ */
 
-#define UIP_DATA          1     /* Tells uIP that there is incoming
-                   data in the uip_buf buffer. The
-                   length of the data is stored in the
-                   global variable uip_len. */
-#define UIP_TIMER         2     /* Tells uIP that the periodic timer
-                   has fired. */
-#define UIP_POLL_REQUEST  3     /* Tells uIP that a connection should
-                   be polled. */
-#define UIP_UDP_SEND_CONN 4     /* Tells uIP that a UDP datagram
-                   should be constructed in the
-                   uip_buf buffer. */
+/*
+ * Tells uIP that there is incoming data in the uip_buf buffer. The
+ * length of the data is stored in the global variable uip_len.
+ */
+#define UIP_DATA          1
+
+/* Tells uIP that the periodic timer has fired. */
+#define UIP_TIMER         2
+
+/* Tells uIP that a connection should be polled. */
+#define UIP_POLL_REQUEST  3
+
+/* Tells uIP that a UDP datagram should be constructed in the uip_buf buffer. */
+#define UIP_UDP_SEND_CONN 4
+
 #if UIP_UDP
 #define UIP_UDP_TIMER     5
 #endif /* UIP_UDP */

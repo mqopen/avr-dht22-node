@@ -2,14 +2,18 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 #include "uart.h"
 #include "enc28j60/network.h"
 #include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
 #include "uip/uip-arp.h"
+#include "nethandler.h"
 
 void tcpip_output(void) {
 }
+
+static volatile bool flag_packet_rx = false;
 
 int main (void) {
     uart_init(BAUD);
@@ -40,10 +44,19 @@ int main (void) {
     }
     
     for(;;) {
+        if(flag_packet_rx) {
+            flag_packet_rx = false;
+            nethandler_rx();
+        }
         //uart_puts("test\r\n");
         //enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
         //_delay_ms(1000);
         //enc28j60_phy_write(PHLCON, PHLCON_LACFG_OFF | PHLCON_LBCFG_OFF | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
         //_delay_ms(1000);
     }
+    return 0;
+}
+
+ISR(INT0_vect) {
+    flag_packet_rx = true;
 }

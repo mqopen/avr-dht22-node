@@ -31,7 +31,6 @@
 
 void nethandler_rx() {
     uip_len = network_read();
-
     if (uip_len > 0) {
         switch (ntohs(BUF->type)) {
         case UIP_ETHTYPE_IP:
