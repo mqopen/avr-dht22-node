@@ -10,8 +10,8 @@ CSRC := $(shell find . -name '*.c')
 
 MCU_FLAG = -mmcu=$(MCU)
 
-DEFINES_VALUES = F_CPU=$(F_CPU)UL
-DEFINES_FLAGS = $(addprefix -D,$(DEFINES_VALUES))
+DEFINE_VALUES = F_CPU=$(F_CPU)UL
+DEFINE_FLAGS = $(addprefix -D,$(DEFINE_VALUES))
 
 WARNING_FLAGS = -Wall
 
@@ -42,7 +42,7 @@ OBJ	= $(subst .c,.o,$(CSRC))
 all: $(NAME).elf hex
 
 %.o: %.c
-	$(CC) $(MCU_FLAG) $(DEFINES_FLAGS) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(INCLUDE_FLAGS) $(HEADER_CONFIG_FLAGS) -c -o $@ $^ $(LIBS)
+	$(CC) $(MCU_FLAG) $(DEFINE_FLAGS) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(INCLUDE_FLAGS) $(HEADER_CONFIG_FLAGS) -c -o $@ $^ $(LIBS)
 
 $(NAME).elf: $(OBJ)
 	$(CC) $(MCU_FLAG) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -63,5 +63,16 @@ clean:
 	rm -rf *.elf *.hex
 
 rebuild: clean all
+
+-include $(subst .c,.d,$(CSRC))
+
+%.d: %.c
+	$(create-dep)
+
+define create-dep
+	$(CC) -M $(CFLAGS) $(INCLUDE_FLAGS) $(DEFINE_FLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,$(BUILD_DIR)/\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+endef
 
 .PHONY: all avrdude clean rebuild text
