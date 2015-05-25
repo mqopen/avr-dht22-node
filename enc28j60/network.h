@@ -5,7 +5,7 @@
 #ifndef __NETWORK_H__
 #define __NETWORK_H__
 
-#include "enc28j60/avrlibtypes.h"
+#include "avrlibtypes.h"
 
 /*Initialize the network*/
 void network_init(void);

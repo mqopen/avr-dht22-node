@@ -1,6 +1,6 @@
-#include "enc28j60.h"
 #include <avr/io.h>
 #include <util/delay.h>
+#include "enc28j60.h"
 
 unsigned int network_read(void) {
     return ((uint16_t) enc28j60_packet_receive(UIP_BUFSIZE, (uint8_t *)uip_buf));
