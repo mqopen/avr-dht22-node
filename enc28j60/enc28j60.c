@@ -157,24 +157,14 @@ void enc28j60_phy_write(uint8_t address, uint16_t data) {
 }
 
 void enc28j60_init(void) {
-    uart_println("Initializing SPI interface...");
     enc28j60_spi_init();
     
-    uart_println("Initializing ENC28J60 device...");
-    
-    uart_println("  Reset...");
     // perform system reset
     enc28j60_op_write(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
-    
-    uart_println("  Reset done");
-    uart_println("  Checking CLKRDY...");
-    
     // check CLKRDY bit to see if reset is complete
     _delay_us(50);
     while (!(enc28j60_read(ESTAT) & ESTAT_CLKRDY));
 
-    uart_println("  CLKRDY done");
-    
     // do bank 0 stuff
     // initialize receive buffer
     // 16-bit transfers, must write low byte first

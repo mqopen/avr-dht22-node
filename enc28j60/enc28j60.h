@@ -28,7 +28,6 @@
 
 #include "global.h"
 #include "enc28j60-registers.h"
-#include "../uart.h"
 
 // ENC28J60 EIE Register Bit Definitions
 #define EIE_INTIE       0x80

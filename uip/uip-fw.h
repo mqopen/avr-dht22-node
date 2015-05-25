@@ -52,13 +52,10 @@
  * Representation of a uIP network interface.
  */
 struct uip_fw_netif {
-    struct uip_fw_netif *next;  /**< Pointer to the next interface when
-                 linked in a list. */
-    uint16_t ipaddr[2];            /**< The IP address of this interface. */
-    uint16_t netmask[2];           /**< The netmask of the interface. */
-    uint8_t(* output)(void);
-    /**< A pointer to the function that
-    sends a packet. */
+    struct uip_fw_netif *next;  /**< Pointer to the next interface when linked in a list. */
+    uint16_t ipaddr[2];         /**< The IP address of this interface. */
+    uint16_t netmask[2];        /**< The netmask of the interface. */
+    uint8_t(* output)(void);    /**< A pointer to the function that sends a packet. */
 };
 
 /**
@@ -77,8 +74,7 @@ struct uip_fw_netif {
  *
  * \hideinitializer
  */
-#define UIP_FW_NETIF(ip1,ip2,ip3,ip4, nm1,nm2,nm3,nm4, outputfunc) \
-        NULL, \
+#define UIP_FW_NETIF(ip1, ip2, ip3, ip4, nm1, nm2, nm3, nm4, outputfunc) NULL, \
     {HTONS((ip1 << 8) | ip2), HTONS((ip3 << 8) | ip4)}, \
     {HTONS((nm1 << 8) | nm2), HTONS((nm3 << 8) | nm4)}, \
         outputfunc

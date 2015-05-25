@@ -23,7 +23,7 @@
 
 #include "common.h"
 #include "uip/uip.h"
-#include "uip/uip_arp.h"
+#include "uip/uip-arp.h"
 #include "enc28j60/network.h"
 
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
@@ -51,8 +51,7 @@ void nethandler_rx() {
     }
 }
 
-void nethandler_periodic()
-{
+void nethandler_periodic() {
     int i;
 
     times(UIP_CONNS, i) {
@@ -64,8 +63,7 @@ void nethandler_periodic()
     }
 }
 
-void nethandler_periodic_arp()
-{
+void nethandler_periodic_arp() {
     uip_arp_timer();
 }
 

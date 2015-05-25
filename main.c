@@ -6,7 +6,7 @@
 #include "enc28j60/network.h"
 #include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
-#include "uip/uip_arp.h"
+#include "uip/uip-arp.h"
 
 void tcpip_output(void) {
 }

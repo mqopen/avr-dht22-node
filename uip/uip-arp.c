@@ -61,9 +61,8 @@
 /* Ignore warnings caused by the BUF macro */
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-#include "uip_arp.h"
-
 #include <string.h>
+#include "uip-arp.h"
 
 struct arp_hdr {
     struct uip_eth_hdr ethhdr;
@@ -81,16 +80,16 @@ struct arp_hdr {
 struct ethip_hdr {
     struct uip_eth_hdr ethhdr;
     /* IP header. */
-    uint8_t vhl,
-         tos,
-         len[2],
-         ipid[2],
-         ipoffset[2],
-         ttl,
-         proto;
+    uint8_t vhl;
+    uint8_t tos;
+    uint8_t len[2];
+    uint8_t ipid[2];
+    uint8_t ipoffset[2];
+    uint8_t ttl;
+    uint8_t proto;
     uint16_t ipchksum;
-    uint16_t srcipaddr[2],
-          destipaddr[2];
+    uint16_t srcipaddr[2];
+    uint16_t destipaddr[2];
 };
 
 #define ARP_REQUEST 1
@@ -104,13 +103,13 @@ struct arp_entry {
     uint8_t time;
 };
 
-static const struct uip_eth_addr broadcast_ethaddr =
-{{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
+static const struct uip_eth_addr broadcast_ethaddr = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 static const uint16_t broadcast_ipaddr[2] = {0xffff, 0xffff};
 
 static struct arp_entry arp_table[UIP_ARPTAB_SIZE];
 static uint16_t ipaddr[2];
-static uint8_t i, c;
+static uint8_t i;
+static uint8_t c;
 
 static uint8_t arptime;
 static uint8_t tmpage;
@@ -122,10 +121,7 @@ static uint8_t tmpage;
  * Initialize the ARP module.
  *
  */
-
-void
-uip_arp_init(void)
-{
+void uip_arp_init(void) {
     for (i = 0; i < UIP_ARPTAB_SIZE; ++i)
         memset(arp_table[i].ipaddr, 0, 4);
 }
@@ -138,10 +134,7 @@ uip_arp_init(void)
  * is 10 seconds between the calls.
  *
  */
-
-void
-uip_arp_timer(void)
-{
+void uip_arp_timer(void) {
     struct arp_entry *tabptr;
 
     ++arptime;
@@ -151,25 +144,25 @@ uip_arp_timer(void)
             arptime - tabptr->time >= UIP_ARP_MAXAGE)
             memset(tabptr->ipaddr, 0, 4);
     }
-
 }
 
-static void
-uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr)
-{
+static void uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr) {
     register struct arp_entry *tabptr;
-    /* Walk through the ARP mapping table and try to find an entry to
-       update. If none is found, the IP -> MAC address mapping is
-       inserted in the ARP table. */
+    /*
+     * Walk through the ARP mapping table and try to find an entry to
+     * update. If none is found, the IP -> MAC address mapping is
+     * inserted in the ARP table.
+     */
     for (i = 0; i < UIP_ARPTAB_SIZE; ++i) {
-
         tabptr = &arp_table[i];
         /* Only check those entries that are actually in use. */
         if (tabptr->ipaddr[0] != 0 &&
             tabptr->ipaddr[1] != 0) {
 
-            /* Check if the source IP address of the incoming packet matches
-               the IP address in this ARP table entry. */
+            /*
+             * Check if the source IP address of the incoming packet matches
+             * the IP address in this ARP table entry.
+             */
             if (ipaddr[0] == tabptr->ipaddr[0] &&
                 ipaddr[1] == tabptr->ipaddr[1]) {
 
@@ -182,8 +175,7 @@ uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr)
         }
     }
 
-    /* If we get here, no existing ARP table entry was found, so we
-       create one. */
+    /* If we get here, no existing ARP table entry was found, so we create one. */
 
     /* First, we try to find an unused entry in the ARP table. */
     for (i = 0; i < UIP_ARPTAB_SIZE; ++i) {
@@ -193,8 +185,7 @@ uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr)
             break;
     }
 
-    /* If no unused entry is found, we try to find the oldest entry and
-       throw it away. */
+    /* If no unused entry is found, we try to find the oldest entry and throw it away. */
     if (i == UIP_ARPTAB_SIZE) {
         tmpage = 0;
         c = 0;
@@ -209,8 +200,7 @@ uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr)
         tabptr = &arp_table[i];
     }
 
-    /* Now, i is the ARP table entry which we will fill with the new
-       information. */
+    /* Now, i is the ARP table entry which we will fill with the new information. */
     memcpy(tabptr->ipaddr, ipaddr, 4);
     memcpy(tabptr->ethaddr.addr, ethaddr->addr, 6);
     tabptr->time = arptime;
@@ -228,10 +218,7 @@ uip_arp_update(uint16_t *ipaddr, struct uip_eth_addr *ethaddr)
  * in the uip_buf[] buffer, and the length of the packet in the global
  * variable uip_len.
  */
-
-//#if 0
-void uip_arp_ipin(void)
-{
+void uip_arp_ipin(void) {
     uip_len -= sizeof(struct uip_eth_hdr);
 
     /* Only insert/update an entry if the source IP address of the
@@ -246,7 +233,6 @@ void uip_arp_ipin(void)
 
     return;
 }
-//#endif /* 0 */
 
 /**
  * ARP processing for incoming ARP packets.
@@ -269,11 +255,7 @@ void uip_arp_ipin(void)
  * header in the uip_buf[] buffer, and the length of the packet in the
  * global variable uip_len.
  */
-
-//#if 0
-void
-uip_arp_arpin(void)
-{
+void uip_arp_arpin(void) {
 
     if (uip_len < sizeof(struct arp_hdr)) {
         uip_len = 0;
@@ -283,12 +265,13 @@ uip_arp_arpin(void)
 
     switch (BUF->opcode) {
     case HTONS(ARP_REQUEST):
-        /* ARP request. If it asked for our address, we send out a
-           reply. */
+        /* ARP request. If it asked for our address, we send out a reply. */
         if (uip_ipaddr_cmp(BUF->dipaddr, uip_hostaddr)) {
-            /* First, we register the one who made the request in our ARP
-            table, since it is likely that we will do more communication
-             with this host in the future. */
+            /*
+             * First, we register the one who made the request in our ARP
+             * table, since it is likely that we will do more communication
+             * with this host in the future.
+             */
             uip_arp_update(BUF->sipaddr, &BUF->shwaddr);
 
             /* The reply opcode is 2. */
@@ -315,10 +298,8 @@ uip_arp_arpin(void)
             uip_arp_update(BUF->sipaddr, &BUF->shwaddr);
         break;
     }
-
     return;
 }
-//#endif
 
 /**
  * Prepend Ethernet header to an outbound IP packet and see if we need
@@ -346,18 +327,17 @@ uip_arp_arpin(void)
  * buffer, and the length of the packet is in the global variable
  * uip_len.
  */
-
-void
-uip_arp_out(void)
-{
+void uip_arp_out(void) {
     struct arp_entry *tabptr;
 
-    /* Find the destination IP address in the ARP table and construct
-       the Ethernet header. If the destination IP addres isn't on the
-       local network, we use the default router's IP address instead.
-
-       If not ARP table entry is found, we overwrite the original IP
-       packet with an ARP request for the IP address. */
+    /*
+     * Find the destination IP address in the ARP table and construct
+     * the Ethernet header. If the destination IP addres isn't on the
+     * local network, we use the default router's IP address instead.
+     *
+     * If not ARP table entry is found, we overwrite the original IP
+     * packet with an ARP request for the IP address.
+     */
 
     /* First check if destination is a local broadcast. */
     if (uip_ipaddr_cmp(IPBUF->destipaddr, broadcast_ipaddr))
@@ -365,9 +345,11 @@ uip_arp_out(void)
     else {
         /* Check if the destination address is on the local network. */
         if (!uip_ipaddr_maskcmp(IPBUF->destipaddr, uip_hostaddr, uip_netmask)) {
-            /* Destination address was not on the local network, so we need to
-            use the default router's IP address instead of the destination
-             address when determining the MAC address. */
+            /*
+             * Destination address was not on the local network, so we need to
+             * use the default router's IP address instead of the destination
+             * address when determining the MAC address.
+             */
             uip_ipaddr_copy(ipaddr, uip_draddr);
         } else {
             /* Else, we use the destination IP address. */
@@ -381,9 +363,10 @@ uip_arp_out(void)
         }
 
         if (i == UIP_ARPTAB_SIZE) {
-            /* The destination address was not in our ARP table, so we
-            overwrite the IP packet with an ARP request. */
-
+            /*
+             * The destination address was not in our ARP table, so we
+             * overwrite the IP packet with an ARP request.
+             */
             memset(BUF->ethhdr.dest.addr, 0xff, 6);
             memset(BUF->dhwaddr.addr, 0x00, 6);
             memcpy(BUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
@@ -408,9 +391,7 @@ uip_arp_out(void)
         memcpy(IPBUF->ethhdr.dest.addr, tabptr->ethaddr.addr, 6);
     }
     memcpy(IPBUF->ethhdr.src.addr, uip_ethaddr.addr, 6);
-
     IPBUF->ethhdr.type = HTONS(UIP_ETHTYPE_IP);
-
     uip_len += sizeof(struct uip_eth_hdr);
 }
 

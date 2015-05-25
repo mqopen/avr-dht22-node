@@ -50,8 +50,7 @@
 
 /*
  * Return value of the buffering functions that indicates that a
- * buffer was not filled by incoming data.
- *
+ * buffer was not filled by incoming data.0
  */
 #define BUF_NOT_FULL 0
 #define BUF_NOT_FOUND 0
@@ -59,29 +58,22 @@
 /*
  * Return value of the buffering functions that indicates that a
  * buffer was completely filled by incoming data.
- *
  */
 #define BUF_FULL 1
 
 /*
  * Return value of the buffering functions that indicates that an
  * end-marker byte was found.
- *
  */
 #define BUF_FOUND 2
 
 
-static void
-buf_setup(struct psock_buf *buf,
-          uint8_t *bufptr, uint16_t bufsize)
-{
+static void buf_setup(struct psock_buf *buf, uint8_t *bufptr, uint16_t bufsize) {
     buf->ptr = bufptr;
     buf->left = bufsize;
 }
 
-static uint8_t
-buf_bufdata(struct psock_buf *buf, uint8_t **dataptr, uint16_t *datalen)
-{
+static uint8_t buf_bufdata(struct psock_buf *buf, uint8_t **dataptr, uint16_t *datalen) {
     if (*datalen < buf->left) {
         memcpy(buf->ptr, *dataptr, *datalen);
         buf->ptr += *datalen;
@@ -106,10 +98,7 @@ buf_bufdata(struct psock_buf *buf, uint8_t **dataptr, uint16_t *datalen)
     }
 }
 
-static uint8_t
-buf_bufto(register struct psock_buf *buf, uint8_t endmarker,
-          register uint8_t **dataptr, register uint16_t *datalen)
-{
+static uint8_t buf_bufto(register struct psock_buf *buf, uint8_t endmarker, register uint8_t **dataptr, register uint16_t *datalen) {
     uint8_t c;
     while (buf->left > 0 && *datalen > 0) {
         c = *buf->ptr = **dataptr;
@@ -129,17 +118,13 @@ buf_bufto(register struct psock_buf *buf, uint8_t endmarker,
         c = **dataptr;
         --*datalen;
         ++*dataptr;
-
         if (c == endmarker)
             return BUF_FOUND | BUF_FULL;
     }
-
     return BUF_FULL;
 }
 
-static char
-send_data(register struct psock *s)
-{
+static char send_data(register struct psock *s) {
     if (s->state != STATE_DATA_SENT || uip_rexmit()) {
         if (s->sendlen > uip_mss())
             uip_send(s->sendptr, uip_mss());
@@ -151,9 +136,7 @@ send_data(register struct psock *s)
     return 0;
 }
 
-static char
-data_acked(register struct psock *s)
-{
+static char data_acked(register struct psock *s) {
     if (s->state == STATE_DATA_SENT && uip_acked()) {
         if (s->sendlen > uip_mss()) {
             s->sendlen -= uip_mss();
@@ -168,24 +151,23 @@ data_acked(register struct psock *s)
     return 0;
 }
 
-PT_THREAD(psock_send(register struct psock *s, const char *buf,
-                     unsigned int len))
-{
+PT_THREAD(psock_send(register struct psock *s, const char *buf, unsigned int len)) {
     PT_BEGIN(&s->psockpt);
 
     /* If there is no data to send, we exit immediately. */
     if (len == 0)
         PT_EXIT(&s->psockpt);
 
-    /* Save the length of and a pointer to the data that is to be
-       sent. */
+    /* Save the length of and a pointer to the data that is to be sent. */
     s->sendptr = (uint8_t *)buf;
     s->sendlen = len;
 
     s->state = STATE_NONE;
 
-    /* We loop here until all data is sent. The s->sendlen variable is
-       updated by the data_sent() function. */
+    /*
+     * We loop here until all data is sent. The s->sendlen variable is
+     * updated by the data_sent() function.
+     */
     while (s->sendlen > 0) {
 
         /*
@@ -200,15 +182,11 @@ PT_THREAD(psock_send(register struct psock *s, const char *buf,
          */
         PT_WAIT_UNTIL(&s->psockpt, data_acked(s) & send_data(s));
     }
-
     s->state = STATE_NONE;
-
     PT_END(&s->psockpt);
 }
 
-PT_THREAD(psock_generator_send(register struct psock *s,
-                               unsigned short(*generate)(void *), void *arg))
-{
+PT_THREAD(psock_generator_send(register struct psock *s, unsigned short(*generate)(void *), void *arg)) {
     PT_BEGIN(&s->psockpt);
 
     /* Ensure that there is a generator function to call. */
@@ -222,8 +200,7 @@ PT_THREAD(psock_generator_send(register struct psock *s,
 
     s->state = STATE_NONE;
     do {
-        /* Call the generator function again if we are called to perform a
-           retransmission. */
+        /* Call the generator function again if we are called to perform a retransmission. */
         if (uip_rexmit())
             generate(arg);
         /* Wait until all data is sent and acknowledged. */
@@ -235,15 +212,11 @@ PT_THREAD(psock_generator_send(register struct psock *s,
     PT_END(&s->psockpt);
 }
 
-uint16_t
-psock_datalen(struct psock *psock)
-{
+uint16_t psock_datalen(struct psock *psock) {
     return psock->bufsize - psock->buf.left;
 }
 
-char
-psock_newdata(struct psock *s)
-{
+char psock_newdata(struct psock *s) {
     if (s->readlen > 0) {
         /* There is data in the uip_appdata buffer that has not yet been
            read with the PSOCK_READ functions. */
@@ -261,8 +234,7 @@ psock_newdata(struct psock *s)
     }
 }
 
-PT_THREAD(psock_readto(register struct psock *psock, unsigned char c))
-{
+PT_THREAD(psock_readto(register struct psock *psock, unsigned char c)) {
     PT_BEGIN(&psock->psockpt);
 
     buf_setup(&psock->buf, (uint8_t *)psock->bufptr, psock->bufsize);
@@ -288,8 +260,7 @@ PT_THREAD(psock_readto(register struct psock *psock, unsigned char c))
     PT_END(&psock->psockpt);
 }
 
-PT_THREAD(psock_readbuf(register struct psock *psock))
-{
+PT_THREAD(psock_readbuf(register struct psock *psock)) {
     PT_BEGIN(&psock->psockpt);
 
     buf_setup(&psock->buf, (uint8_t *)psock->bufptr, psock->bufsize);
@@ -305,9 +276,7 @@ PT_THREAD(psock_readbuf(register struct psock *psock))
             psock->readptr = (uint8_t *)uip_appdata;
             psock->readlen = uip_datalen();
         }
-    } while (buf_bufdata(&psock->buf,
-                         &psock->readptr,
-                         &psock->readlen) != BUF_FULL);
+    } while (buf_bufdata(&psock->buf, &psock->readptr, &psock->readlen) != BUF_FULL);
 
     if (psock_datalen(psock) == 0) {
         psock->state = STATE_NONE;
@@ -316,9 +285,7 @@ PT_THREAD(psock_readbuf(register struct psock *psock))
     PT_END(&psock->psockpt);
 }
 
-void
-psock_init(register struct psock *psock, char *buffer, unsigned int buffersize)
-{
+void psock_init(register struct psock *psock, char *buffer, unsigned int buffersize) {
     psock->state = STATE_NONE;
     psock->readlen = 0;
     psock->bufptr = (uint8_t *)buffer;
@@ -328,9 +295,7 @@ psock_init(register struct psock *psock, char *buffer, unsigned int buffersize)
     PT_INIT(&psock->psockpt);
 }
 
-
-char send_data_P(register struct psock *s)
-{
+char send_data_P(register struct psock *s) {
     if (s->state != STATE_DATA_SENT || uip_rexmit()) {
         if (s->sendlen > uip_mss())
             uip_send_P((PGM_P)s->sendptr, uip_mss());
@@ -342,24 +307,23 @@ char send_data_P(register struct psock *s)
     return 0;
 }
 
-PT_THREAD(psock_send_P(register struct psock *s,  PGM_P buf,
-                       unsigned int len))
-{
+PT_THREAD(psock_send_P(register struct psock *s,  PGM_P buf, unsigned int len)) {
     PT_BEGIN(&s->psockpt);
 
     /* If there is no data to send, we exit immediately. */
     if (len == 0)
         PT_EXIT(&s->psockpt);
 
-    /* Save the length of and a pointer to the data that is to be
-       sent. */
+    /* Save the length of and a pointer to the data that is to be sent. */
     s->sendptr = (uint8_t *)buf;
     s->sendlen = len;
 
     s->state = STATE_NONE;
 
-    /* We loop here until all data is sent. The s->sendlen variable is
-       updated by the data_sent() function. */
+    /*
+     * We loop here until all data is sent. The s->sendlen variable is
+     * updated by the data_sent() function.
+     */
     while (s->sendlen > 0) {
 
         /*
@@ -374,8 +338,6 @@ PT_THREAD(psock_send_P(register struct psock *s,  PGM_P buf,
          */
         PT_WAIT_UNTIL(&s->psockpt, data_acked(s) & send_data_P(s));
     }
-
     s->state = STATE_NONE;
-
     PT_END(&s->psockpt);
 }
