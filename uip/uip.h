@@ -390,8 +390,6 @@ void uip_setipid(uint16_t id);
  */
 #define uip_udp_periodic_conn(conn) do { uip_udp_conn = conn; \
                                          uip_process(UIP_UDP_TIMER); } while (0)
-
-
 #endif /* UIP_UDP */
 
 /**
@@ -838,7 +836,7 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  *
  * \hideinitializer
  */
-#define uip_ipaddr(addr, addr0,addr1,addr2,addr3) do { \
+#define uip_ipaddr(addr, addr0, addr1, addr2, addr3) do { \
                      ((uint16_t *)(addr))[0] = HTONS(((addr0) << 8) | (addr1)); \
                      ((uint16_t *)(addr))[1] = HTONS(((addr2) << 8) | (addr3)); \
                   } while(0)

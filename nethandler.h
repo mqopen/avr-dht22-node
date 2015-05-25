@@ -29,8 +29,8 @@ void nethandler_umqtt_init();
 void nethandler_umqtt_appcall();
 
 struct nethandler_state {
-	struct umqtt_connection *conn;
-	int slen; /* Length of data currently being sent (fox rxmit) */
+    struct umqtt_connection *conn;
+    int slen; /* Length of data currently being sent (fox rxmit) */
 };
 
 #endif /* __NETHANDLER_H__ */
