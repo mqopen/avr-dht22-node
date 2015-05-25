@@ -425,7 +425,7 @@ again:
             goto again;
     }
 
-    conn = 0;
+    conn = NULL;
     for (c = 0; c < UIP_CONNS; ++c) {
         cconn = &uip_conns[c];
         if (cconn->tcpstateflags == UIP_CLOSED) {
@@ -433,14 +433,13 @@ again:
             break;
         }
         if (cconn->tcpstateflags == UIP_TIME_WAIT) {
-            if (conn == 0 ||
-                cconn->timer > conn->timer)
+            if (conn == NULL || cconn->timer > conn->timer)
                 conn = cconn;
         }
     }
 
-    if (conn == 0)
-        return 0;
+    if (conn == NULL)
+        return conn;
 
     conn->tcpstateflags = UIP_SYN_SENT;
 
@@ -482,7 +481,7 @@ again:
     }
 
 
-    conn = 0;
+    conn = NULL;
     for (c = 0; c < UIP_UDP_CONNS; ++c) {
         if (uip_udp_conns[c].lport == 0) {
             conn = &uip_udp_conns[c];
@@ -490,8 +489,8 @@ again:
         }
     }
 
-    if (conn == 0)
-        return 0;
+    if (conn == NULL)
+        return conn;
 
     conn->lport = HTONS(lastport);
     conn->rport = rport;
