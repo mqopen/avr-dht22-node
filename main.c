@@ -27,22 +27,23 @@ int main (void) {
     mac.addr[5] = ETHADDR5;
     
     uip_setethaddr(mac);
-    uip_ipaddr(&ip, 10, 0, 0, 55);
+    uip_ipaddr(&ip, 192, 168, 1, 201);
     uip_sethostaddr(&ip);
     
     struct uip_conn *uc;
     uip_ipaddr_t dst_ip;
-    uip_ipaddr(&dst_ip, 10, 0, 0, 141);
+    uip_ipaddr(&dst_ip, 192, 168, 1, 70);
     uc = uip_connect(&ip, htons(5555));
+    
     if (uc == NULL) {
         /* check if connection was successful */
     }
     
     for(;;) {
-        uart_puts("test\r\n");
-        enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
-        _delay_ms(1000);
-        enc28j60_phy_write(PHLCON, PHLCON_LACFG_OFF | PHLCON_LBCFG_OFF | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
-        _delay_ms(1000);
+        //uart_puts("test\r\n");
+        //enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
+        //_delay_ms(1000);
+        //enc28j60_phy_write(PHLCON, PHLCON_LACFG_OFF | PHLCON_LBCFG_OFF | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
+        //_delay_ms(1000);
     }
 }
