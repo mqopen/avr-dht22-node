@@ -72,30 +72,30 @@
  * \hideinitializer
  */
 struct timer {
-	clock_time_t start;
-	clock_time_t interval;
+    clock_time_t start;
+    clock_time_t interval;
 };
 
-#define timer_set(t, i)				\
-	do {							\
-		(t)->interval = (i);		\
-		(t)->start = clock_time();	\
-	} while(0)
+#define timer_set(t, i)             \
+    do {                            \
+        (t)->interval = (i);        \
+        (t)->start = clock_time();  \
+    } while(0)
 
 #define timer_reset(t) \
-	((t)->start += (t)->interval)
+    ((t)->start += (t)->interval)
 
 #define timer_tryreset(t) \
-	(timer_expired(t) ? timer_reset(t) || true : false)
+    (timer_expired(t) ? timer_reset(t) || true : false)
 
 #define timer_restart(t) \
-	((t)->start = clock_time())
+    ((t)->start = clock_time())
 
 #define timer_tryrestart(t) \
-	(timer_expired(t) ? timer_restart(t) || true : false)
+    (timer_expired(t) ? timer_restart(t) || true : false)
 
 #define timer_expired(t) \
-	((clock_time_t)(clock_time() - (t)->start) >= (clock_time_t)(t)->interval)
+    ((clock_time_t)(clock_time() - (t)->start) >= (clock_time_t)(t)->interval)
 
 #endif /* __TIMER_H__ */
 

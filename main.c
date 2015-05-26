@@ -8,6 +8,7 @@
 #include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
 #include "uip/uip-arp.h"
+#include "uip/timer.h"
 #include "nethandler.h"
 
 void tcpip_output(void) {
