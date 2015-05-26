@@ -54,8 +54,8 @@
  */
 
 #include "uip.h"
-#include "uip_arch.h"
-#include "uip-fw.h"
+#include "uiparch.h"
+#include "uipfw.h"
 
 #include <string.h> /* for memcpy() */
 

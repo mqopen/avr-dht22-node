@@ -38,10 +38,10 @@
 
 #include <string.h>
 
-#include "uip-split.h"
+#include "uipsplit.h"
 #include "uip.h"
-#include "uip-fw.h"
-#include "uip_arch.h"
+#include "uipfw.h"
+#include "uiparch.h"
 
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 

@@ -62,7 +62,7 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
 #include <string.h>
-#include "uip-arp.h"
+#include "uiparp.h"
 
 struct arp_hdr {
     struct uip_eth_hdr ethhdr;

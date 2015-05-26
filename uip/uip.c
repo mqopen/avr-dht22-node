@@ -87,10 +87,10 @@
 
 #include "uip.h"
 #include "uipopt.h"
-#include "uip_arch.h"
+#include "uiparch.h"
 
 #if UIP_CONF_IPV6
-#include "uip-neighbor.h"
+#include "uipneighbor.h"
 #endif /* UIP_CONF_IPV6 */
 
 #include <string.h>

@@ -39,7 +39,7 @@
  *         Adam Dunkels <adam@sics.se>
  */
 
-#include "uip-neighbor.h"
+#include "uipneighbor.h"
 
 #include <string.h>
 

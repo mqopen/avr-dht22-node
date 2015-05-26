@@ -7,7 +7,7 @@
 #include "enc28j60/network.h"
 #include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
-#include "uip/uip-arp.h"
+#include "uip/uiparp.h"
 #include "uip/timer.h"
 #include "nethandler.h"
 
@@ -44,11 +44,16 @@ int main (void) {
         /* check if connection was successful */
     }
     
+    struct timer periodic_timer;
+    timer_set(&periodic_timer, CLOCK_SECOND / 2);
+    
     for(;;) {
         if(flag_packet_rx) {
             flag_packet_rx = false;
             nethandler_rx();
         }
+        if (timer_tryrestart(&periodic_timer))
+            nethandler_periodic();
         //uart_puts("test\r\n");
         //enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
         //_delay_ms(1000);

@@ -23,7 +23,7 @@
 
 #include "common.h"
 #include "uip/uip.h"
-#include "uip/uip-arp.h"
+#include "uip/uiparp.h"
 #include "enc28j60/network.h"
 
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))

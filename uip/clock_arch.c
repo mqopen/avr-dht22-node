@@ -19,10 +19,9 @@
  * */
 
 #include <avr/interrupt.h>
-
-#include "clock-arch.h"
+#include "clock_arch.h"
 #include "uip.h"
-#include "uip-arp.h"
+#include "uiparp.h"
 #include "nethandler.h"
 
 static clock_time_t time;

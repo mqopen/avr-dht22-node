@@ -52,7 +52,7 @@
 #ifndef __CLOCK_H__
 #define __CLOCK_H__
 
-#include "clock-arch.h"
+#include "clock_arch.h"
 
 /**
  * Initialize the clock library.
