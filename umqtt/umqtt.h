@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License									    along ith Foobar.  If not, see <http://.gnu.org/licenses/
+ * You should have received a copy of the GNU Lesser General Public License                                     along ith Foobar.  If not, see <http://.gnu.org/licenses/
  * */
 
 #ifndef __UMQTT_H__
@@ -20,63 +20,63 @@
 #include <stdint.h>
 
 enum umqtt_packet_type {
-	UMQTT_CONNECT		= 1,
-	UMQTT_CONNACK		= 2,
-	UMQTT_PUBLISH		= 3,
-	UMQTT_SUBSCRIBE		= 8,
-	UMQTT_SUBACK		= 9,
-	UMQTT_UNSUBSCRIBE	= 10,
-	UMQTT_UNSUBACK		= 11,
-	UMQTT_PINGREQ		= 12,
-	UMQTT_PINGRESP		= 13,
-	UMQTT_DISCONNECT	= 14,
+    UMQTT_CONNECT       = 1,
+    UMQTT_CONNACK       = 2,
+    UMQTT_PUBLISH       = 3,
+    UMQTT_SUBSCRIBE     = 8,
+    UMQTT_SUBACK        = 9,
+    UMQTT_UNSUBSCRIBE   = 10,
+    UMQTT_UNSUBACK      = 11,
+    UMQTT_PINGREQ       = 12,
+    UMQTT_PINGRESP      = 13,
+    UMQTT_DISCONNECT    = 14,
 };
 
 enum umqtt_client_state {
-	UMQTT_STATE_INIT,
-	UMQTT_STATE_CONNECTING,
-	UMQTT_STATE_CONNECTED,
-	UMQTT_STATE_FAILED,
+    UMQTT_STATE_INIT,
+    UMQTT_STATE_CONNECTING,
+    UMQTT_STATE_CONNECTED,
+    UMQTT_STATE_FAILED,
 };
 
 struct umqtt_circ_buffer {
-	uint8_t *start;
-	int length;
+    uint8_t *start;
+    int length;
 
-	/* Private */
-	uint8_t *pointer;
-	int datalen;
+    /* Private */
+    uint8_t *pointer;
+    int datalen;
 };
 
 struct umqtt_connection {
-	struct umqtt_circ_buffer txbuff;
-	struct umqtt_circ_buffer rxbuff;
+    struct umqtt_circ_buffer txbuff;
+    struct umqtt_circ_buffer rxbuff;
 
-	void (*message_callback)(struct umqtt_connection *,
-			char *topic, uint8_t *data, int len);
+    void (*message_callback)(struct umqtt_connection *,
+            char *topic, uint8_t *data, int len);
 
-	/* Private */
-	/* ack counters - incremented on sending, decremented on ack */
-	int nack_publish;
-	int nack_subscribe;
-	int nack_ping;
+    /* Private */
+    /* ack counters - incremented on sending, decremented on ack */
+    int nack_publish;
+    int nack_subscribe;
+    int nack_ping;
 
-	int message_id;
+    int message_id;
 
-	uint8_t work_buf[5];
-	int work_read;
+    uint8_t work_buf[5];
+    int work_read;
 
-	enum umqtt_client_state state;
+    enum umqtt_client_state state;
 };
 
 #define umqtt_circ_datalen(buff) \
-	((buff)->datalen)
+    ((buff)->datalen)
 
 #define umqtt_circ_is_full(buff) \
-	((buff)->length == (buff)->datalen)
+    ((buff)->length == (buff)->datalen)
 
 #define umqtt_circ_is_empty(buff) \
-	(umqtt_circ_datalen() == 0)
+    (umqtt_circ_datalen() == 0)
 
 void umqtt_circ_init(struct umqtt_circ_buffer *buff);
 
@@ -91,7 +91,7 @@ void umqtt_init(struct umqtt_connection *conn);
 void umqtt_connect(struct umqtt_connection *conn, uint16_t kalive, char *cid);
 void umqtt_subscribe(struct umqtt_connection *conn, char *topic);
 void umqtt_publish(struct umqtt_connection *conn, char *topic,
-		uint8_t *data, int datalen);
+        uint8_t *data, int datalen);
 void umqtt_ping(struct umqtt_connection *conn);
 void umqtt_process(struct umqtt_connection *conn);
 
