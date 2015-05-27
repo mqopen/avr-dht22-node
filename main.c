@@ -11,10 +11,10 @@
 #include "uip/timer.h"
 #include "nethandler.h"
 
+#include "uart.h"
+
 void tcpip_output(void) {
 }
-
-static volatile bool flag_packet_rx = false;
 
 int main (void) {
     uart_init(BAUD);
@@ -31,29 +31,37 @@ int main (void) {
     mac.addr[4] = ETHADDR4;
     mac.addr[5] = ETHADDR5;
     
-    uip_setethaddr(mac);
-    uip_ipaddr(&ip, 192, 168, 1, 201);
+    uip_setethaddr(&mac);
+    uip_ipaddr(&ip, 192, 168, 1, 236);
     uip_sethostaddr(&ip);
     
     struct uip_conn *uc;
     uip_ipaddr_t dst_ip;
     uip_ipaddr(&dst_ip, 192, 168, 1, 70);
-    uc = uip_connect(&ip, htons(5555));
+    uc = uip_connect(&dst_ip, HTONS(5555));
     
     if (uc == NULL) {
         /* check if connection was successful */
+        uart_println("connection failed");
     }
     
     struct timer periodic_timer;
+    struct timer arp_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
+    timer_set(&arp_timer, CLOCK_SECOND * 10);
     
     for(;;) {
-        if(flag_packet_rx) {
-            flag_packet_rx = false;
-            nethandler_rx();
-        }
-        if (timer_tryrestart(&periodic_timer))
+        nethandler_rx();
+        
+        //if(timer_tryrestart(&periodic_timer))
             nethandler_periodic();
+        
+        if(timer_tryrestart(&arp_timer))
+            uip_arp_timer();
+
+        //if(uip_conn_active(0)) {
+        //}
+
         //uart_puts("test\r\n");
         //enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
         //_delay_ms(1000);
@@ -61,8 +69,4 @@ int main (void) {
         //_delay_ms(1000);
     }
     return 0;
-}
-
-ISR(INT0_vect) {
-    flag_packet_rx = true;
 }

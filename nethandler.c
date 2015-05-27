@@ -26,10 +26,12 @@
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
 
+#include "uart.h"
+
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-void nethandler_rx() {
+void nethandler_rx(void) {
     uip_len = network_read();
     if (uip_len > 0) {
         switch (ntohs(BUF->type)) {
@@ -50,7 +52,7 @@ void nethandler_rx() {
     }
 }
 
-void nethandler_periodic() {
+void nethandler_periodic(void) {
     int i;
 
     times(UIP_CONNS, i) {
@@ -62,43 +64,49 @@ void nethandler_periodic() {
     }
 }
 
-void nethandler_periodic_arp() {
+void nethandler_periodic_arp(void) {
     uip_arp_timer();
 }
 
 void nethandler_umqtt_init(struct umqtt_connection *conn) {
-    struct uip_conn *uc;
-    uip_ipaddr_t ip;
+    //struct uip_conn *uc;
+    //uip_ipaddr_t ip;
 
-    uip_ipaddr(&ip, MQTT_IP0, MQTT_IP1, MQTT_IP2, MQTT_IP3);
-    uc = uip_connect(&ip, htons(1883));
-    if (uc == NULL)
-        return;
+    //uip_ipaddr(&ip, MQTT_IP0, MQTT_IP1, MQTT_IP2, MQTT_IP3);
+    //uc = uip_connect(&ip, htons(1883));
+    //if (uc == NULL)
+        //return;
 
-    umqtt_init(conn);
-    umqtt_circ_init(&conn->txbuff);
-    umqtt_circ_init(&conn->rxbuff);
+    //umqtt_init(conn);
+    //umqtt_circ_init(&conn->txbuff);
+    //umqtt_circ_init(&conn->rxbuff);
 
-    umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+    //umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
 
-    uc->appstate.conn = conn;
+    //uc->appstate.conn = conn;
 }
 
-void nethandler_umqtt_appcall() {
-    struct umqtt_connection *conn = uip_conn->appstate.conn;
-    uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ?
-        (unsigned int) conn->txbuff.datalen : uip_mss()];
-    int ret;
+void nethandler_umqtt_appcall(void) {
+    //struct umqtt_connection *conn = uip_conn->appstate.conn;
+    //uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
+    //int ret;
+    uart_println("appcall");
 
-    if (uip_newdata()) {
-        umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
-        umqtt_process(conn);
+    if(uip_newdata()) {
+        //umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
+        //umqtt_process(conn);
     }
-
-    if (uip_poll() || uip_acked()) {
-        ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
-        if (!ret)
-            return;
-        uip_send(buff, ret);
+    
+    if(uip_connected()) {
+        uart_println("connected");
+    }
+    
+    if(uip_poll() || uip_acked()) {
+        //ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
+        //if (!ret)
+        //    return;
+        //uip_send(buff, ret);
+        uip_send("hello", 5);
     }
 }
+

@@ -299,7 +299,7 @@ void uip_setipid(uint16_t id);
  *
  * \hideinitializer
  */
-#define uip_periodic(conn) do { uip_conn = &uip_conns[conn]; \
+#define uip_periodic(conn) do { uip_conn = &uip_conns[conn];                        \
                                 uip_process(UIP_TIMER); } while (0)
 
 /**
@@ -321,7 +321,7 @@ void uip_setipid(uint16_t id);
  *
  * \hideinitializer
  */
-#define uip_periodic_conn(conn) do { uip_conn = conn; \
+#define uip_periodic_conn(conn) do { uip_conn = conn;                               \
                                      uip_process(UIP_TIMER); } while (0)
 
 /**
@@ -335,7 +335,7 @@ void uip_setipid(uint16_t id);
  *
  * \hideinitializer
  */
-#define uip_poll_conn(conn) do { uip_conn = conn; \
+#define uip_poll_conn(conn) do { uip_conn = conn;                                   \
                                  uip_process(UIP_POLL_REQUEST); } while (0)
 
 
@@ -371,7 +371,7 @@ void uip_setipid(uint16_t id);
  *
  * \hideinitializer
  */
-#define uip_udp_periodic(conn) do { uip_udp_conn = &uip_udp_conns[conn]; \
+#define uip_udp_periodic(conn) do { uip_udp_conn = &uip_udp_conns[conn];            \
                                 uip_process(UIP_UDP_TIMER); } while (0)
 
 /**
@@ -388,7 +388,7 @@ void uip_setipid(uint16_t id);
  *
  * \hideinitializer
  */
-#define uip_udp_periodic_conn(conn) do { uip_udp_conn = conn; \
+#define uip_udp_periodic_conn(conn) do { uip_udp_conn = conn;                       \
                                          uip_process(UIP_UDP_TIMER); } while (0)
 #endif /* UIP_UDP */
 
@@ -607,7 +607,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_restart()         do { uip_flags |= UIP_NEWDATA; \
+#define uip_restart()         do { uip_flags |= UIP_NEWDATA;                \
                                    uip_conn->tcpstateflags &= ~UIP_STOPPED; \
                               } while(0)
 
@@ -636,7 +636,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_newdata()   (uip_flags & UIP_NEWDATA)
+#define uip_newdata()       (uip_flags & UIP_NEWDATA)
 
 /**
  * Has previously sent data been acknowledged?
@@ -647,7 +647,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_acked()   (uip_flags & UIP_ACKDATA)
+#define uip_acked()         (uip_flags & UIP_ACKDATA)
 
 /**
  * Has the connection just been connected?
@@ -659,7 +659,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_connected() (uip_flags & UIP_CONNECTED)
+#define uip_connected()     (uip_flags & UIP_CONNECTED)
 
 /**
  * Has the connection been closed by the other end?
@@ -669,7 +669,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_closed()    (uip_flags & UIP_CLOSE)
+#define uip_closed()        (uip_flags & UIP_CLOSE)
 
 /**
  * Has the connection been aborted by the other end?
@@ -679,7 +679,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_aborted()    (uip_flags & UIP_ABORT)
+#define uip_aborted()       (uip_flags & UIP_ABORT)
 
 /**
  * Has the connection timed out?
@@ -689,7 +689,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_timedout()    (uip_flags & UIP_TIMEDOUT)
+#define uip_timedout()      (uip_flags & UIP_TIMEDOUT)
 
 /**
  * Do we need to retransmit previously data?
@@ -701,7 +701,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_rexmit()     (uip_flags & UIP_REXMIT)
+#define uip_rexmit()        (uip_flags & UIP_REXMIT)
 
 /**
  * Is the connection being polled by uIP?
@@ -715,7 +715,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_poll()       (uip_flags & UIP_POLL)
+#define uip_poll()          (uip_flags & UIP_POLL)
 
 /**
  * Get the initial maxium segment size (MSS) of the current
@@ -723,7 +723,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_initialmss()             (uip_conn->initialmss)
+#define uip_initialmss()    (uip_conn->initialmss)
 
 /**
  * Get the current maxium segment size that can be sent on the current
@@ -736,7 +736,7 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-#define uip_mss()             (uip_conn->mss)
+#define uip_mss()           (uip_conn->mss)
 
 /**
  * Set up a new UDP connection.
@@ -839,7 +839,7 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  *
  * \hideinitializer
  */
-#define uip_ipaddr(addr, addr0, addr1, addr2, addr3) do { \
+#define uip_ipaddr(addr, addr0, addr1, addr2, addr3) do {                       \
                      ((uint16_t *)(addr))[0] = HTONS(((addr0) << 8) | (addr1)); \
                      ((uint16_t *)(addr))[1] = HTONS(((addr2) << 8) | (addr3)); \
                   } while(0)
@@ -852,14 +852,14 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #define uip_ip6addr(addr, addr0,addr1,addr2,addr3,addr4,addr5,addr6,addr7) do { \
-                     ((uint16_t *)(addr))[0] = HTONS((addr0)); \
-                     ((uint16_t *)(addr))[1] = HTONS((addr1)); \
-                     ((uint16_t *)(addr))[2] = HTONS((addr2)); \
-                     ((uint16_t *)(addr))[3] = HTONS((addr3)); \
-                     ((uint16_t *)(addr))[4] = HTONS((addr4)); \
-                     ((uint16_t *)(addr))[5] = HTONS((addr5)); \
-                     ((uint16_t *)(addr))[6] = HTONS((addr6)); \
-                     ((uint16_t *)(addr))[7] = HTONS((addr7)); \
+                     ((uint16_t *)(addr))[0] = HTONS((addr0));                  \
+                     ((uint16_t *)(addr))[1] = HTONS((addr1));                  \
+                     ((uint16_t *)(addr))[2] = HTONS((addr2));                  \
+                     ((uint16_t *)(addr))[3] = HTONS((addr3));                  \
+                     ((uint16_t *)(addr))[4] = HTONS((addr4));                  \
+                     ((uint16_t *)(addr))[5] = HTONS((addr5));                  \
+                     ((uint16_t *)(addr))[6] = HTONS((addr6));                  \
+                     ((uint16_t *)(addr))[7] = HTONS((addr7));                  \
                   } while(0)
 
 /**
@@ -881,9 +881,9 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #if !UIP_CONF_IPV6
-#define uip_ipaddr_copy(dest, src) do { \
-                     ((uint16_t *)dest)[0] = ((uint16_t *)src)[0]; \
-                     ((uint16_t *)dest)[1] = ((uint16_t *)src)[1]; \
+#define uip_ipaddr_copy(dest, src) do {                             \
+                     ((uint16_t *)dest)[0] = ((uint16_t *)src)[0];  \
+                     ((uint16_t *)dest)[1] = ((uint16_t *)src)[1];  \
                   } while(0)
 #else /* !UIP_CONF_IPV6 */
 #define uip_ipaddr_copy(dest, src) memcpy(dest, src, sizeof(uip_ip6addr_t))
@@ -910,9 +910,9 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #if !UIP_CONF_IPV6
-#define uip_ipaddr_cmp(addr1, addr2) (((uint16_t *)addr1)[0] == ((uint16_t *)addr2)[0] && \
+#define uip_ipaddr_cmp(addr1, addr2) (((uint16_t *)addr1)[0] == ((uint16_t *)addr2)[0] &&   \
                       ((uint16_t *)addr1)[1] == ((uint16_t *)addr2)[1])
-#define uip_ipaddr_cmp_host(addr) (((uint16_t *)uip_hostaddr[0] == (uint16_t *)addr[0]) && \
+#define uip_ipaddr_cmp_host(addr) (((uint16_t *)uip_hostaddr[0] == (uint16_t *)addr[0]) &&  \
                                     ((uint16_t *)uip_hostaddr[1] == (uint16_t *)addr[1]))
 #else /* !UIP_CONF_IPV6 */
 #define uip_ipaddr_cmp(addr1, addr2) (memcmp(addr1, addr2, sizeof(uip_ip6addr_t)) == 0)
@@ -942,10 +942,10 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  *
  * \hideinitializer
  */
-#define uip_ipaddr_maskcmp(addr1, addr2, mask) \
-                          (((((uint16_t *)addr1)[0] & ((uint16_t *)mask)[0]) == \
-                            (((uint16_t *)addr2)[0] & ((uint16_t *)mask)[0])) && \
-                           ((((uint16_t *)addr1)[1] & ((uint16_t *)mask)[1]) == \
+#define uip_ipaddr_maskcmp(addr1, addr2, mask)                                      \
+                          (((((uint16_t *)addr1)[0] & ((uint16_t *)mask)[0]) ==     \
+                            (((uint16_t *)addr2)[0] & ((uint16_t *)mask)[0])) &&    \
+                           ((((uint16_t *)addr1)[1] & ((uint16_t *)mask)[1]) ==     \
                             (((uint16_t *)addr2)[1] & ((uint16_t *)mask)[1])))
 
 
@@ -1269,11 +1269,13 @@ extern struct uip_stats uip_stat;
 
 
 
-/* All the stuff below this point is internal to uIP and should not be
+/*
+ * All the stuff below this point is internal to uIP and should not be
  * used directly by an application or by a device driver.
  */
 
-/* uint8_t uip_flags:
+/*
+ * uint8_t uip_flags:
  *
  * When the application is called, uip_flags will contain the flags
  * that are defined in this file. Please read below for more
@@ -1281,12 +1283,14 @@ extern struct uip_stats uip_stat;
  */
 extern volatile uint8_t uip_flags;
 
-/* The following flags may be set in the global variable uip_flags
-   before calling the application callback. The UIP_ACKDATA,
-   UIP_NEWDATA, and UIP_CLOSE flags may both be set at the same time,
-   whereas the others are mutualy exclusive. Note that these flags
-   should *NOT* be accessed directly, but only through the uIP
-   functions/macros. */
+/*
+ * The following flags may be set in the global variable uip_flags
+ * before calling the application callback. The UIP_ACKDATA,
+ * UIP_NEWDATA, and UIP_CLOSE flags may both be set at the same time,
+ * whereas the others are mutualy exclusive. Note that these flags
+ * should *NOT* be accessed directly, but only through the uIP
+ * functions/macros.
+ */
 
 /*
  * Signifies that the outstanding data was acked and the application should send

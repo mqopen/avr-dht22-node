@@ -249,10 +249,7 @@ PT_THREAD(psock_readto(register struct psock *psock, unsigned char c)) {
             psock->readptr = (uint8_t *)uip_appdata;
             psock->readlen = uip_datalen();
         }
-    } while ((buf_bufto(&psock->buf, c,
-                        &psock->readptr,
-                        &psock->readlen) & BUF_FOUND) == 0);
-
+    } while ((buf_bufto(&psock->buf, c, &psock->readptr, &psock->readlen) & BUF_FOUND) == 0);
     if (psock_datalen(psock) == 0) {
         psock->state = STATE_NONE;
         PT_RESTART(&psock->psockpt);

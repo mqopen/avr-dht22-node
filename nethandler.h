@@ -21,16 +21,17 @@
 #ifndef __NETHANDLER_H__
 #define __NETHANDLER_H__
 
-void nethandler_rx();
-void nethandler_periodic();
-void nethandler_periodic_arp();
+void nethandler_rx(void);
+void nethandler_periodic(void);
+void nethandler_periodic_arp(void);
 
-void nethandler_umqtt_init();
-void nethandler_umqtt_appcall();
+void nethandler_umqtt_init(struct umqtt_connection *conn);
+void nethandler_umqtt_appcall(void);
+
+void nethandler_buben_appcall(void);
 
 struct nethandler_state {
-    struct umqtt_connection *conn;
-    int slen; /* Length of data currently being sent (fox rxmit) */
+    //struct umqtt_connection *conn;
+    //int slen; /* Length of data currently being sent (fox rxmit) */
 };
-
 #endif /* __NETHANDLER_H__ */

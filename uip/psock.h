@@ -188,8 +188,7 @@ PT_THREAD(psock_send(struct psock *psock, const char *buf, unsigned int len));
 #define PSOCK_SEND_STR(psock, str)              \
     PT_WAIT_THREAD(&((psock)->pt), psock_send(psock, str, strlen(str)))
 
-PT_THREAD(psock_generator_send(struct psock *psock,
-                               unsigned short(*f)(void *), void *arg));
+PT_THREAD(psock_generator_send(struct psock *psock, unsigned short(*f)(void *), void *arg));
 
 /**
  * \brief      Generate data with a function and send it
@@ -213,8 +212,8 @@ PT_THREAD(psock_generator_send(struct psock *psock,
  *
  * \hideinitializer
  */
-#define PSOCK_GENERATOR_SEND(psock, generator, arg)     \
-    PT_WAIT_THREAD(&((psock)->pt),                  \
+#define PSOCK_GENERATOR_SEND(psock, generator, arg)         \
+    PT_WAIT_THREAD(&((psock)->pt),                          \
            psock_generator_send(psock, generator, arg))
 
 
