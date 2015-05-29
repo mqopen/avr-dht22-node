@@ -90,9 +90,9 @@ void nethandler_umqtt_appcall(void) {
     //struct umqtt_connection *conn = uip_conn->appstate.conn;
     //uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
     //int ret;
-    uart_println("appcall");
-
+    
     if(uip_newdata()) {
+        uart_println("new data");
         //umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
         //umqtt_process(conn);
     }
@@ -106,7 +106,7 @@ void nethandler_umqtt_appcall(void) {
         //if (!ret)
         //    return;
         //uip_send(buff, ret);
-        uip_send("hello", 5);
+        uip_send("hello\n", 6);
     }
 }
 

@@ -90,6 +90,8 @@
  */
 void uip_split_output(void);
 
+extern void tcpip_output(void);
+
 #endif /* __UIP_SPLIT_H__ */
 
 /** @} */

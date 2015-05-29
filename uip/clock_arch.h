@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-typedef uint32_t clock_time_t; /* This should serve for some time */
-#define CLOCK_CONF_SECOND		(clock_time_t)2
+typedef uint32_t clock_time_t;  /* This should serve for some time */
+#define CLOCK_CONF_SECOND       (clock_time_t) 2
 
 #define clock_time_seconds() (clock_time() / CLOCK_CONF_SECOND)
 #define clock_set_seconds(x) clock_set((x) * CLOCK_CONF_SECOND)
@@ -33,6 +33,6 @@ void clock_set(clock_time_t t);
 
 clock_time_t clock_time();
 
-#include "clock.h"
+//#include "clock.h"
 
 #endif /* __CLOCK_ARCH_H__ */

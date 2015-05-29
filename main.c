@@ -9,6 +9,7 @@
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "uip/timer.h"
+#include "uip/clock.h"
 #include "nethandler.h"
 
 #include "uart.h"
@@ -18,8 +19,10 @@ void tcpip_output(void) {
 
 int main (void) {
     uart_init(BAUD);
+    clock_init();
     network_init();
     uip_init();
+    sei();
     
     struct uip_eth_addr mac;
     uip_ipaddr_t ip;
@@ -31,14 +34,14 @@ int main (void) {
     mac.addr[4] = ETHADDR4;
     mac.addr[5] = ETHADDR5;
     
-    uip_setethaddr(&mac);
+    uip_setethaddr(mac);
     uip_ipaddr(&ip, 192, 168, 1, 236);
     uip_sethostaddr(&ip);
     
     struct uip_conn *uc;
     uip_ipaddr_t dst_ip;
     uip_ipaddr(&dst_ip, 192, 168, 1, 70);
-    uc = uip_connect(&dst_ip, HTONS(5555));
+    uc = uip_connect(&dst_ip, HTONS(9999));
     
     if (uc == NULL) {
         /* check if connection was successful */
@@ -53,7 +56,7 @@ int main (void) {
     for(;;) {
         nethandler_rx();
         
-        //if(timer_tryrestart(&periodic_timer))
+        if(timer_tryrestart(&periodic_timer))
             nethandler_periodic();
         
         if(timer_tryrestart(&arp_timer))

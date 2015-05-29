@@ -36,7 +36,8 @@ void clock_init() {
     TIMSK1 |= _BV(OCIE1A);
     /* f_cpu / 1024 and CTC mode */
     TCCR1B |= _BV(CS12) | _BV(CS10) | _BV(WGM12);
-    OCR1A = 6104; /* Magical constant - 2Hz */
+    /* Magical constant - 2Hz */
+    OCR1A = 6104;
 }
 
 clock_time_t clock_time() {

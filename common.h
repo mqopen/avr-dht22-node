@@ -25,9 +25,9 @@
 #define ARRAY_SIZE(x) sizeof(x) / sizeof((x)[0])
 
 #define times(m, x) \
-	for((x) = 0; (x) < (m); (x)++)
+    for((x) = 0; (x) < (m); (x)++)
 
 #define iterate(a, x) \
-	for((x) = 0; (x) < (ARRAY_SIZE(a)); (x)++)
+    for((x) = 0; (x) < (ARRAY_SIZE(a)); (x)++)
 
 #endif /* __COMMON_H__ */

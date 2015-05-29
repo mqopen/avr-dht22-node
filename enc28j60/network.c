@@ -18,10 +18,11 @@ void network_init(void) {
     enc28j60_init();
 
     //Configure leds
-    enc28j60_phy_write(PHLCON, PHLCON_LACFG_LINK_STATUS |
-                                PHLCON_LBCFG_TRANSMIT_RECEIVE_ACTIVITY |
-                                PHLCON_LFRQ_TMSTRCH |
-                                PHLCON_STRCH);
+    enc28j60_phy_write(PHLCON,
+                        PHLCON_LACFG_LINK_STATUS |
+                            PHLCON_LBCFG_TRANSMIT_RECEIVE_ACTIVITY |
+                            PHLCON_LFRQ_TMSTRCH |
+                            PHLCON_STRCH);
 }
 
 void network_get_MAC(uint8_t *macaddr) {
