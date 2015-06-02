@@ -1,5 +1,5 @@
-/* 
- * Common utilities
+/* _
+ * Header file for the DHT11 driver
  *
  * Copyright (C) Josef Gajdusek <atx@atx.name>
  *
@@ -18,20 +18,32 @@
  * 
  * */
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __DHT_H__
+#define __DHT_H__
 
+#define DHT_OK                      0
+#define DHT_ERROR_CHECKSUM          1
+#define DHT_ERROR_TIMEOUT           2
+#define DHT_ERROR_CONNECT           3
+#define DHT_ERROR_ACK_L             4
+#define DHT_ERROR_ACK_H             5
 
-#define ARRAY_SIZE(x) sizeof(x) / sizeof((x)[0])
+struct dht_data {
+    int16_t humidity;
+    int16_t temperature;
+};
 
-#define times(m, x) \
-    for((x) = 0; (x) < (m); (x)++)
+struct dht_data_raw {
+    uint8_t humidity_integral;
+    uint8_t humidity_decimal;
+    int8_t temperature_integral;
+    uint8_t temperature_decimal;
+};
 
-#define iterate(a, x) \
-    for((x) = 0; (x) < (ARRAY_SIZE(a)); (x)++)
+extern struct dht_data dht_data;
 
-#define min(a,b)            ((a<b)?(a):(b))
-#define max(a,b)            ((a>b)?(a):(b))
-#define abs(x)              ((x>0)?(x):(-x))
+void dht_init(void);
 
-#endif /* __COMMON_H__ */
+uint8_t dht_read(void);
+
+#endif /* __DHT_H__ */

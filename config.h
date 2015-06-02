@@ -35,6 +35,11 @@
 #define ENC28J60_CONTROL_DDR    DDRB
 #define ENC28J60_CONTROL_CS     PB0
 
+#define DHT_PORT                PORTB
+#define DHT_DDR                 DDRB
+#define DHT_PIN                 PINB
+#define DHT_SDA                 PB1
+
 //#define HAS_DHT
 //#define HAS_DS
 //#define HAS_BUTTONS

@@ -91,6 +91,14 @@ void nethandler_umqtt_appcall(void) {
     //uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
     //int ret;
     
+    if(uip_poll()) {
+        uart_println("polled");
+    }
+    
+    if(uip_acked()) {
+        uart_println("acked");
+    }
+    
     if(uip_newdata()) {
         uart_println("new data");
         //umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
@@ -101,12 +109,28 @@ void nethandler_umqtt_appcall(void) {
         uart_println("connected");
     }
     
+    if(uip_timedout()) {
+        uart_println("timed out");
+    }
+    
+    if(uip_rexmit()) {
+        uart_println("retransmitt");
+    }
+    
+    if(uip_closed()) {
+        uart_println("connection closed");
+    }
+    
+    if(uip_aborted()) {
+        uart_println("connection aborted");
+    }
+    
     if(uip_poll() || uip_acked()) {
         //ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
         //if (!ret)
         //    return;
         //uip_send(buff, ret);
-        uip_send("hello\n", 6);
+        //uip_send("hello\n", 6);
     }
 }
 
