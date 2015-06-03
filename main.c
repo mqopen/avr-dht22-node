@@ -64,11 +64,10 @@ int main (void) {
     dht_init();
     uint8_t state;
     char buff[10];
-    for(;;) {
+    for (;;) {
         state = dht_read();
-        switch(state) {
+        switch (state) {
             case DHT_OK:
-                uart_println("OK");
                 itoa(dht_data.temperature, buff, 10);
                 uart_println(buff);
                 break;
@@ -89,15 +88,15 @@ int main (void) {
                 break;
         }
         _delay_ms(3000);
-        //if(flag_packet_rx) {
+        //if (flag_packet_rx) {
             //flag_packet_rx = false;
             //nethandler_rx();
         //}
         
-        //if(timer_tryrestart(&periodic_timer))
+        //if (timer_tryrestart(&periodic_timer))
             //nethandler_periodic();
         
-        //if(timer_tryrestart(&arp_timer))
+        //if (timer_tryrestart(&arp_timer))
             //uip_arp_timer();
 
         //uart_puts("test\r\n");

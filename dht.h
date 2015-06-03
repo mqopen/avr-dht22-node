@@ -33,13 +33,6 @@ struct dht_data {
     int16_t temperature;
 };
 
-struct dht_data_raw {
-    uint8_t humidity_integral;
-    uint8_t humidity_decimal;
-    int8_t temperature_integral;
-    uint8_t temperature_decimal;
-};
-
 extern struct dht_data dht_data;
 
 void dht_init(void);
