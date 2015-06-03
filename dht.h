@@ -29,7 +29,7 @@
 #define DHT_ERROR_ACK_H             5
 
 struct dht_data {
-    int16_t humidity;
+    uint16_t humidity;
     int16_t temperature;
 };
 

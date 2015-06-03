@@ -30,9 +30,6 @@
 #define DHT_SDA_HIGH()      (DHT_PORT |= _BV(DHT_SDA))
 #define DHT_SDA_LOW()       (DHT_PORT &= ~(_BV(DHT_SDA)))
 
-/* Data from last measurement. */
-struct dht_data dht_data;
-
 struct dht_data_raw {
     uint8_t humidity_integral;
     uint8_t humidity_decimal;
@@ -40,6 +37,9 @@ struct dht_data_raw {
     uint8_t temperature_decimal;
     uint8_t checksum;
 };
+
+/* Data from last measurement. */
+struct dht_data dht_data;
 
 static struct dht_data_raw received_data;
 
