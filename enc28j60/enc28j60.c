@@ -235,12 +235,12 @@ void enc28j60_set_mac(void) {
     // do bank 3 stuff
     // write MAC address
     // NOTE: MAC address in ENC28J60 is byte-backward
-    enc28j60_write(MAADR5, ETHADDR0);
-    enc28j60_write(MAADR4, ETHADDR1);
-    enc28j60_write(MAADR3, ETHADDR2);
-    enc28j60_write(MAADR2, ETHADDR3);
-    enc28j60_write(MAADR1, ETHADDR4);
-    enc28j60_write(MAADR0, ETHADDR5);
+    enc28j60_write(MAADR5, ETH_ADDR0);
+    enc28j60_write(MAADR4, ETH_ADDR1);
+    enc28j60_write(MAADR3, ETH_ADDR2);
+    enc28j60_write(MAADR2, ETH_ADDR3);
+    enc28j60_write(MAADR1, ETH_ADDR4);
+    enc28j60_write(MAADR0, ETH_ADDR5);
 }
 
 void enc28j60_packet_send(unsigned int len1, unsigned char *packet1, unsigned int len2, unsigned char *packet2) {

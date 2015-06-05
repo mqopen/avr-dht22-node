@@ -71,8 +71,8 @@ void nethandler_umqtt_init(struct umqtt_connection *conn) {
     struct uip_conn *uc;
     uip_ipaddr_t ip;
 
-    uip_ipaddr(&ip, MQTT_IP0, MQTT_IP1, MQTT_IP2, MQTT_IP3);
-    uc = uip_connect(&ip, htons(1883));
+    uip_ipaddr(&ip, MQTT_BROKER_IP_ADDR0, MQTT_BROKER_IP_ADDR1, MQTT_BROKER_IP_ADDR2, MQTT_BROKER_IP_ADDR3);
+    uc = uip_connect(&ip, htons(MQTT_BROKER_PORT));
     if (uc == NULL)
         return;
 
@@ -87,7 +87,7 @@ void nethandler_umqtt_init(struct umqtt_connection *conn) {
 
 void nethandler_umqtt_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
-    uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
+    uint8_t buff[uip_mss() > (uint16_t) conn->txbuff.datalen ? (uint16_t) conn->txbuff.datalen : uip_mss()];
     int ret;
     
     if (uip_poll() || uip_acked()) {

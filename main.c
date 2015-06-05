@@ -24,7 +24,7 @@ void tcpip_output(void) {
 static uint8_t mqtt_txbuff[200];
 static uint8_t mqtt_rxbuff[150];
 
-static void handle_message(struct umqtt_connection __attribute__((unused))*conn, char *topic, uint8_t *data, int len) {
+static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
 }
 
 static struct umqtt_connection mqtt = {
@@ -55,15 +55,15 @@ int main (void) {
     struct uip_eth_addr mac;
     uip_ipaddr_t ip;
 
-    mac.addr[0] = ETHADDR0;
-    mac.addr[1] = ETHADDR1;
-    mac.addr[2] = ETHADDR2;
-    mac.addr[3] = ETHADDR3;
-    mac.addr[4] = ETHADDR4;
-    mac.addr[5] = ETHADDR5;
+    mac.addr[0] = ETH_ADDR0;
+    mac.addr[1] = ETH_ADDR1;
+    mac.addr[2] = ETH_ADDR2;
+    mac.addr[3] = ETH_ADDR3;
+    mac.addr[4] = ETH_ADDR4;
+    mac.addr[5] = ETH_ADDR5;
 
     uip_setethaddr(mac);
-    uip_ipaddr(&ip, 192, 168, 1, 33);
+    uip_ipaddr(&ip, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
     uip_sethostaddr(&ip);
 
     struct timer periodic_timer;
@@ -74,8 +74,7 @@ int main (void) {
     timer_set(&hello_timer, CLOCK_SECOND);
 
     nethandler_umqtt_init(&mqtt);
-    //umqtt_subscribe(&mqtt, "test");
-
+    
     for (;;) {
         if (flag_packet_rx) {
             flag_packet_rx = false;

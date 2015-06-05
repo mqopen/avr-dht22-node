@@ -21,6 +21,8 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#define _STR(x) #x
+#define STR(x) _STR(x)
 
 #define ARRAY_SIZE(x) sizeof(x) / sizeof((x)[0])
 
@@ -32,6 +34,5 @@
 
 #define min(a,b)            ((a<b)?(a):(b))
 #define max(a,b)            ((a>b)?(a):(b))
-#define abs(x)              ((x>0)?(x):(-x))
 
 #endif /* __COMMON_H__ */
