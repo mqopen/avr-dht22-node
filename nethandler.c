@@ -68,68 +68,33 @@ void nethandler_periodic_arp(void) {
 }
 
 void nethandler_umqtt_init(struct umqtt_connection *conn) {
-    //struct uip_conn *uc;
-    //uip_ipaddr_t ip;
+    struct uip_conn *uc;
+    uip_ipaddr_t ip;
 
-    //uip_ipaddr(&ip, MQTT_IP0, MQTT_IP1, MQTT_IP2, MQTT_IP3);
-    //uc = uip_connect(&ip, htons(1883));
-    //if (uc == NULL)
-        //return;
+    uip_ipaddr(&ip, MQTT_IP0, MQTT_IP1, MQTT_IP2, MQTT_IP3);
+    uc = uip_connect(&ip, htons(1883));
+    if (uc == NULL)
+        return;
 
-    //umqtt_init(conn);
-    //umqtt_circ_init(&conn->txbuff);
-    //umqtt_circ_init(&conn->rxbuff);
+    umqtt_init(conn);
+    umqtt_circ_init(&conn->txbuff);
+    umqtt_circ_init(&conn->rxbuff);
 
-    //umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+    umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
 
-    //uc->appstate.conn = conn;
+    uc->appstate.conn = conn;
 }
 
 void nethandler_umqtt_appcall(void) {
-    //struct umqtt_connection *conn = uip_conn->appstate.conn;
-    //uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
-    //int ret;
-    
-    if (uip_poll()) {
-        uart_println("polled");
-    }
-    
-    if (uip_acked()) {
-        uart_println("acked");
-    }
-    
-    if (uip_newdata()) {
-        uart_println("new data");
-        //umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
-        //umqtt_process(conn);
-    }
-    
-    if (uip_connected()) {
-        uart_println("connected");
-    }
-    
-    if (uip_timedout()) {
-        uart_println("timed out");
-    }
-    
-    if (uip_rexmit()) {
-        uart_println("retransmitt");
-    }
-    
-    if (uip_closed()) {
-        uart_println("connection closed");
-    }
-    
-    if (uip_aborted()) {
-        uart_println("connection aborted");
-    }
+    struct umqtt_connection *conn = uip_conn->appstate.conn;
+    uint8_t buff[uip_mss() > (unsigned int) conn->txbuff.datalen ? (unsigned int) conn->txbuff.datalen : uip_mss()];
+    int ret;
     
     if (uip_poll() || uip_acked()) {
-        //ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
-        //if (!ret)
-        //    return;
-        //uip_send(buff, ret);
-        //uip_send("hello\n", 6);
+        ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
+        if (!ret)
+            return;
+        uip_send(buff, ret);
     }
 }
 

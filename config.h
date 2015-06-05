@@ -47,8 +47,8 @@
 
 #define MQTT_IP0                192
 #define MQTT_IP1                168
-#define MQTT_IP2                10
-#define MQTT_IP3                21
+#define MQTT_IP2                1
+#define MQTT_IP3                131
 
 #define MQTT_KEEP_ALIVE         30
 #define MQTT_CLIENT_ID          "avr-mqtt-" STR(IPADDR3)

@@ -22,14 +22,16 @@
 #include "common.h"
 #include "dht.h"
 
-#define DHT_TIMEOUT         400
-#define DHT_INITIAL_MASK    128
+#define DHT_TIMEOUT                         400
+#define DHT_INITIAL_BITMASK                 0x80
+#define DHT_NEGATIVE_TEMPERATURE_BITMASK    0x80
 
 #define DHT_SDA_OUTPUT()    (DHT_DDR |= _BV(DHT_SDA))
 #define DHT_SDA_INPUT()     (DHT_DDR &= ~(_BV(DHT_SDA)))
 #define DHT_SDA_HIGH()      (DHT_PORT |= _BV(DHT_SDA))
 #define DHT_SDA_LOW()       (DHT_PORT &= ~(_BV(DHT_SDA)))
 
+/* Raw data sent by sensor */
 struct dht_data_raw {
     uint8_t humidity_integral;
     uint8_t humidity_decimal;
@@ -41,6 +43,7 @@ struct dht_data_raw {
 /* Data from last measurement. */
 struct dht_data dht_data;
 
+/* Current sensor reading. This structure could be build on the stack. */
 static struct dht_data_raw received_data;
 
 /* Translation unit private function prototypes */
@@ -52,15 +55,15 @@ void dht_init(void) {
 }
 
 uint8_t _dht_read(void) {
-    uint8_t mask = DHT_INITIAL_MASK;
+    uint8_t mask = DHT_INITIAL_BITMASK;
     uint8_t idx = 0;
     uint8_t data = 0;
     uint8_t state;
     uint8_t previous_state = 0;
+    uint8_t i;
     uint16_t zero_loop = DHT_TIMEOUT;
     uint16_t delta = 0;
     uint16_t loop_count;
-    uint8_t i;
 
     /* Magic constant for now. */
     uint8_t leading_zero_bits = 36;
@@ -100,7 +103,7 @@ uint8_t _dht_read(void) {
             }
             mask >>= 1;
             if (mask == 0) {
-                mask = DHT_INITIAL_MASK;
+                mask = DHT_INITIAL_BITMASK;
                 *(((uint8_t *) (&received_data)) + idx) = data;
                 idx++;
                 data = 0;
@@ -119,20 +122,24 @@ uint8_t _dht_read(void) {
 
 uint8_t dht_read(void) {
     uint8_t result = _dht_read();
-    *(((uint8_t *) (&received_data)) + 0) &= 0x03;
-    *(((uint8_t *) (&received_data)) + 2) &= 0x83;
+    received_data.humidity_integral &= 0x03;
+    received_data.temperature_integral &= 0x83;
     
-    // test checksum
-    uint8_t sum = ((uint8_t) received_data.humidity_integral)      +
-                    ((uint8_t) received_data.humidity_decimal)     +
-                    ((uint8_t) received_data.temperature_integral) +
-                    ((uint8_t) received_data.temperature_decimal);
+    /* Checksum */
+    uint8_t sum = received_data.humidity_integral       +
+                    received_data.humidity_decimal      +
+                    received_data.temperature_integral  +
+                    received_data.temperature_decimal;
     if (received_data.checksum != sum) {
         return DHT_ERROR_CHECKSUM;
     }
     
     dht_data.humidity = (received_data.humidity_integral << 8) | received_data.humidity_decimal;
     dht_data.temperature = (received_data.temperature_integral << 8) | received_data.temperature_decimal;
+    
+    /* Check negative temperature */
+    if(received_data.temperature_integral & DHT_NEGATIVE_TEMPERATURE_BITMASK)
+        dht_data.temperature = -dht_data.temperature;
     
     return result;
 }

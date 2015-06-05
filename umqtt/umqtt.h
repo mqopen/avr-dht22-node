@@ -19,6 +19,15 @@
 
 #include <stdint.h>
 
+#define umqtt_circ_datalen(buff) \
+    ((buff)->datalen)
+
+#define umqtt_circ_is_full(buff) \
+    ((buff)->length == (buff)->datalen)
+
+#define umqtt_circ_is_empty(buff) \
+    (umqtt_circ_datalen() == 0)
+
 enum umqtt_packet_type {
     UMQTT_CONNECT       = 1,
     UMQTT_CONNACK       = 2,
@@ -41,57 +50,42 @@ enum umqtt_client_state {
 
 struct umqtt_circ_buffer {
     uint8_t *start;
-    int length;
+    int16_t length;
 
     /* Private */
     uint8_t *pointer;
-    int datalen;
+    int16_t datalen;
 };
 
 struct umqtt_connection {
     struct umqtt_circ_buffer txbuff;
     struct umqtt_circ_buffer rxbuff;
 
-    void (*message_callback)(struct umqtt_connection *,
-            char *topic, uint8_t *data, int len);
+    void (*message_callback)(struct umqtt_connection *, char *topic, uint8_t *data, int16_t len);
 
     /* Private */
     /* ack counters - incremented on sending, decremented on ack */
-    int nack_publish;
-    int nack_subscribe;
-    int nack_ping;
-
-    int message_id;
-
+    int16_t nack_publish;
+    int16_t nack_subscribe;
+    int16_t nack_ping;
+    int16_t message_id;
     uint8_t work_buf[5];
-    int work_read;
-
+    int16_t work_read;
     enum umqtt_client_state state;
 };
-
-#define umqtt_circ_datalen(buff) \
-    ((buff)->datalen)
-
-#define umqtt_circ_is_full(buff) \
-    ((buff)->length == (buff)->datalen)
-
-#define umqtt_circ_is_empty(buff) \
-    (umqtt_circ_datalen() == 0)
 
 void umqtt_circ_init(struct umqtt_circ_buffer *buff);
 
 /* Return the amount of bytes left */
-int umqtt_circ_push(struct umqtt_circ_buffer *buff, uint8_t *data, int len);
+int16_t umqtt_circ_push(struct umqtt_circ_buffer *buff, uint8_t *data, int16_t len);
 
 /* Returns amount of bytes popped/peeked */
-int umqtt_circ_pop(struct umqtt_circ_buffer *buff, uint8_t *data, int len);
-int umqtt_circ_peek(struct umqtt_circ_buffer *buff, uint8_t *data, int len);
-
+int16_t umqtt_circ_pop(struct umqtt_circ_buffer *buff, uint8_t *data, int16_t len);
+int16_t umqtt_circ_peek(struct umqtt_circ_buffer *buff, uint8_t *data, int16_t len);
 void umqtt_init(struct umqtt_connection *conn);
 void umqtt_connect(struct umqtt_connection *conn, uint16_t kalive, char *cid);
 void umqtt_subscribe(struct umqtt_connection *conn, char *topic);
-void umqtt_publish(struct umqtt_connection *conn, char *topic,
-        uint8_t *data, int datalen);
+void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, int16_t datalen);
 void umqtt_ping(struct umqtt_connection *conn);
 void umqtt_process(struct umqtt_connection *conn);
 

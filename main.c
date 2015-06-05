@@ -4,7 +4,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include "uart.h"
 #include "enc28j60/network.h"
 #include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
@@ -13,6 +12,7 @@
 #include "uip/clock.h"
 #include "nethandler.h"
 #include "dht.h"
+#include "umqtt/umqtt.h"
 
 #include "uart.h"
 
@@ -21,89 +21,75 @@ static volatile bool flag_packet_rx = true;
 void tcpip_output(void) {
 }
 
+static uint8_t mqtt_txbuff[200];
+static uint8_t mqtt_rxbuff[150];
+
+static void handle_message(struct umqtt_connection __attribute__((unused))*conn, char *topic, uint8_t *data, int len) {
+}
+
+static struct umqtt_connection mqtt = {
+    .txbuff = {
+        .start = mqtt_txbuff,
+        .length = sizeof(mqtt_txbuff),
+    },
+    .rxbuff = {
+        .start = mqtt_rxbuff,
+        .length = sizeof(mqtt_rxbuff),
+    },
+    .message_callback = handle_message,
+};
+
 int main (void) {
     uart_init(BAUD);
-    //clock_init();
-    //network_init();
-    //uip_init();
-    
-    //EIMSK = _BV(INT0);
-    //EICRA = _BV(ISC01);
-    //enc28j60_write(EIE, 0b11000000);
-    
-    //sei();
-    
-    //struct uip_eth_addr mac;
-    //uip_ipaddr_t ip;
-    
-    //mac.addr[0] = ETHADDR0;
-    //mac.addr[1] = ETHADDR1;
-    //mac.addr[2] = ETHADDR2;
-    //mac.addr[3] = ETHADDR3;
-    //mac.addr[4] = ETHADDR4;
-    //mac.addr[5] = ETHADDR5;
-    
-    //uip_setethaddr(mac);
-    //uip_ipaddr(&ip, 192, 168, 1, 236);
-    //uip_sethostaddr(&ip);
-    
-    //struct uip_conn *uc;
-    //uip_ipaddr_t dst_ip;
-    //uip_ipaddr(&dst_ip, 192, 168, 1, 70);
-    //uc = uip_connect(&dst_ip, HTONS(9999));
-    
-    //if (uc == NULL) {
-        ///* check if connection was successful */
-        //uart_println("connection failed");
-    //}
-    
-    //struct timer periodic_timer;
-    //struct timer arp_timer;
-    //timer_set(&periodic_timer, CLOCK_SECOND / 2);
-    //timer_set(&arp_timer, CLOCK_SECOND * 10);
+    clock_init();
     dht_init();
-    uint8_t state;
-    char buff[10];
-    for (;;) {
-        state = dht_read();
-        switch (state) {
-            case DHT_OK:
-                itoa(dht_data.temperature, buff, 10);
-                uart_println(buff);
-                break;
-            case DHT_ERROR_CHECKSUM:
-                uart_println("Error checksum");
-                break;
-            case DHT_ERROR_TIMEOUT:
-                uart_println("Timeout");
-                break;
-            case DHT_ERROR_CONNECT:
-                uart_println("Error connect");
-                break;
-            case DHT_ERROR_ACK_L:
-                uart_println("Error ACK L");
-                break;
-            case DHT_ERROR_ACK_H:
-                uart_println("Error ACK H");
-                break;
-        }
-        _delay_ms(3000);
-        //if (flag_packet_rx) {
-            //flag_packet_rx = false;
-            //nethandler_rx();
-        //}
-        
-        //if (timer_tryrestart(&periodic_timer))
-            //nethandler_periodic();
-        
-        //if (timer_tryrestart(&arp_timer))
-            //uip_arp_timer();
+    network_init();
+    uip_init();
 
-        //uart_puts("test\r\n");
-        //enc28j60_phy_write(PHLCON, PHLCON_LACFG_ON | PHLCON_LBCFG_ON | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
-        //_delay_ms(1000);
-        //enc28j60_phy_write(PHLCON, PHLCON_LACFG_OFF | PHLCON_LBCFG_OFF | PHLCON_LFRQ_TMSTRCH | PHLCON_STRCH);
-        //_delay_ms(1000);
+    EIMSK = _BV(INT0);
+    EICRA = _BV(ISC01);
+    enc28j60_write(EIE, 0b11000000);
+
+    sei();
+
+    struct uip_eth_addr mac;
+    uip_ipaddr_t ip;
+
+    mac.addr[0] = ETHADDR0;
+    mac.addr[1] = ETHADDR1;
+    mac.addr[2] = ETHADDR2;
+    mac.addr[3] = ETHADDR3;
+    mac.addr[4] = ETHADDR4;
+    mac.addr[5] = ETHADDR5;
+
+    uip_setethaddr(mac);
+    uip_ipaddr(&ip, 192, 168, 1, 33);
+    uip_sethostaddr(&ip);
+
+    struct timer periodic_timer;
+    struct timer arp_timer;
+    struct timer hello_timer;
+    timer_set(&periodic_timer, CLOCK_SECOND / 2);
+    timer_set(&arp_timer, CLOCK_SECOND * 10);
+    timer_set(&hello_timer, CLOCK_SECOND);
+
+    nethandler_umqtt_init(&mqtt);
+    //umqtt_subscribe(&mqtt, "test");
+
+    for (;;) {
+        if (flag_packet_rx) {
+            flag_packet_rx = false;
+            nethandler_rx();
+        }
+
+        if (timer_tryrestart(&periodic_timer))
+            nethandler_periodic();
+
+        if (timer_tryrestart(&arp_timer))
+            uip_arp_timer();
+            
+        if (timer_tryrestart(&hello_timer))
+            umqtt_publish(&mqtt, "test", (uint8_t *)"hello", 5);
     }
     return 0;
 }
