@@ -54,6 +54,7 @@ int main (void) {
 
     struct uip_eth_addr mac;
     uip_ipaddr_t ip;
+    uip_ipaddr_t netmask;
 
     mac.addr[0] = ETH_ADDR0;
     mac.addr[1] = ETH_ADDR1;
@@ -64,7 +65,9 @@ int main (void) {
 
     uip_setethaddr(mac);
     uip_ipaddr(&ip, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
+    uip_ipaddr(&netmask, IP_NETMASK0, IP_NETMASK1, IP_NETMASK2, IP_NETMASK3);
     uip_sethostaddr(&ip);
+    uip_setnetmask(&netmask);
 
     struct timer periodic_timer;
     struct timer arp_timer;
@@ -87,8 +90,8 @@ int main (void) {
         if (timer_tryrestart(&arp_timer))
             uip_arp_timer();
             
-        if (timer_tryrestart(&hello_timer))
-            umqtt_publish(&mqtt, "test", (uint8_t *)"hello", 5);
+        //if (timer_tryrestart(&hello_timer))
+        //    umqtt_publish(&mqtt, "test", (uint8_t *)"hello", 5);
     }
     return 0;
 }

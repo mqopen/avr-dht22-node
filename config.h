@@ -5,17 +5,22 @@
 #include "umqtt/umqtt.h"
 #include "nethandler.h"
 
-#define IP_ADDR0     192
-#define IP_ADDR1     168
-#define IP_ADDR2     1
-#define IP_ADDR3     33
+#define IP_ADDR0        192
+#define IP_ADDR1        168
+#define IP_ADDR2        1
+#define IP_ADDR3        199
 
-#define ETH_ADDR0    0x00
-#define ETH_ADDR1    0xbd
-#define ETH_ADDR2    0x3b
-#define ETH_ADDR3    0x33
-#define ETH_ADDR4    0x05
-#define ETH_ADDR5    0x71
+#define IP_NETMASK0     255
+#define IP_NETMASK1     255
+#define IP_NETMASK2     252
+#define IP_NETMASK3     0
+
+#define ETH_ADDR0       0x74
+#define ETH_ADDR1       0xe6
+#define ETH_ADDR2       0xe2
+#define ETH_ADDR3       0x18
+#define ETH_ADDR4       0x1e
+#define ETH_ADDR5       0x44
 
 /* SPI enc28j60 interface configuration. */
 #define ENC28J60_SPI_PORT       PORTB
@@ -38,7 +43,7 @@
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
 #define MQTT_BROKER_IP_ADDR2    1
-#define MQTT_BROKER_IP_ADDR3    124
+#define MQTT_BROKER_IP_ADDR3    70
 
 #define MQTT_BROKER_PORT        1883
 

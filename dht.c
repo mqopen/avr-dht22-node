@@ -54,7 +54,7 @@ void dht_init(void) {
     DHT_SDA_HIGH();
 }
 
-uint8_t _dht_read(void) {
+enum dht_read_status _dht_read(void) {
     uint8_t mask = DHT_INITIAL_BITMASK;
     uint8_t idx = 0;
     uint8_t data = 0;
@@ -120,8 +120,8 @@ uint8_t _dht_read(void) {
     return DHT_OK;
 }
 
-uint8_t dht_read(void) {
-    uint8_t result = _dht_read();
+enum dht_read_status dht_read(void) {
+    enum dht_read_status result = _dht_read();
     received_data.humidity_integral &= 0x03;
     received_data.temperature_integral &= 0x83;
     

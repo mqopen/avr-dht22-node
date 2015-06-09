@@ -21,22 +21,24 @@
 #ifndef __DHT_H__
 #define __DHT_H__
 
-#define DHT_OK                      0
-#define DHT_ERROR_CHECKSUM          1
-#define DHT_ERROR_TIMEOUT           2
-#define DHT_ERROR_CONNECT           3
-#define DHT_ERROR_ACK_L             4
-#define DHT_ERROR_ACK_H             5
-
 struct dht_data {
     uint16_t humidity;
     int16_t temperature;
+};
+
+enum dht_read_status {
+    DHT_OK,
+    DHT_ERROR_CHECKSUM,
+    DHT_ERROR_TIMEOUT,
+    DHT_ERROR_CONNECT,
+    DHT_ERROR_ACK_L,
+    DHT_ERROR_ACK_H
 };
 
 extern struct dht_data dht_data;
 
 void dht_init(void);
 
-uint8_t dht_read(void);
+enum dht_read_status dht_read(void);
 
 #endif /* __DHT_H__ */

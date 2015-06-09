@@ -546,7 +546,6 @@ void uip_send(const void *data, int len);
  *
  * \hideinitializer
  */
-/*void uip_datalen(void);*/
 #define uip_datalen()       uip_len
 
 /**

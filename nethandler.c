@@ -73,22 +73,93 @@ void nethandler_umqtt_init(struct umqtt_connection *conn) {
 
     uip_ipaddr(&ip, MQTT_BROKER_IP_ADDR0, MQTT_BROKER_IP_ADDR1, MQTT_BROKER_IP_ADDR2, MQTT_BROKER_IP_ADDR3);
     uc = uip_connect(&ip, htons(MQTT_BROKER_PORT));
-    if (uc == NULL)
+    if (uc == NULL) {
+        uart_println("connection failed");
         return;
-
-    umqtt_init(conn);
-    umqtt_circ_init(&conn->txbuff);
-    umqtt_circ_init(&conn->rxbuff);
-
-    umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
-
+    }
     uc->appstate.conn = conn;
+}
+
+static void put_spacer(void) {
+    uart_puts("  |  ");
+}
+
+static void print_uip_flags(void) {
+    if(uip_flags) {
+        uart_puts("  ");
+    
+        if(uip_acked())
+            uart_puts("uip_acked");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_newdata())
+            uart_puts("uip_newdata");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_rexmit())
+            uart_puts("uip_rexmit");
+        else
+            uart_puts("*");
+        put_spacer();
+    
+        if(uip_poll())
+            uart_puts("uip_poll");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_closed())
+            uart_puts("uip_closed");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_aborted())
+            uart_puts("uip_aborted");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_connected())
+            uart_puts("uip_connected");
+        else
+            uart_puts("*");
+        put_spacer();
+        
+        if(uip_timedout())
+            uart_puts("uip_timedout");
+        else
+            uart_puts("*");
+        
+        uart_println("");
+    } else {
+        uart_println("no flags");
+    }
 }
 
 void nethandler_umqtt_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
     uint8_t buff[uip_mss() > (uint16_t) conn->txbuff.datalen ? (uint16_t) conn->txbuff.datalen : uip_mss()];
     int ret;
+    
+    print_uip_flags();
+    
+    if(uip_connected()) {
+        umqtt_init(conn);
+        umqtt_circ_init(&conn->txbuff);
+        umqtt_circ_init(&conn->rxbuff);
+        umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+        return;
+    }
+    
+    if (uip_newdata()) {
+        umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
+        umqtt_process(conn);
+    }
     
     if (uip_poll() || uip_acked()) {
         ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
