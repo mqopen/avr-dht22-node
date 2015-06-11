@@ -26,6 +26,7 @@ void nethandler_periodic(void);
 void nethandler_periodic_arp(void);
 
 void nethandler_umqtt_init(struct umqtt_connection *conn);
+void nethandler_umqtt_keep_alive(struct umqtt_connection *conn);
 void nethandler_umqtt_appcall(void);
 
 struct nethandler_state {

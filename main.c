@@ -13,10 +13,9 @@
 #include "nethandler.h"
 #include "dht.h"
 #include "umqtt/umqtt.h"
+#include "node.h"
 
 #include "uart.h"
-
-static volatile bool flag_packet_rx = true;
 
 void tcpip_output(void) {
 }
@@ -25,6 +24,7 @@ static uint8_t mqtt_txbuff[200];
 static uint8_t mqtt_rxbuff[150];
 
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
+    uart_println("handling message...");
 }
 
 static struct umqtt_connection mqtt = {
@@ -45,11 +45,7 @@ int main (void) {
     dht_init();
     network_init();
     uip_init();
-
-    EIMSK = _BV(INT0);
-    EICRA = _BV(ISC01);
-    enc28j60_write(EIE, 0b11000000);
-
+    
     sei();
 
     struct uip_eth_addr mac;
@@ -71,31 +67,25 @@ int main (void) {
 
     struct timer periodic_timer;
     struct timer arp_timer;
-    struct timer hello_timer;
+    struct timer keep_alive_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
     timer_set(&arp_timer, CLOCK_SECOND * 10);
-    timer_set(&hello_timer, CLOCK_SECOND);
-
+    timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
+    
     nethandler_umqtt_init(&mqtt);
     
     for (;;) {
-        if (flag_packet_rx) {
-            flag_packet_rx = false;
-            nethandler_rx();
-        }
-
+        nethandler_rx();
+        
         if (timer_tryrestart(&periodic_timer))
             nethandler_periodic();
 
         if (timer_tryrestart(&arp_timer))
             uip_arp_timer();
-            
-        //if (timer_tryrestart(&hello_timer))
-        //    umqtt_publish(&mqtt, "test", (uint8_t *)"hello", 5);
+        
+        node_process();
+        if (timer_tryrestart(&keep_alive_timer))
+            nethandler_umqtt_keep_alive(&mqtt);
     }
     return 0;
-}
-
-ISR(INT0_vect) {
-    flag_packet_rx = true;
 }

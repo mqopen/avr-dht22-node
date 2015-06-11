@@ -242,7 +242,6 @@ void umqtt_process(struct umqtt_connection *conn) {
         umqtt_circ_pop(&conn->rxbuff, buf, 2);
         for (i = 2; buf[i - 1] & 0x80 && i < sizeof(buf); i++)
             umqtt_circ_pop(&conn->rxbuff, &buf[i], 1);
-        umqtt_packet_arrived(conn, buf[0],
-                umqtt_decode_length(&buf[1]));
+        umqtt_packet_arrived(conn, buf[0], umqtt_decode_length(&buf[1]));
     }
 }

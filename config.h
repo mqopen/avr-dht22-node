@@ -7,19 +7,19 @@
 
 #define IP_ADDR0        192
 #define IP_ADDR1        168
-#define IP_ADDR2        1
-#define IP_ADDR3        199
+#define IP_ADDR2        2
+#define IP_ADDR3        196
 
 #define IP_NETMASK0     255
 #define IP_NETMASK1     255
-#define IP_NETMASK2     252
+#define IP_NETMASK2     255
 #define IP_NETMASK3     0
 
-#define ETH_ADDR0       0x74
+#define ETH_ADDR0       0x76
 #define ETH_ADDR1       0xe6
 #define ETH_ADDR2       0xe2
 #define ETH_ADDR3       0x18
-#define ETH_ADDR4       0x1e
+#define ETH_ADDR4       0x2f
 #define ETH_ADDR5       0x44
 
 /* SPI enc28j60 interface configuration. */
@@ -42,7 +42,7 @@
 /* MQTT configuration. */
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    1
+#define MQTT_BROKER_IP_ADDR2    2
 #define MQTT_BROKER_IP_ADDR3    70
 
 #define MQTT_BROKER_PORT        1883

@@ -25,11 +25,16 @@
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
+#include "node.h"
 
+#include <stdlib.h>
 #include "uart.h"
 
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
+static uint8_t send_buffer[100];
+static int16_t send_length;
 
 void nethandler_rx(void) {
     uip_len = network_read();
@@ -89,49 +94,49 @@ static void print_uip_flags(void) {
         uart_puts("  ");
     
         if(uip_acked())
-            uart_puts("uip_acked");
+            uart_puts("acked");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_newdata())
-            uart_puts("uip_newdata");
+            uart_puts("newdata");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_rexmit())
-            uart_puts("uip_rexmit");
+            uart_puts("rexmit");
         else
             uart_puts("*");
         put_spacer();
     
         if(uip_poll())
-            uart_puts("uip_poll");
+            uart_puts("poll");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_closed())
-            uart_puts("uip_closed");
+            uart_puts("closed");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_aborted())
-            uart_puts("uip_aborted");
+            uart_puts("aborted");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_connected())
-            uart_puts("uip_connected");
+            uart_puts("connected");
         else
             uart_puts("*");
         put_spacer();
         
         if(uip_timedout())
-            uart_puts("uip_timedout");
+            uart_puts("timedout");
         else
             uart_puts("*");
         
@@ -141,14 +146,17 @@ static void print_uip_flags(void) {
     }
 }
 
+void nethandler_umqtt_keep_alive(struct umqtt_connection *conn) {
+    //uart_println("sending keep alive packet...");
+    umqtt_ping(conn);
+}
+
 void nethandler_umqtt_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
-    uint8_t buff[uip_mss() > (uint16_t) conn->txbuff.datalen ? (uint16_t) conn->txbuff.datalen : uip_mss()];
-    int ret;
     
-    print_uip_flags();
+    //print_uip_flags();
     
-    if(uip_connected()) {
+    if (uip_connected()) {
         umqtt_init(conn);
         umqtt_circ_init(&conn->txbuff);
         umqtt_circ_init(&conn->rxbuff);
@@ -161,11 +169,12 @@ void nethandler_umqtt_appcall(void) {
         umqtt_process(conn);
     }
     
-    if (uip_poll() || uip_acked()) {
-        ret = umqtt_circ_pop(&conn->txbuff, buff, sizeof(buff));
-        if (!ret)
+    if (uip_rexmit()) {
+        uip_send(send_buffer, send_length);
+    } else if (uip_poll()) {
+        send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(send_buffer));
+        if (!send_length)
             return;
-        uip_send(buff, ret);
+        uip_send(send_buffer, send_length);
     }
 }
-
