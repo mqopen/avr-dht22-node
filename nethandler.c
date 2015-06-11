@@ -161,6 +161,7 @@ void nethandler_umqtt_appcall(void) {
         umqtt_circ_init(&conn->txbuff);
         umqtt_circ_init(&conn->rxbuff);
         umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+        node_system_state = NODE_BROKER_CONNECTION_ESTABLISHED;
         return;
     }
     

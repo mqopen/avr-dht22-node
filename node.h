@@ -1,14 +1,20 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-enum system_state {
-    dhcp_querying,
-    dns_querying,
-    broker_connecting
+#include "umqtt/umqtt.h"
+
+enum node_system_state {
+    NODE_DHCP_QUERYING,
+    NODE_DNS_QUERYING,
+    NODE_BROKER_CONNECTING,
+    NODE_BROKER_CONNECTION_ESTABLISHED
 };
 
-extern enum system_state system_state;
+extern struct umqtt_connection mqtt;
 
+extern enum node_system_state node_system_state;
+
+void node_init(void);
 void node_process(void);
 
 #endif

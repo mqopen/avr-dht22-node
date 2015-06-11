@@ -14,30 +14,10 @@
 #include "dht.h"
 #include "umqtt/umqtt.h"
 #include "node.h"
-
 #include "uart.h"
 
 void tcpip_output(void) {
 }
-
-static uint8_t mqtt_txbuff[200];
-static uint8_t mqtt_rxbuff[150];
-
-static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
-    uart_println("handling message...");
-}
-
-static struct umqtt_connection mqtt = {
-    .txbuff = {
-        .start = mqtt_txbuff,
-        .length = sizeof(mqtt_txbuff),
-    },
-    .rxbuff = {
-        .start = mqtt_rxbuff,
-        .length = sizeof(mqtt_rxbuff),
-    },
-    .message_callback = handle_message,
-};
 
 int main (void) {
     uart_init(BAUD);
@@ -45,6 +25,7 @@ int main (void) {
     dht_init();
     network_init();
     uip_init();
+    node_init();
     
     sei();
 
@@ -67,10 +48,8 @@ int main (void) {
 
     struct timer periodic_timer;
     struct timer arp_timer;
-    struct timer keep_alive_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
     timer_set(&arp_timer, CLOCK_SECOND * 10);
-    timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     
     nethandler_umqtt_init(&mqtt);
     
@@ -84,8 +63,6 @@ int main (void) {
             uip_arp_timer();
         
         node_process();
-        if (timer_tryrestart(&keep_alive_timer))
-            nethandler_umqtt_keep_alive(&mqtt);
     }
     return 0;
 }

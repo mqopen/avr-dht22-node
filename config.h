@@ -7,12 +7,12 @@
 
 #define IP_ADDR0        192
 #define IP_ADDR1        168
-#define IP_ADDR2        2
+#define IP_ADDR2        1
 #define IP_ADDR3        196
 
 #define IP_NETMASK0     255
 #define IP_NETMASK1     255
-#define IP_NETMASK2     255
+#define IP_NETMASK2     252
 #define IP_NETMASK3     0
 
 #define ETH_ADDR0       0x76
@@ -42,7 +42,7 @@
 /* MQTT configuration. */
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    2
+#define MQTT_BROKER_IP_ADDR2    1
 #define MQTT_BROKER_IP_ADDR3    70
 
 #define MQTT_BROKER_PORT        1883
