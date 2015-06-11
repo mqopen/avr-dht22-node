@@ -47,6 +47,9 @@
 
 #define MQTT_BROKER_PORT        1883
 
+#define MQTT_TOPIC_TEMPERATURE  "sensors/temperature/test"
+#define MQTT_TOPIC_HUMIDITY     "sensors/humidity/test"
+
 #define MQTT_KEEP_ALIVE         30
 #define MQTT_CLIENT_ID          "avr-mqtt-" STR(IP_ADDR0) "-" STR(IP_ADDR1) "-" STR(IP_ADDR2) "-" STR(IP_ADDR3)
 
