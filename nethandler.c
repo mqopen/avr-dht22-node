@@ -72,19 +72,6 @@ void nethandler_periodic_arp(void) {
     uip_arp_timer();
 }
 
-void nethandler_umqtt_init(struct umqtt_connection *conn) {
-    struct uip_conn *uc;
-    uip_ipaddr_t ip;
-
-    uip_ipaddr(&ip, MQTT_BROKER_IP_ADDR0, MQTT_BROKER_IP_ADDR1, MQTT_BROKER_IP_ADDR2, MQTT_BROKER_IP_ADDR3);
-    uc = uip_connect(&ip, htons(MQTT_BROKER_PORT));
-    if (uc == NULL) {
-        uart_println("connection failed");
-        return;
-    }
-    uc->appstate.conn = conn;
-}
-
 static void put_spacer(void) {
     uart_puts("  |  ");
 }
@@ -157,12 +144,11 @@ void nethandler_umqtt_appcall(void) {
     //print_uip_flags();
     
     if (uip_connected()) {
-        umqtt_init(conn);
-        umqtt_circ_init(&conn->txbuff);
-        umqtt_circ_init(&conn->rxbuff);
-        umqtt_connect(conn, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
         node_system_state = NODE_BROKER_CONNECTION_ESTABLISHED;
-        return;
+    }
+    
+    if(uip_aborted() || uip_timedout() || uip_closed()) {
+        node_system_state = NODE_BROKER_DISCONNECTED;
     }
     
     if (uip_newdata()) {
@@ -172,7 +158,7 @@ void nethandler_umqtt_appcall(void) {
     
     if (uip_rexmit()) {
         uip_send(send_buffer, send_length);
-    } else if (uip_poll()) {
+    } else if (uip_poll() || uip_acked()) {
         send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(send_buffer));
         if (!send_length)
             return;

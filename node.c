@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include "uip/timer.h"
+#include "uip/uip.h"
 #include "dht.h"
 #include "node.h"
+#include "config.h"
 
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
 static void node_send_data(void);
+static void node_broker_connect(void);
+static void node_mqtt_init(void);
 
 enum node_system_state node_system_state;
 
@@ -35,6 +39,7 @@ static struct timer dht_timer;
 void node_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * 2);
+    node_system_state = NODE_BROKER_DISCONNECTED;
 }
 
 void node_process(void) {
@@ -44,7 +49,11 @@ void node_process(void) {
                 nethandler_umqtt_keep_alive(&mqtt);
             if (timer_tryrestart(&dht_timer))
                 node_send_data();
+        } else if (mqtt.state == UMQTT_STATE_INIT) {
+            node_mqtt_init();
         }
+    } else if (node_system_state == NODE_BROKER_DISCONNECTED) {
+        node_broker_connect();
     }
 }
 
@@ -53,14 +62,32 @@ static void node_send_data(void) {
     if(status == DHT_OK) {
         char buffer[20];
         uint8_t len;
-        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10,
-                                                            dht_data.humidity % 10);
+        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
         umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
-        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10,
-                                                            dht_data.temperature % 10);
+        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
         umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
     }
 }
 
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
+}
+
+static void node_broker_connect(void) {
+    struct uip_conn *uc;
+    uip_ipaddr_t ip;
+
+    uip_ipaddr(&ip, MQTT_BROKER_IP_ADDR0, MQTT_BROKER_IP_ADDR1, MQTT_BROKER_IP_ADDR2, MQTT_BROKER_IP_ADDR3);
+    uc = uip_connect(&ip, htons(MQTT_BROKER_PORT));
+    if (uc == NULL) {
+        return;
+    }
+    uc->appstate.conn = &mqtt;
+    node_system_state = NODE_BROKER_CONNECTING;
+}
+
+static void node_mqtt_init(void) {
+    umqtt_init(&mqtt);
+    umqtt_circ_init(&mqtt.txbuff);
+    umqtt_circ_init(&mqtt.rxbuff);
+    umqtt_connect(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
 }

@@ -51,8 +51,6 @@ int main (void) {
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
     timer_set(&arp_timer, CLOCK_SECOND * 10);
     
-    nethandler_umqtt_init(&mqtt);
-    
     for (;;) {
         nethandler_rx();
         
