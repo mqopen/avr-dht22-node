@@ -149,6 +149,7 @@ void nethandler_umqtt_appcall(void) {
     
     if(uip_aborted() || uip_timedout() || uip_closed()) {
         node_system_state = NODE_BROKER_DISCONNECTED;
+        mqtt.state = UMQTT_STATE_INIT;
     }
     
     if (uip_newdata()) {
