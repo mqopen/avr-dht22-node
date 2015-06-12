@@ -1,3 +1,4 @@
+#include <util/delay.h>
 #include <stdio.h>
 #include "uip/timer.h"
 #include "uip/uip.h"
@@ -5,7 +6,10 @@
 #include "node.h"
 #include "config.h"
 
+/* Static function prototypes. */
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
+static void node_handle_connection_established(void);
+static void node_handle_disconnected_wait(void);
 static void node_send_data(void);
 static void node_broker_connect(void);
 static void node_mqtt_init(void);
@@ -36,25 +40,46 @@ static struct timer keep_alive_timer;
 /* Timer for sending DHT measurements. */
 static struct timer dht_timer;
 
+/* Timer for limit reconnect attempts. */
+static struct timer disconnected_wait_timer;
+
 void node_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * 2);
+    timer_set(&disconnected_wait_timer, CLOCK_SECOND);
     node_system_state = NODE_BROKER_DISCONNECTED;
 }
 
 void node_process(void) {
-    if (node_system_state == NODE_BROKER_CONNECTION_ESTABLISHED) {
-        if (mqtt.state == UMQTT_STATE_CONNECTED) {
-            if (timer_tryrestart(&keep_alive_timer))
-                nethandler_umqtt_keep_alive(&mqtt);
-            if (timer_tryrestart(&dht_timer))
-                node_send_data();
-        } else if (mqtt.state == UMQTT_STATE_INIT) {
-            node_mqtt_init();
-        }
-    } else if (node_system_state == NODE_BROKER_DISCONNECTED) {
-        node_broker_connect();
+    switch (node_system_state) {
+        case NODE_BROKER_CONNECTION_ESTABLISHED:
+            node_handle_connection_established();
+            break;
+        case NODE_BROKER_DISCONNECTED:
+            node_broker_connect();
+            break;
+        case NODE_BROKER_DISCONNECTED_WAIT:
+            node_handle_disconnected_wait();
+            break;
+        default:
+            break;
     }
+}
+
+static void node_handle_connection_established(void) {
+    if (mqtt.state == UMQTT_STATE_CONNECTED) {
+        if (timer_tryrestart(&keep_alive_timer))
+            nethandler_umqtt_keep_alive(&mqtt);
+        if (timer_tryrestart(&dht_timer))
+            node_send_data();
+    } else if (mqtt.state == UMQTT_STATE_INIT) {
+        node_mqtt_init();
+    }
+}
+
+static void node_handle_disconnected_wait(void) {
+    if (timer_tryrestart(&disconnected_wait_timer))
+        node_broker_connect();
 }
 
 static void node_send_data(void) {
@@ -90,4 +115,8 @@ static void node_mqtt_init(void) {
     umqtt_circ_init(&mqtt.txbuff);
     umqtt_circ_init(&mqtt.rxbuff);
     umqtt_connect(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+}
+
+void node_notify_broker_unreachable(void) {
+    timer_restart(&disconnected_wait_timer);
 }

@@ -16,19 +16,13 @@
 #include "node.h"
 #include "uart.h"
 
+static struct timer periodic_timer;
+static struct timer arp_timer;
+
 void tcpip_output(void) {
 }
 
-int main (void) {
-    uart_init(BAUD);
-    clock_init();
-    dht_init();
-    network_init();
-    uip_init();
-    node_init();
-    
-    sei();
-
+void interface_init() {
     struct uip_eth_addr mac;
     uip_ipaddr_t ip;
     uip_ipaddr_t netmask;
@@ -50,6 +44,18 @@ int main (void) {
     struct timer arp_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
     timer_set(&arp_timer, CLOCK_SECOND * 10);
+}
+
+int main (void) {
+    uart_init(BAUD);
+    clock_init();
+    dht_init();
+    network_init();
+    uip_init();
+    node_init();
+    interface_init();
+    
+    sei();
     
     for (;;) {
         nethandler_rx();
