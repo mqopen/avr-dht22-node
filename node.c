@@ -119,4 +119,5 @@ static void node_mqtt_init(void) {
 
 void node_notify_broker_unreachable(void) {
     timer_restart(&disconnected_wait_timer);
+    node_system_state = NODE_BROKER_DISCONNECTED_WAIT;
 }

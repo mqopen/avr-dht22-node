@@ -150,7 +150,6 @@ void nethandler_umqtt_appcall(void) {
     if(uip_aborted() || uip_timedout() || uip_closed()) {
         if (node_system_state == NODE_BROKER_CONNECTING) {
             /* Another disconnect in reconnecting phase. Shut down for a while, then try again. */
-            node_system_state = NODE_BROKER_DISCONNECTED_WAIT;
             node_notify_broker_unreachable();
         } else if (node_system_state != NODE_BROKER_DISCONNECTED_WAIT) {
             /* We are not waiting for atother reconnect try. */
