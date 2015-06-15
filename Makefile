@@ -64,6 +64,9 @@ clean:
 
 rebuild: clean all
 
+size: $(NAME).elf
+	$(SIZE) -A $(NAME).elf
+
 -include $(subst .c,.d,$(CSRC))
 
 %.d: %.c
@@ -75,4 +78,4 @@ define create-dep
 	rm -f $@.$$$$
 endef
 
-.PHONY: all avrdude clean rebuild text
+.PHONY: all avrdude clean rebuild text size

@@ -54,6 +54,8 @@
 #define MQTT_CLIENT_ID          "avr-mqtt-" STR(IP_ADDR0) "-" STR(IP_ADDR1) "-" STR(IP_ADDR2) "-" STR(IP_ADDR3)
 
 typedef struct nethandler_state uip_tcp_appstate_t;
+typedef struct nethandler_udp_state uip_udp_appstate_t;
 #define UIP_APPCALL nethandler_umqtt_appcall
+#define UIP_UDP_APPCALL nethandler_umqtt_udp_appcall
 
 #endif /*__CONFIG_H__*/

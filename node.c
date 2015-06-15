@@ -4,6 +4,7 @@
 #include "uip/uip.h"
 #include "dht.h"
 #include "node.h"
+#include "sharedbuf.h"
 #include "config.h"
 
 /* Static function prototypes. */
@@ -14,21 +15,18 @@ static void node_send_data(void);
 static void node_broker_connect(void);
 static void node_mqtt_init(void);
 
+/* Current system state */
 enum node_system_state node_system_state;
-
-/* MQTT RX and TX buffers. */
-static uint8_t mqtt_txbuff[200];
-static uint8_t mqtt_rxbuff[150];
 
 /* MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
     .txbuff = {
-        .start = mqtt_txbuff,
-        .length = sizeof(mqtt_txbuff),
+        .start = sharedbuf + SHAREDBUF_NODE_UMQTT_TX_OFFSET,
+        .length = SHAREDBUF_NODE_UMQTT_TX_SIZE,
     },
     .rxbuff = {
-        .start = mqtt_rxbuff,
-        .length = sizeof(mqtt_rxbuff),
+        .start = sharedbuf + SHAREDBUF_NODE_UMQTT_RX_OFFSET,
+        .length = SHAREDBUF_NODE_UMQTT_RX_SIZE,
     },
     .message_callback = handle_message,
     .state = UMQTT_STATE_INIT

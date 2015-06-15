@@ -20,20 +20,21 @@
 
 #include <avr/interrupt.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
 #include "node.h"
+#include "sharedbuf.h"
 
-#include <stdlib.h>
 #include "uart.h"
 
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-static uint8_t send_buffer[100];
+static uint8_t *send_buffer = sharedbuf + SHAREDBUF_NETHANDLER_OFFSET;
 static int16_t send_length;
 
 void nethandler_rx(void) {
@@ -134,7 +135,6 @@ static void print_uip_flags(void) {
 }
 
 void nethandler_umqtt_keep_alive(struct umqtt_connection *conn) {
-    //uart_println("sending keep alive packet...");
     umqtt_ping(conn);
 }
 
@@ -171,4 +171,7 @@ void nethandler_umqtt_appcall(void) {
             return;
         uip_send(send_buffer, send_length);
     }
+}
+
+void nethandler_umqtt_udp_appcall(void) {
 }

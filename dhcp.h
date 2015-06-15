@@ -30,6 +30,14 @@ enum dhcp_htype {
     DHCP_HTYPE_ATM_21           = 21
 };
 
+enum dhcp_state {
+    DHCP_STATE_INIT,
+    DHCP_STATE_DISCOVER_SENT,
+    DHCP_STATE_OFFER_RECEIVED,
+    DHCP_STATE_REQUEST_SENT,
+    DHCP_STATE_ACK_RECEIVED
+};
+
 struct dhcp_message {
     uint8_t op;
     uint8_t htype;
@@ -43,10 +51,8 @@ struct dhcp_message {
     uint32_t siaddr;
     uint32_t giaddr;
     uint8_t chaddr[16];
-#ifndef UIP_CONF_DHCP_LIGHT
     uint8_t sname[64];
     uint8_t file[128];
-#endif
     uint8_t options[312];
 };
 
