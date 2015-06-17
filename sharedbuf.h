@@ -18,4 +18,6 @@
 
 extern uint8_t sharedbuf[SHAREDBUF_SIZE];
 
+void sharedbuf_clear(void);
+
 #endif

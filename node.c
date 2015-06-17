@@ -1,11 +1,12 @@
 #include <util/delay.h>
 #include <stdio.h>
+#include <string.h>
 #include "uip/timer.h"
 #include "uip/uip.h"
 #include "dht.h"
 #include "node.h"
 #include "sharedbuf.h"
-#include "dhcp.h"
+#include "dhcpclient.h"
 #include "config.h"
 
 #include "uart.h"
@@ -17,14 +18,12 @@ static void node_handle_disconnected_wait(void);
 static void node_send_data(void);
 static void node_broker_connect(void);
 static void node_mqtt_init(void);
-static void node_process_dhcp(void);
 static void node_umqtt_keep_alive(struct umqtt_connection *conn);
 
 
 static uint8_t *send_buffer = sharedbuf + SHAREDBUF_NETHANDLER_OFFSET;
 // TODO: make this variable uint16_t
 static int16_t send_length;
-uint16_t node_send_udp_length;
 
 /* Current system state */
 enum node_system_state node_system_state;
@@ -57,7 +56,7 @@ void node_init(void) {
     timer_set(&dht_timer, CLOCK_SECOND * 2);
     timer_set(&disconnected_wait_timer, CLOCK_SECOND);
     
-    dhcp_init();
+    dhcpclient_init();
     
     node_system_state = NODE_DHCP_QUERYING;
 }
@@ -65,7 +64,7 @@ void node_init(void) {
 void node_process(void) {
     switch (node_system_state) {
         case NODE_DHCP_QUERYING:
-            node_process_dhcp();
+            dhcpclient_process();
             break;
         case NODE_BROKER_CONNECTION_ESTABLISHED:
             node_handle_connection_established();
@@ -100,6 +99,7 @@ static void node_handle_disconnected_wait(void) {
 static void node_send_data(void) {
     enum dht_read_status status = dht_read();
     if(status == DHT_OK) {
+        // TODO: remove hardcoded constant
         char buffer[20];
         uint8_t len;
         len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
@@ -135,25 +135,6 @@ static void node_mqtt_init(void) {
 void node_notify_broker_unreachable(void) {
     timer_restart(&disconnected_wait_timer);
     node_system_state = NODE_BROKER_DISCONNECTED_WAIT;
-}
-
-static void node_process_dhcp(void) {
-    uip_ipaddr_t addr;
-    struct uip_udp_conn *c;
-    switch (dhcp_state) {
-        case DHCP_STATE_INIT:
-            
-            uip_ipaddr(&addr, 255, 255, 255, 255);
-            c = uip_udp_new(&addr, HTONS(67));
-            if(c != NULL) {
-                uip_udp_bind(c, HTONS(68));
-            }
-            
-            dhcp_create_discover();
-            break;
-        default:
-            break;
-    };
 }
 
 static void node_umqtt_keep_alive(struct umqtt_connection *conn) {
@@ -224,8 +205,6 @@ static void print_uip_flags(void) {
 void node_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
     
-    //print_uip_flags();
-    
     if (uip_connected()) {
         node_system_state = NODE_BROKER_CONNECTION_ESTABLISHED;
     }
@@ -257,15 +236,14 @@ void node_appcall(void) {
 }
 
 void node_udp_appcall(void) {
-    print_uip_flags();
-    if (uip_newdata()) {
-    }
-
-    if (uip_poll()) {
-        if (node_send_udp_length) {
-            /* Simply transmitt data stored in shared buffer. */
-            uip_send(sharedbuf, node_send_udp_length);
-            node_send_udp_length = 0;
-        }
+    //print_uip_flags();
+    switch (node_system_state) {
+        case NODE_DHCP_QUERYING:
+            dhcpclient_appcall();
+            break;
+        case NODE_DNS_QUERYING:
+            break;
+        default:
+            break;
     }
 }

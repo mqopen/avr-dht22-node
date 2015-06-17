@@ -41,16 +41,16 @@ void nethandler_rx(void) {
     uip_len = network_read();
     if (uip_len > 0) {
         switch (ntohs(BUF->type)) {
-        case UIP_ETHTYPE_IP:
-            uip_arp_ipin();
-            uip_input();
-            send_out();
-        break;
-        case UIP_ETHTYPE_ARP:
-            uip_arp_arpin();
-            if (uip_len > 0)
-                network_send();
-        break;
+            case UIP_ETHTYPE_IP:
+                uip_arp_ipin();
+                uip_input();
+                send_out();
+                break;
+            case UIP_ETHTYPE_ARP:
+                uip_arp_arpin();
+                if (uip_len > 0)
+                    network_send();
+                break;
         }
     }
 }

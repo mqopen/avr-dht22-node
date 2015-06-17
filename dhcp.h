@@ -1,7 +1,15 @@
 #ifndef __DHCP_H__
 #define __DHCP_H__
 
-#define DHCP_FLAGS_BROADCAST    0x8000
+#include "dhcpclient.h"
+
+#define DHCP_FLAGS_BROADCAST        0x8000
+#define DHCP_MESSAGE_CHADDR_SIZE    16
+#define DHCP_MESSAGE_SNAME_SIZE     64
+#define DHCP_MESSAGE_FILE_SIZE      128
+#define DHCP_MESSAGE_OPTIONS_SIZE   312
+
+#define DHCP_OPTION_MSG_TYPE_LENGTH     1
 
 struct dhcp_message {
     uint8_t op;
@@ -15,10 +23,10 @@ struct dhcp_message {
     uint32_t yiaddr;
     uint32_t siaddr;
     uint32_t giaddr;
-    uint8_t chaddr[16];
-    uint8_t sname[64];
-    uint8_t file[128];
-    uint8_t options[312];
+    uint8_t chaddr[DHCP_MESSAGE_CHADDR_SIZE];
+    uint8_t sname[DHCP_MESSAGE_SNAME_SIZE];
+    uint8_t file[DHCP_MESSAGE_FILE_SIZE];
+    uint8_t options[DHCP_MESSAGE_OPTIONS_SIZE];
 };
 
 enum dhcp_op {
@@ -60,16 +68,6 @@ enum dhcp_message_type {
     DHCP_MESSAGE_TYPE_DHCPRELEASE   = 8
 };
 
-enum dhcp_state {
-    DHCP_STATE_INIT,
-    DHCP_STATE_DISCOVER_SENT,
-    DHCP_STATE_OFFER_RECEIVED,
-    DHCP_STATE_REQUEST_SENT,
-    DHCP_STATE_ACK_RECEIVED
-};
-
-#define DHCP_OPTION_MSG_TYPE_LENGTH     1
-
 enum dhcp_option {
     DHCP_OPTION_SUBNET_MASK     = 1,
     DHCP_OPTION_ROUTER          = 3,
@@ -83,8 +81,6 @@ enum dhcp_option {
     DHCP_OPTION_END             = 255
 };
 
-extern enum dhcp_state dhcp_state;
-
-void dhcp_init(void);
-void dhcp_create_discover(void);
+void dhcp_create_discover(struct dhcpclient_data *dhcp);
+void dhcp_create_request(struct dhcpclient_data *dhcp);
 #endif

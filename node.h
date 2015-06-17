@@ -23,9 +23,6 @@ extern struct umqtt_connection mqtt;
 
 extern enum node_system_state node_system_state;
 
-/* Length of bytes which waits for UDP transmitt. */
-extern uint16_t node_send_udp_length;
-
 void node_init(void);
 void node_process(void);
 void node_notify_broker_unreachable(void);

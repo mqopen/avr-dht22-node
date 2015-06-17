@@ -19,9 +19,7 @@ void tcpip_output(void) {
 
 void interface_init() {
     struct uip_eth_addr mac;
-    uip_ipaddr_t ip;
-    uip_ipaddr_t netmask;
-
+    
     mac.addr[0] = ETH_ADDR0;
     mac.addr[1] = ETH_ADDR1;
     mac.addr[2] = ETH_ADDR2;
@@ -30,11 +28,7 @@ void interface_init() {
     mac.addr[5] = ETH_ADDR5;
 
     uip_setethaddr(mac);
-    uip_ipaddr(&ip, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
-    uip_ipaddr(&netmask, IP_NETMASK0, IP_NETMASK1, IP_NETMASK2, IP_NETMASK3);
-    uip_sethostaddr(&ip);
-    uip_setnetmask(&netmask);
-
+    
     struct timer periodic_timer;
     struct timer arp_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);

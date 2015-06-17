@@ -5,16 +5,6 @@
 #include "umqtt/umqtt.h"
 #include "node.h"
 
-#define IP_ADDR0        192
-#define IP_ADDR1        168
-#define IP_ADDR2        1
-#define IP_ADDR3        196
-
-#define IP_NETMASK0     255
-#define IP_NETMASK1     255
-#define IP_NETMASK2     252
-#define IP_NETMASK3     0
-
 #define ETH_ADDR0       0x76
 #define ETH_ADDR1       0xe6
 #define ETH_ADDR2       0xe2
