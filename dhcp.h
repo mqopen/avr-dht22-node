@@ -81,6 +81,6 @@ enum dhcp_option {
     DHCP_OPTION_END             = 255
 };
 
-void dhcp_create_discover(struct dhcpclient_data *dhcp);
-void dhcp_create_request(struct dhcpclient_data *dhcp);
+void dhcp_create_discover(struct dhcpclient_session *dhcp);
+void dhcp_create_request(struct dhcpclient_session *dhcp);
 #endif

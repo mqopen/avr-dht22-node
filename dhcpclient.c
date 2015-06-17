@@ -4,8 +4,10 @@
 #include "dhcp.h"
 #include "dhcpclient.h"
 
-enum dhcpclient_state dhcpclient_state;
-static struct dhcpclient_data data = {
+#define update_state(state)     (data.dhcpclient_state = state)
+#define current_state           data.dhcpclient_state
+
+static struct dhcpclient_session data = {
     .buffer = sharedbuf + SHAREDBUF_DHCP_OFFSET,
     .length = 0
 };
@@ -14,22 +16,22 @@ static struct dhcpclient_data data = {
 static void _create_connection(void);
 
 void dhcpclient_init(void) {
-    dhcpclient_state = DHCPCLIENT_STATE_INIT;
+    update_state(DHCPCLIENT_STATE_INIT);
     
     /* Clear shared memory. */
     sharedbuf_clear();
 }
 
 void dhcpclient_process(void) {
-    switch (dhcpclient_state) {
+    switch (current_state) {
         case DHCPCLIENT_STATE_INIT:
             _create_connection();
             dhcp_create_discover(&data);
-            dhcpclient_state = DHCPCLIENT_STATE_DISCOVER_PENDING;
+            update_state(DHCPCLIENT_STATE_DISCOVER_PENDING);
             break;
         case DHCPCLIENT_STATE_OFFER_RECEIVED:
             dhcp_create_request(&data);
-            dhcpclient_state = DHCPCLIENT_STATE_REQUEST_PENDING;
+            update_state(DHCPCLIENT_STATE_REQUEST_PENDING);
             break;
         default:
             break;
@@ -37,12 +39,12 @@ void dhcpclient_process(void) {
 }
 
 void dhcpclient_handle_message(void) {
-    switch (dhcpclient_state) {
+    switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
-            dhcpclient_state = DHCPCLIENT_STATE_OFFER_RECEIVED;
+            update_state(DHCPCLIENT_STATE_OFFER_RECEIVED);
             break;
         case DHCPCLIENT_STATE_REQUEST_SENT:
-            dhcpclient_state = DHCPCLIENT_STATE_ACK_RECEIVED;
+            update_state(DHCPCLIENT_STATE_ACK_RECEIVED);
             break;
         default:
             break;
@@ -56,14 +58,14 @@ void dhcpclient_appcall(void) {
     }
 
     if (uip_poll()) {
-        switch (dhcpclient_state) {
+        switch (current_state) {
             case DHCPCLIENT_STATE_DISCOVER_PENDING:
                 /* Simply transmitt data stored in shared buffer. */
                 uip_send(data.buffer, data.length);
-                dhcpclient_state = DHCPCLIENT_STATE_DISCOVER_SENT;
+                update_state(DHCPCLIENT_STATE_DISCOVER_SENT);
             case DHCPCLIENT_STATE_REQUEST_PENDING:
                 uip_send(data.buffer, data.length);
-                dhcpclient_state = DHCPCLIENT_STATE_REQUEST_SENT;
+                update_state(DHCPCLIENT_STATE_REQUEST_SENT);
             default:
                 break;
         }

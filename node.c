@@ -11,6 +11,9 @@
 
 #include "uart.h"
 
+#define update_state(state)     (node_system_state = state)
+#define current_state           node_system_state
+
 /* Static function prototypes. */
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
 static void node_handle_connection_established(void);
@@ -58,11 +61,11 @@ void node_init(void) {
     
     dhcpclient_init();
     
-    node_system_state = NODE_DHCP_QUERYING;
+    update_state(NODE_DHCP_QUERYING);
 }
 
 void node_process(void) {
-    switch (node_system_state) {
+    switch (current_state) {
         case NODE_DHCP_QUERYING:
             dhcpclient_process();
             break;
@@ -122,7 +125,7 @@ static void node_broker_connect(void) {
         return;
     }
     uc->appstate.conn = &mqtt;
-    node_system_state = NODE_BROKER_CONNECTING;
+    update_state(NODE_BROKER_CONNECTING);
 }
 
 static void node_mqtt_init(void) {
@@ -134,69 +137,26 @@ static void node_mqtt_init(void) {
 
 void node_notify_broker_unreachable(void) {
     timer_restart(&disconnected_wait_timer);
-    node_system_state = NODE_BROKER_DISCONNECTED_WAIT;
+    update_state(NODE_BROKER_DISCONNECTED_WAIT);
 }
 
 static void node_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-static void put_spacer(void) {
-    uart_puts("  |  ");
-}
-
-static void print_uip_flags(void) {
+// TODO: for debug only
+#define put_spacer()    uart_puts("  |  ")
+__attribute__ ((unused)) static void print_uip_flags(void) {
     if(uip_flags) {
         uart_puts("  ");
-    
-        if(uip_acked())
-            uart_puts("acked");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_newdata())
-            uart_puts("newdata");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_rexmit())
-            uart_puts("rexmit");
-        else
-            uart_puts("*");
-        put_spacer();
-    
-        if(uip_poll())
-            uart_puts("poll");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_closed())
-            uart_puts("closed");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_aborted())
-            uart_puts("aborted");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_connected())
-            uart_puts("connected");
-        else
-            uart_puts("*");
-        put_spacer();
-        
-        if(uip_timedout())
-            uart_puts("timedout");
-        else
-            uart_puts("*");
-        
-        uart_println("");
+        if(uip_acked())     uart_puts("acked"); else uart_puts("*");        put_spacer();
+        if(uip_newdata())   uart_puts("newdata"); else uart_puts("*");      put_spacer();
+        if(uip_rexmit())    uart_puts("rexmit"); else uart_puts("*");       put_spacer();
+        if(uip_poll())      uart_puts("poll"); else uart_puts("*");         put_spacer();
+        if(uip_closed())    uart_puts("closed"); else uart_puts("*");       put_spacer();
+        if(uip_aborted())   uart_puts("aborted"); else uart_puts("*");      put_spacer();
+        if(uip_connected()) uart_puts("connected"); else uart_puts("*");    put_spacer();
+        if(uip_timedout())  uart_puts("timedout"); else uart_puts("*"); uart_println("");
     } else {
         uart_println("no flags");
     }
@@ -206,16 +166,16 @@ void node_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
     
     if (uip_connected()) {
-        node_system_state = NODE_BROKER_CONNECTION_ESTABLISHED;
+        update_state(NODE_BROKER_CONNECTION_ESTABLISHED);
     }
     
     if(uip_aborted() || uip_timedout() || uip_closed()) {
-        if (node_system_state == NODE_BROKER_CONNECTING) {
+        if (current_state == NODE_BROKER_CONNECTING) {
             /* Another disconnect in reconnecting phase. Shut down for a while, then try again. */
             node_notify_broker_unreachable();
-        } else if (node_system_state != NODE_BROKER_DISCONNECTED_WAIT) {
+        } else if (current_state != NODE_BROKER_DISCONNECTED_WAIT) {
             /* We are not waiting for atother reconnect try. */
-            node_system_state = NODE_BROKER_DISCONNECTED;
+            update_state(NODE_BROKER_DISCONNECTED);
             mqtt.state = UMQTT_STATE_INIT;
         }
     }
@@ -236,8 +196,7 @@ void node_appcall(void) {
 }
 
 void node_udp_appcall(void) {
-    //print_uip_flags();
-    switch (node_system_state) {
+    switch (current_state) {
         case NODE_DHCP_QUERYING:
             dhcpclient_appcall();
             break;
