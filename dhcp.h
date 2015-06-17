@@ -1,6 +1,26 @@
 #ifndef __DHCP_H__
 #define __DHCP_H__
 
+#define DHCP_FLAGS_BROADCAST    0x8000
+
+struct dhcp_message {
+    uint8_t op;
+    uint8_t htype;
+    uint8_t hlen;
+    uint8_t hops;
+    uint32_t xid;
+    uint16_t secs;
+    uint16_t flags;
+    uint32_t ciaddr;
+    uint32_t yiaddr;
+    uint32_t siaddr;
+    uint32_t giaddr;
+    uint8_t chaddr[16];
+    uint8_t sname[64];
+    uint8_t file[128];
+    uint8_t options[312];
+};
+
 enum dhcp_op {
     DHCP_OP_BOOTREQUEST         = 1,
     DHCP_OP_BOOTREPLY           = 2
@@ -30,6 +50,16 @@ enum dhcp_htype {
     DHCP_HTYPE_ATM_21           = 21
 };
 
+enum dhcp_message_type {
+    DHCP_MESSAGE_TYPE_DHCPDISCOVER  = 1,
+    DHCP_MESSAGE_TYPE_DHCPOFFER     = 2,
+    DHCP_MESSAGE_TYPE_DHCPREQUEST   = 3,
+    DHCP_MESSAGE_TYPE_DHCPDECLINE   = 4,
+    DHCP_MESSAGE_TYPE_DHCPACK       = 5,
+    DHCP_MESSAGE_TYPE_DHCPNAK       = 7,
+    DHCP_MESSAGE_TYPE_DHCPRELEASE   = 8
+};
+
 enum dhcp_state {
     DHCP_STATE_INIT,
     DHCP_STATE_DISCOVER_SENT,
@@ -38,22 +68,23 @@ enum dhcp_state {
     DHCP_STATE_ACK_RECEIVED
 };
 
-struct dhcp_message {
-    uint8_t op;
-    uint8_t htype;
-    uint8_t hlen;
-    uint8_t hops;
-    uint32_t xid;
-    uint16_t secs;
-    uint16_t flags;
-    uint32_t ciaddr;
-    uint32_t yiaddr;
-    uint32_t siaddr;
-    uint32_t giaddr;
-    uint8_t chaddr[16];
-    uint8_t sname[64];
-    uint8_t file[128];
-    uint8_t options[312];
+#define DHCP_OPTION_MSG_TYPE_LENGTH     1
+
+enum dhcp_option {
+    DHCP_OPTION_SUBNET_MASK     = 1,
+    DHCP_OPTION_ROUTER          = 3,
+    DHCP_OPTION_DNS_SERVER      = 6,
+    DHCP_OPTION_NTP_SERVER      = 42,
+    DHCP_OPTION_REQ_IPADDR      = 50,
+    DHCP_OPTION_LEASE_TIME      = 51,
+    DHCP_OPTION_MSG_TYPE        = 53,
+    DHCP_OPTION_SERVER_ID       = 54,
+    DHCP_OPTION_REQ_LIST        = 55,
+    DHCP_OPTION_END             = 255
 };
 
+extern enum dhcp_state dhcp_state;
+
+void dhcp_init(void);
+void dhcp_create_discover(void);
 #endif

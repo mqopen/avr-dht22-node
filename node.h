@@ -12,12 +12,25 @@ enum node_system_state {
     NODE_BROKER_CONNECTION_ESTABLISHED
 };
 
+struct node_appstate {
+    struct umqtt_connection *conn;
+};
+
+struct node_udp_appstate {
+};
+
 extern struct umqtt_connection mqtt;
 
 extern enum node_system_state node_system_state;
 
+/* Length of bytes which waits for UDP transmitt. */
+extern uint16_t node_send_udp_length;
+
 void node_init(void);
 void node_process(void);
 void node_notify_broker_unreachable(void);
+
+void node_appcall(void);
+void node_udp_appcall(void);
 
 #endif

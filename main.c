@@ -1,18 +1,13 @@
 #define BAUD 19200
 
-#include <stdlib.h>
-#include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "enc28j60/network.h"
-#include "enc28j60/enc28j60.h"
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "uip/timer.h"
-#include "uip/clock.h"
 #include "nethandler.h"
 #include "dht.h"
-#include "umqtt/umqtt.h"
 #include "node.h"
 #include "uart.h"
 
