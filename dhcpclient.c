@@ -8,11 +8,13 @@
 #include "uart.h"
 
 #define update_state(state)     do {                                    \
-                                    data.dhcpclient_state = state;      \
+                                    dhcpclient_state = state;      \
                                     timer_restart(&retry_timer);        \
                                 } while (0)
-#define current_state           data.dhcpclient_state
+#define current_state           dhcpclient_state
 #define RETRY_TIMER_PERIOD      (CLOCK_SECOND * 1)
+
+enum dhcpclient_state dhcpclient_state;
 
 static struct dhcpclient_session data = {
     .buffer = sharedbuf + SHAREDBUF_DHCP_OFFSET,
@@ -26,6 +28,7 @@ static struct timer retry_timer;
 static void _create_connection(void);
 static void _on_retry_timer(void);
 static void _handle_message(void);
+static void _configure_address(void);
 
 void dhcpclient_init(void) {
     update_state(DHCPCLIENT_STATE_INIT);
@@ -46,6 +49,9 @@ void dhcpclient_process(void) {
         case DHCPCLIENT_STATE_OFFER_RECEIVED:
             dhcp_create_request(&data);
             update_state(DHCPCLIENT_STATE_REQUEST_PENDING);
+            break;
+        case DHCPCLIENT_STATE_ACK_RECEIVED:
+            _configure_address();
             break;
         default:
             break;
@@ -112,4 +118,17 @@ static void _handle_message(void) {
         default:
             break;
     }
+}
+
+static void _configure_address(void) {
+    uip_ipaddr_t ip;
+    uip_ipaddr_t netmask;
+    
+    uip_ipaddr(ip, 192, 168, 7, 1);
+    uip_ipaddr(netmask, 255, 255, 255, 0);
+    
+    uip_sethostaddr(ip);
+    uip_setnetmask(netmask);
+    
+    update_state(DHCPCLIENT_STATE_ADDRESS_CONFIGURED);
 }

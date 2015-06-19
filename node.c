@@ -68,6 +68,8 @@ void node_process(void) {
     switch (current_state) {
         case NODE_DHCP_QUERYING:
             dhcpclient_process();
+            if (dhcpclient_is_done())
+                update_state(NODE_BROKER_DISCONNECTED);
             break;
         case NODE_BROKER_CONNECTION_ESTABLISHED:
             node_handle_connection_established();

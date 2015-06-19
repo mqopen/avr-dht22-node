@@ -32,8 +32,8 @@
 /* MQTT configuration. */
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    1
-#define MQTT_BROKER_IP_ADDR3    70
+#define MQTT_BROKER_IP_ADDR2    7
+#define MQTT_BROKER_IP_ADDR3    111
 
 #define MQTT_BROKER_PORT        1883
 
@@ -41,7 +41,7 @@
 #define MQTT_TOPIC_HUMIDITY     "sensors/humidity/test"
 
 #define MQTT_KEEP_ALIVE         30
-#define MQTT_CLIENT_ID          "avr-mqtt-" STR(IP_ADDR0) "-" STR(IP_ADDR1) "-" STR(IP_ADDR2) "-" STR(IP_ADDR3)
+#define MQTT_CLIENT_ID          "avr-mqtt-test"
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;
