@@ -82,5 +82,7 @@ enum dhcp_option {
 };
 
 void dhcp_create_discover(struct dhcpclient_session *dhcp);
+void dhcp_process_offer(struct dhcpclient_session *dhcp);
 void dhcp_create_request(struct dhcpclient_session *dhcp);
+void dhcp_process_ack(struct dhcpclient_session *dhcp);
 #endif
