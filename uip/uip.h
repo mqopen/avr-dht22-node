@@ -975,8 +975,8 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #define uip_ipaddr_mask(dest, src, mask) do { \
-                     ((uint16_t *)dest)[0] = ((uint16_t *)src)[0] & ((uint16_t *)mask)[0]; \
-                     ((uint16_t *)dest)[1] = ((uint16_t *)src)[1] & ((uint16_t *)mask)[1]; \
+                     ((uint16_t *)(dest))[0] = ((uint16_t *)(src))[0] & ((uint16_t *)(mask))[0];    \
+                     ((uint16_t *)(dest))[1] = ((uint16_t *)(src))[1] & ((uint16_t *)(mask))[1];    \
                   } while(0)
 
 /**
