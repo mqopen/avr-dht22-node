@@ -2,7 +2,6 @@
 #define __CONFIG_H__
 
 #include "common.h"
-#include "umqtt/umqtt.h"
 #include "node.h"
 
 #define ETH_ADDR0       0x76

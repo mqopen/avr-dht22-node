@@ -23,9 +23,9 @@ enum dhcpclient_state {
 struct dhcpclient_session {
     uint8_t *buffer;
     uint16_t length;
-    uint32_t yiaddr;
-    uint32_t siaddr;
-    uint32_t netmask;
+    uip_ipaddr_t yiaddr;
+    uip_ipaddr_t siaddr;
+    uip_ipaddr_t netmask;
     uint16_t lease_time;
 };
 
