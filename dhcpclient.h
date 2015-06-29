@@ -7,7 +7,7 @@
 #define DHCPCLIENT_IP_SOURCE_PORT       68
 #define DHCPCLIENT_IP_DESTINATION_PORT  67
 
-#define dhcpclient_is_done()    (dhcpclient_state == DHCPCLIENT_STATE_ADDRESS_CONFIGURED)
+#define dhcpclient_is_done()    (dhcpclient_state == DHCPCLIENT_STATE_FINISHED)
 
 enum dhcpclient_state {
     DHCPCLIENT_STATE_INIT,
@@ -17,14 +17,15 @@ enum dhcpclient_state {
     DHCPCLIENT_STATE_REQUEST_PENDING,
     DHCPCLIENT_STATE_REQUEST_SENT,
     DHCPCLIENT_STATE_ACK_RECEIVED,
-    DHCPCLIENT_STATE_ADDRESS_CONFIGURED
+    DHCPCLIENT_STATE_ADDRESS_CONFIGURED,
+    DHCPCLIENT_STATE_FINISHED
 };
 
 struct dhcpclient_session {
     uint8_t *buffer;
     uint16_t length;
-    uip_ipaddr_t yiaddr;
-    uip_ipaddr_t siaddr;
+    uip_ipaddr_t client_address;
+    uip_ipaddr_t server_address;
     uip_ipaddr_t netmask;
     uint16_t lease_time;
 };

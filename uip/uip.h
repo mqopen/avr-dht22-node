@@ -880,9 +880,9 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #if !UIP_CONF_IPV6
-#define uip_ipaddr_copy(dest, src) do {                             \
-                     ((uint16_t *)dest)[0] = ((uint16_t *)src)[0];  \
-                     ((uint16_t *)dest)[1] = ((uint16_t *)src)[1];  \
+#define uip_ipaddr_copy(dest, src) do {                                 \
+                     ((uint16_t *)(dest))[0] = ((uint16_t *)(src))[0];  \
+                     ((uint16_t *)(dest))[1] = ((uint16_t *)(src))[1];  \
                   } while(0)
 #else /* !UIP_CONF_IPV6 */
 #define uip_ipaddr_copy(dest, src) memcpy(dest, src, sizeof(uip_ip6addr_t))
@@ -909,10 +909,12 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  * \hideinitializer
  */
 #if !UIP_CONF_IPV6
-#define uip_ipaddr_cmp(addr1, addr2) (((uint16_t *)addr1)[0] == ((uint16_t *)addr2)[0] &&   \
-                      ((uint16_t *)addr1)[1] == ((uint16_t *)addr2)[1])
-#define uip_ipaddr_cmp_host(addr) (((uint16_t *)uip_hostaddr[0] == (uint16_t *)addr[0]) &&  \
-                                    ((uint16_t *)uip_hostaddr[1] == (uint16_t *)addr[1]))
+#define uip_ipaddr_cmp(addr1, addr2)                                                \
+                        (((uint16_t *)(addr1))[0] == ((uint16_t *)(addr2))[0] &&    \
+                        ((uint16_t *)(addr1))[1] == ((uint16_t *)(addr2))[1])
+#define uip_ipaddr_cmp_host(addr)                                                   \
+                        (((uint16_t *)uip_hostaddr[0] == (uint16_t *)(addr)[0]) &&  \
+                        ((uint16_t *)uip_hostaddr[1] == (uint16_t *)(addr)[1]))
 #else /* !UIP_CONF_IPV6 */
 #define uip_ipaddr_cmp(addr1, addr2) (memcmp(addr1, addr2, sizeof(uip_ip6addr_t)) == 0)
 #endif /* !UIP_CONF_IPV6 */
@@ -941,11 +943,11 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport);
  *
  * \hideinitializer
  */
-#define uip_ipaddr_maskcmp(addr1, addr2, mask)                                      \
-                          (((((uint16_t *)addr1)[0] & ((uint16_t *)mask)[0]) ==     \
-                            (((uint16_t *)addr2)[0] & ((uint16_t *)mask)[0])) &&    \
-                           ((((uint16_t *)addr1)[1] & ((uint16_t *)mask)[1]) ==     \
-                            (((uint16_t *)addr2)[1] & ((uint16_t *)mask)[1])))
+#define uip_ipaddr_maskcmp(addr1, addr2, mask)                                          \
+                          (((((uint16_t *)(addr1))[0] & ((uint16_t *)(mask))[0]) ==     \
+                            (((uint16_t *)(addr2))[0] & ((uint16_t *)(mask))[0])) &&    \
+                           ((((uint16_t *)(addr1))[1] & ((uint16_t *)(mask))[1]) ==     \
+                            (((uint16_t *)(addr2))[1] & ((uint16_t *)(mask))[1])))
 
 
 /**

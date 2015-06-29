@@ -8,7 +8,7 @@
 #include "uart.h"
 
 #define update_state(state)     do {                                    \
-                                    dhcpclient_state = state;      \
+                                    dhcpclient_state = state;           \
                                     timer_restart(&retry_timer);        \
                                 } while (0)
 #define current_state           dhcpclient_state
@@ -73,6 +73,9 @@ void dhcpclient_appcall(void) {
                 uip_send(data.buffer, data.length);
                 update_state(DHCPCLIENT_STATE_REQUEST_SENT);
                 break;
+            case DHCPCLIENT_STATE_ADDRESS_CONFIGURED:
+                uip_close();
+                update_state(DHCPCLIENT_STATE_FINISHED);
             default:
                 break;
         }
@@ -121,14 +124,14 @@ static void _handle_message(void) {
 }
 
 static void _configure_address(void) {
-    uip_ipaddr_t ip;
-    uip_ipaddr_t netmask;
+    //uip_ipaddr_t ip;
+    //uip_ipaddr_t netmask;
     
-    uip_ipaddr(ip, 192, 168, 7, 1);
-    uip_ipaddr(netmask, 255, 255, 255, 0);
+    //uip_ipaddr(ip, 192, 168, 7, 1);
+    //uip_ipaddr(netmask, 255, 255, 255, 0);
     
-    uip_sethostaddr(ip);
-    uip_setnetmask(netmask);
+    //uip_sethostaddr(ip);
+    //uip_setnetmask(netmask);
     
     update_state(DHCPCLIENT_STATE_ADDRESS_CONFIGURED);
 }

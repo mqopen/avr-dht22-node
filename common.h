@@ -35,4 +35,6 @@
 #define min(a,b)            ((a<b)?(a):(b))
 #define max(a,b)            ((a>b)?(a):(b))
 
+#define member_size(type, member)   sizeof(((type *)0)->member)
+
 #endif /* __COMMON_H__ */
