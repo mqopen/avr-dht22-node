@@ -6,7 +6,7 @@
 
 #include "dhcp.h"
 
-#define SHAREDBUF_NETHANDLER_SIZE       100
+#define SHAREDBUF_NODE_SEND_BUFFER_SIZE 100
 #define SHAREDBUF_NODE_UMQTT_RX_SIZE    150
 #define SHAREDBUF_NODE_UMQTT_TX_SIZE    200
 
@@ -15,7 +15,7 @@ struct sharedbuf_dhcp {
 };
 
 struct sharedbuf_mqtt {
-    uint8_t send_buffer[SHAREDBUF_NETHANDLER_SIZE];
+    uint8_t send_buffer[SHAREDBUF_NODE_SEND_BUFFER_SIZE];
     uint8_t mqtt_rx[SHAREDBUF_NODE_UMQTT_RX_SIZE];
     uint8_t mqtt_tx[SHAREDBUF_NODE_UMQTT_TX_SIZE];
 };
@@ -26,8 +26,6 @@ union sharedbuf_buffer {
 };
 
 extern union sharedbuf_buffer sharedbuf;
-
-//extern uint8_t sharedbuf[SHAREDBUF_SIZE];
 
 void sharedbuf_clear(void);
 

@@ -13,6 +13,7 @@
 
 #define update_state(state)     (node_system_state = state)
 #define current_state           node_system_state
+#define send_buffer_length      sizeof(sharedbuf.mqtt.send_buffer)
 
 /* Static function prototypes. */
 static void handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
@@ -193,8 +194,7 @@ void node_appcall(void) {
     if (uip_rexmit()) {
         uip_send(send_buffer, send_length);
     } else if (uip_poll() || uip_acked()) {
-        //send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(*send_buffer));
-        send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(sharedbuf.mqtt.send_buffer));
+        send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, send_buffer_length);
         if (!send_length)
             return;
         uip_send(send_buffer, send_length);
