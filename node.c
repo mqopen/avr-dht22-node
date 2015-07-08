@@ -24,7 +24,7 @@ static void node_mqtt_init(void);
 static void node_umqtt_keep_alive(struct umqtt_connection *conn);
 
 
-static uint8_t *send_buffer = sharedbuf + SHAREDBUF_NETHANDLER_OFFSET;
+static uint8_t *send_buffer = sharedbuf.mqtt.send_buffer;
 // TODO: make this variable uint16_t
 static int16_t send_length;
 
@@ -34,11 +34,11 @@ enum node_system_state node_system_state;
 /* MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
     .txbuff = {
-        .start = sharedbuf + SHAREDBUF_NODE_UMQTT_TX_OFFSET,
+        .start = sharedbuf.mqtt.mqtt_tx,
         .length = SHAREDBUF_NODE_UMQTT_TX_SIZE,
     },
     .rxbuff = {
-        .start = sharedbuf + SHAREDBUF_NODE_UMQTT_RX_OFFSET,
+        .start = sharedbuf.mqtt.mqtt_rx,
         .length = SHAREDBUF_NODE_UMQTT_RX_SIZE,
     },
     .message_callback = handle_message,
@@ -193,7 +193,8 @@ void node_appcall(void) {
     if (uip_rexmit()) {
         uip_send(send_buffer, send_length);
     } else if (uip_poll() || uip_acked()) {
-        send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(send_buffer));
+        //send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(*send_buffer));
+        send_length = umqtt_circ_pop(&conn->txbuff, send_buffer, sizeof(sharedbuf.mqtt.send_buffer));
         if (!send_length)
             return;
         uip_send(send_buffer, send_length);

@@ -4,19 +4,30 @@
 #ifndef __SHAREDBUF_H__
 #define __SHAREDBUF_H__
 
-#define SHAREDBUF_SIZE  600
+#include "dhcp.h"
 
-#define SHAREDBUF_DHCP_OFFSET           0
-#define SHAREDBUF_DHCP_SIZE             SHAREDBUF_SIZE
-
-#define SHAREDBUF_NETHANDLER_OFFSET     0
 #define SHAREDBUF_NETHANDLER_SIZE       100
-#define SHAREDBUF_NODE_UMQTT_RX_OFFSET  (SHAREDBUF_NETHANDLER_OFFSET + SHAREDBUF_NETHANDLER_SIZE)
 #define SHAREDBUF_NODE_UMQTT_RX_SIZE    150
-#define SHAREDBUF_NODE_UMQTT_TX_OFFSET  (SHAREDBUF_NODE_UMQTT_RX_OFFSET + SHAREDBUF_NODE_UMQTT_RX_SIZE)
 #define SHAREDBUF_NODE_UMQTT_TX_SIZE    200
 
-extern uint8_t sharedbuf[SHAREDBUF_SIZE];
+struct sharedbuf_dhcp {
+    uint8_t buffer[sizeof(struct dhcp_message)];
+};
+
+struct sharedbuf_mqtt {
+    uint8_t send_buffer[SHAREDBUF_NETHANDLER_SIZE];
+    uint8_t mqtt_rx[SHAREDBUF_NODE_UMQTT_RX_SIZE];
+    uint8_t mqtt_tx[SHAREDBUF_NODE_UMQTT_TX_SIZE];
+};
+
+union sharedbuf_buffer {
+    struct sharedbuf_dhcp dhcp;
+    struct sharedbuf_mqtt mqtt;
+};
+
+extern union sharedbuf_buffer sharedbuf;
+
+//extern uint8_t sharedbuf[SHAREDBUF_SIZE];
 
 void sharedbuf_clear(void);
 
