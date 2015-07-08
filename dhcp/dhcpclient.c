@@ -17,7 +17,7 @@
 
 enum dhcpclient_state dhcpclient_state;
 
-static struct dhcpclient_session data = {
+static struct dhcpsession data = {
     .buffer = sharedbuf.dhcp.buffer,
     .length = 0
 };

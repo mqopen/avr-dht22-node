@@ -1,7 +1,9 @@
 #ifndef __DHCP_H__
 #define __DHCP_H__
 
-#include "dhcpclient.h"
+//#include "dhcpclient.h"
+#include "dhcpsession.h"
+#include "dhcpfields.h"
 #include "../common.h"
 
 #define DHCP_FLAGS_BROADCAST            0x8000
@@ -101,11 +103,11 @@ struct dhcp_option_address {
 
 struct dhcp_option_lease_time {
     struct dhcp_option_header header;
-    dhcp_lease_time_t lease_time;
+    struct dhcp_lease_time lease_time;
 };
 
-void dhcp_create_discover(struct dhcpclient_session *dhcp);
-bool dhcp_process_offer(struct dhcpclient_session *dhcp);
-void dhcp_create_request(struct dhcpclient_session *dhcp);
-bool dhcp_process_ack(struct dhcpclient_session *dhcp);
+void dhcp_create_discover(struct dhcpsession *dhcp);
+bool dhcp_process_offer(struct dhcpsession *dhcp);
+void dhcp_create_request(struct dhcpsession *dhcp);
+bool dhcp_process_ack(struct dhcpsession *dhcp);
 #endif
