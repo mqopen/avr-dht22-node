@@ -9,6 +9,7 @@
 #define DHCP_MESSAGE_SNAME_SIZE     64
 #define DHCP_MESSAGE_FILE_SIZE      128
 #define DHCP_MESSAGE_OPTIONS_SIZE   312
+#define DHCP_MESSAGE_XID_SIZE       4
 
 #define DHCP_OPTION_MSG_TYPE_LENGTH     1
 
@@ -17,12 +18,14 @@
                         ((uint16_t *)(dest))[1] = ((uint16_t *)(src))[1];   \
                     } while (0)
 
+static const uint8_t magic_cookie[] = {0x63, 0x82, 0x53, 0x63};
+
 struct dhcp_message {
     uint8_t op;
     uint8_t htype;
     uint8_t hlen;
     uint8_t hops;
-    uint32_t xid;
+    uint8_t xid[DHCP_MESSAGE_XID_SIZE];
     uint16_t secs;
     uint16_t flags;
     uip_ipaddr_t ciaddr;

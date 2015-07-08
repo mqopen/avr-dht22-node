@@ -27,6 +27,8 @@ enum dhcpclient_state {
 struct dhcpclient_session {
     uint8_t *buffer;
     uint16_t length;
+    // TODO: remove duplicit code (perhaps create own data type for xid)
+    uint8_t xid[4];
     uip_ipaddr_t client_address;
     uip_ipaddr_t server_address;
     uip_ipaddr_t netmask;

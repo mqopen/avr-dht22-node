@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include "uip/uip.h"
 #include "uip/timer.h"
@@ -35,6 +36,11 @@ void dhcpclient_init(void) {
     timer_set(&retry_timer, RETRY_TIMER_PERIOD);
     /* Clear shared memory. */
     sharedbuf_clear();
+    
+    data.xid[0] = (uint8_t) rand();
+    data.xid[1] = (uint8_t) rand();
+    data.xid[2] = (uint8_t) rand();
+    data.xid[3] = (uint8_t) rand();
 }
 
 void dhcpclient_process(void) {

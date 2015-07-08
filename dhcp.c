@@ -6,9 +6,6 @@
 #define MSG(__d)                    ((struct dhcp_message *) __d->buffer)
 #define OPTIONS_OFFSET(__d)         (__d->length - sizeof(struct dhcp_message) + member_size(struct dhcp_message, options))
 
-static const uint8_t xid[] = {0xad, 0xde, 0x12, 0x23};
-static const uint8_t magic_cookie[] = {0x63, 0x82, 0x53, 0x63};
-
 /* Static function prototypes. */
 static void _create_message(struct dhcpclient_session *dhcp);
 static void _add_message_type(struct dhcpclient_session *dhcp, uint8_t type);
@@ -56,7 +53,7 @@ static void _create_message(struct dhcpclient_session *dhcp) {
     MSG(dhcp)->htype = DHCP_HTYPE_ETHERNET_10;
     MSG(dhcp)->hlen = 6;
     MSG(dhcp)->hops = 0;
-    memcpy(&MSG(dhcp)->xid, xid, sizeof(MSG(dhcp)->xid));
+    memcpy(&MSG(dhcp)->xid, dhcp->xid, sizeof(MSG(dhcp)->xid));
     MSG(dhcp)->secs = 0;
     MSG(dhcp)->flags = HTONS(DHCP_FLAGS_BROADCAST);
     memcpy(&MSG(dhcp)->ciaddr, &dhcp->client_address, sizeof(MSG(dhcp)->ciaddr));
