@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
-#include "uip/uip.h"
-#include "uip/timer.h"
-#include "sharedbuf.h"
+#include "../uip/uip.h"
+#include "../uip/timer.h"
+#include "../sharedbuf.h"
 #include "dhcp.h"
 #include "dhcpclient.h"
 
-#include "uart.h"
+#include "../uart.h"
 
 #define update_state(state)     do {                                    \
                                     dhcpclient_state = state;           \

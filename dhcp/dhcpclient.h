@@ -1,7 +1,7 @@
 #ifndef __DHCPCLIENT_H__
 #define __DHCPCLIENT_H__
 
-#include "uip/uip.h"
+#include "../uip/uip.h"
 
 #define DHCPCLIENT_IP_BROADCAST_OCTET   255
 #define DHCPCLIENT_IP_SOURCE_PORT       68

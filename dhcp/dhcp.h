@@ -2,7 +2,7 @@
 #define __DHCP_H__
 
 #include "dhcpclient.h"
-#include "common.h"
+#include "../common.h"
 
 #define DHCP_FLAGS_BROADCAST            0x8000
 #define DHCP_MESSAGE_CHADDR_SIZE        16

@@ -1,6 +1,6 @@
 #include <string.h>
-#include "common.h"
-#include "uip/uiparp.h"
+#include "../common.h"
+#include "../uip/uiparp.h"
 #include "dhcp.h"
 
 #define MSG(__d)                    ((struct dhcp_message *) __d->buffer)
