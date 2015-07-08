@@ -36,7 +36,7 @@ void dhcpclient_init(void) {
     timer_set(&retry_timer, RETRY_TIMER_PERIOD);
     /* Clear shared memory. */
     sharedbuf_clear();
-    
+    /* Generate xid. */
     data.xid[0] = (uint8_t) rand();
     data.xid[1] = (uint8_t) rand();
     data.xid[2] = (uint8_t) rand();
@@ -49,6 +49,8 @@ void dhcpclient_process(void) {
     switch (current_state) {
         case DHCPCLIENT_STATE_INIT:
             _create_connection();
+            update_state(DHCPCLIENT_STATE_INITIALIZED);
+        case DHCPCLIENT_STATE_INITIALIZED:
             dhcp_create_discover(&data);
             update_state(DHCPCLIENT_STATE_DISCOVER_PENDING);
             break;
@@ -108,7 +110,7 @@ static inline void _create_connection(void) {
 static inline void _on_retry_timer(void) {
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
-            update_state(DHCPCLIENT_STATE_INIT);
+            update_state(DHCPCLIENT_STATE_INITIALIZED);
             break;
         default:
             timer_restart(&retry_timer);
@@ -121,12 +123,13 @@ static inline void _handle_message(void) {
     data.length = uip_datalen();
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
-            dhcp_process_offer(&data);
-            update_state(DHCPCLIENT_STATE_OFFER_RECEIVED);
+            // TODO: handle multiple offers
+            if (dhcp_process_offer(&data))
+                update_state(DHCPCLIENT_STATE_OFFER_RECEIVED);
             break;
         case DHCPCLIENT_STATE_REQUEST_SENT:
-            dhcp_process_ack(&data);
-            update_state(DHCPCLIENT_STATE_ACK_RECEIVED);
+            if (dhcp_process_ack(&data))
+                update_state(DHCPCLIENT_STATE_ACK_RECEIVED);
             break;
         default:
             break;

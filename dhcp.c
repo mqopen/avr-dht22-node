@@ -29,12 +29,13 @@ void dhcp_create_discover(struct dhcpclient_session *dhcp) {
     _add_end(dhcp);
 }
 
-void dhcp_process_offer(struct dhcpclient_session *dhcp) {
+bool dhcp_process_offer(struct dhcpclient_session *dhcp) {
     _parse_client_address(dhcp);
     _parse_server_identifier(dhcp);
     _parse_netmask(dhcp);
     _parse_dns_server(dhcp);
     _parse_lease_time(dhcp);
+    return true;
 }
 
 void dhcp_create_request(struct dhcpclient_session *dhcp) {
@@ -45,7 +46,8 @@ void dhcp_create_request(struct dhcpclient_session *dhcp) {
     _add_end(dhcp);
 }
 
-void dhcp_process_ack(struct dhcpclient_session *dhcp) {
+bool dhcp_process_ack(struct dhcpclient_session *dhcp) {
+    return true;
 }
 
 static void _create_message(struct dhcpclient_session *dhcp) {

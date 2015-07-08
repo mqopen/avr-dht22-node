@@ -4,13 +4,12 @@
 #include "dhcpclient.h"
 #include "common.h"
 
-#define DHCP_FLAGS_BROADCAST        0x8000
-#define DHCP_MESSAGE_CHADDR_SIZE    16
-#define DHCP_MESSAGE_SNAME_SIZE     64
-#define DHCP_MESSAGE_FILE_SIZE      128
-#define DHCP_MESSAGE_OPTIONS_SIZE   312
-#define DHCP_MESSAGE_XID_SIZE       4
-
+#define DHCP_FLAGS_BROADCAST            0x8000
+#define DHCP_MESSAGE_CHADDR_SIZE        16
+#define DHCP_MESSAGE_SNAME_SIZE         64
+#define DHCP_MESSAGE_FILE_SIZE          128
+#define DHCP_MESSAGE_OPTIONS_SIZE       312
+#define DHCP_MESSAGE_XID_SIZE           4
 #define DHCP_OPTION_MSG_TYPE_LENGTH     1
 
 #define dhcp_lease_time_copy(dest, src) do {                                \
@@ -106,7 +105,7 @@ struct dhcp_option_lease_time {
 };
 
 void dhcp_create_discover(struct dhcpclient_session *dhcp);
-void dhcp_process_offer(struct dhcpclient_session *dhcp);
+bool dhcp_process_offer(struct dhcpclient_session *dhcp);
 void dhcp_create_request(struct dhcpclient_session *dhcp);
-void dhcp_process_ack(struct dhcpclient_session *dhcp);
+bool dhcp_process_ack(struct dhcpclient_session *dhcp);
 #endif
