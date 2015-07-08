@@ -1,6 +1,5 @@
 #include <string.h>
 #include "common.h"
-#include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "dhcp.h"
 
@@ -17,8 +16,14 @@ static void _add_server_id(struct dhcpclient_session *dhcp);
 static void _add_request_ip_address(struct dhcpclient_session *dhcp);
 static void _add_request_options(struct dhcpclient_session *dhcp);
 static void _add_end(struct dhcpclient_session *dhcp);
+static inline void _parse_client_address(struct dhcpclient_session *dhcp);
+static bool _parse_server_identifier(struct dhcpclient_session *dhcp);
+static bool _parse_netmask(struct dhcpclient_session *dhcp);
+static bool _parse_dns_server(struct dhcpclient_session *dhcp);
+static bool _parse_lease_time(struct dhcpclient_session *dhcp);
 static inline void _add_to_end_uint8_t(struct dhcpclient_session *dhcp, uint8_t value);
 static inline void _add_to_and_address(struct dhcpclient_session *dhcp, uip_ipaddr_t *address);
+static void *_find_option(struct dhcp_message *message, uint16_t message_length, enum dhcp_option option);
 
 void dhcp_create_discover(struct dhcpclient_session *dhcp) {
     _create_message(dhcp);
@@ -28,16 +33,11 @@ void dhcp_create_discover(struct dhcpclient_session *dhcp) {
 }
 
 void dhcp_process_offer(struct dhcpclient_session *dhcp) {
-    uip_ipaddr(&dhcp->client_address, 192, 168, 7, 1);
-    uip_ipaddr(&dhcp->server_address, 192, 168, 7, 111);
-    uip_ipaddr(&dhcp->netmask, 255, 255, 255, 0);
-    
-    uip_ipaddr_t ip;
-    uip_ipaddr_t netmask;
-    uip_ipaddr(&ip, 192, 168, 7, 1);
-    uip_ipaddr(&netmask, 255, 255, 255, 0);
-    uip_sethostaddr(ip);
-    uip_setnetmask(netmask);
+    _parse_client_address(dhcp);
+    _parse_server_identifier(dhcp);
+    _parse_netmask(dhcp);
+    _parse_dns_server(dhcp);
+    _parse_lease_time(dhcp);
 }
 
 void dhcp_create_request(struct dhcpclient_session *dhcp) {
@@ -60,7 +60,7 @@ static void _create_message(struct dhcpclient_session *dhcp) {
     MSG(dhcp)->secs = 0;
     MSG(dhcp)->flags = HTONS(DHCP_FLAGS_BROADCAST);
     memcpy(&MSG(dhcp)->ciaddr, &dhcp->client_address, sizeof(MSG(dhcp)->ciaddr));
-    /* Always zero per rfc, server def. */
+    /* Always zero per RFC, server def. */
     memset(&MSG(dhcp)->yiaddr, 0, sizeof(MSG(dhcp)->yiaddr));
     memset(&MSG(dhcp)->siaddr, 0, sizeof(MSG(dhcp)->siaddr));
     memset(&MSG(dhcp)->giaddr, 0, sizeof(MSG(dhcp)->giaddr));
@@ -103,6 +103,43 @@ static void _add_end(struct dhcpclient_session *dhcp) {
     _add_to_end_uint8_t(dhcp, DHCP_OPTION_END);
 }
 
+static inline void _parse_client_address(struct dhcpclient_session *dhcp) {
+    uip_ipaddr_copy(&dhcp->client_address, &MSG(dhcp)->yiaddr);
+}
+
+static bool _parse_server_identifier(struct dhcpclient_session *dhcp) {
+    struct dhcp_option_address *server_identifier_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_SERVER_ID);
+    if (server_identifier_opt == NULL)
+        return false;
+    uip_ipaddr_copy(&dhcp->server_address, &server_identifier_opt->address);
+    return true;
+}
+
+static bool _parse_netmask(struct dhcpclient_session *dhcp) {
+    struct dhcp_option_address *netmask_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_SUBNET_MASK);
+    if (netmask_opt == NULL)
+        return false;
+    uip_ipaddr_copy(&dhcp->netmask, &netmask_opt->address);
+    return true;
+}
+
+static bool _parse_dns_server(struct dhcpclient_session *dhcp) {
+    struct dhcp_option_address *dns_server_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_SUBNET_MASK);
+    if (dns_server_opt == NULL)
+        return false;
+    uip_ipaddr_copy(&dhcp->dns, &dns_server_opt->address);
+    return true;
+}
+
+static bool _parse_lease_time(struct dhcpclient_session *dhcp) {
+    struct dhcp_option_lease_time *lease_time_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_LEASE_TIME);
+    if (lease_time_opt == NULL)
+        return false;
+    //uip_ipaddr_copy(&dhcp->dns, &lease_time_opt->address);
+    dhcp_lease_time_copy(&dhcp->lease_time, &lease_time_opt->lease_time);
+    return true;
+}
+
 static inline void _add_to_end_uint8_t(struct dhcpclient_session *dhcp, uint8_t value) {
     MSG(dhcp)->options[OPTIONS_OFFSET(dhcp)] = value;
     dhcp->length += sizeof(value);
@@ -111,4 +148,20 @@ static inline void _add_to_end_uint8_t(struct dhcpclient_session *dhcp, uint8_t 
 static inline void _add_to_and_address(struct dhcpclient_session *dhcp, uip_ipaddr_t *address) {
     uip_ipaddr_copy(MSG(dhcp)->options + OPTIONS_OFFSET(dhcp), address);
     dhcp->length += sizeof(*address);
+}
+
+static void *_find_option(struct dhcp_message *message, uint16_t message_length, enum dhcp_option option) {
+    /* Skip 4 byte of magic cookie. */
+    uint8_t i = 4;
+    const uint16_t l = message_length - sizeof(struct dhcp_message) + member_size(struct dhcp_message, options);
+    while (i < l) {
+        enum dhcp_option opt = (enum dhcp_option) message->options[i];
+        uint8_t opt_len = (uint8_t) message->options[i + 1];
+        if (opt == option)
+            return (message->options) + i;
+        else
+            /* Option key + option length indicator + option value length. */
+            i += (2 + opt_len);
+    }
+    return NULL;
 }

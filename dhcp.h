@@ -2,6 +2,7 @@
 #define __DHCP_H__
 
 #include "dhcpclient.h"
+#include "common.h"
 
 #define DHCP_FLAGS_BROADCAST        0x8000
 #define DHCP_MESSAGE_CHADDR_SIZE    16
@@ -11,6 +12,11 @@
 
 #define DHCP_OPTION_MSG_TYPE_LENGTH     1
 
+#define dhcp_lease_time_copy(dest, src) do {                                \
+                        ((uint16_t *)(dest))[0] = ((uint16_t *)(src))[0];   \
+                        ((uint16_t *)(dest))[1] = ((uint16_t *)(src))[1];   \
+                    } while (0)
+
 struct dhcp_message {
     uint8_t op;
     uint8_t htype;
@@ -19,10 +25,10 @@ struct dhcp_message {
     uint32_t xid;
     uint16_t secs;
     uint16_t flags;
-    uint32_t ciaddr;
-    uint32_t yiaddr;
-    uint32_t siaddr;
-    uint32_t giaddr;
+    uip_ipaddr_t ciaddr;
+    uip_ipaddr_t yiaddr;
+    uip_ipaddr_t siaddr;
+    uip_ipaddr_t giaddr;
     uint8_t chaddr[DHCP_MESSAGE_CHADDR_SIZE];
     uint8_t sname[DHCP_MESSAGE_SNAME_SIZE];
     uint8_t file[DHCP_MESSAGE_FILE_SIZE];
@@ -79,6 +85,21 @@ enum dhcp_option {
     DHCP_OPTION_SERVER_ID       = 54,
     DHCP_OPTION_REQ_LIST        = 55,
     DHCP_OPTION_END             = 255
+};
+
+struct dhcp_option_header {
+    enum dhcp_option option;
+    uint8_t option_length;
+};
+
+struct dhcp_option_address {
+    struct dhcp_option_header header;
+    uip_ipaddr_t address;
+};
+
+struct dhcp_option_lease_time {
+    struct dhcp_option_header header;
+    dhcp_lease_time_t lease_time;
 };
 
 void dhcp_create_discover(struct dhcpclient_session *dhcp);

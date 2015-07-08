@@ -4,6 +4,8 @@
 #include "common.h"
 #include "node.h"
 
+#define CONFIG_DEBUG
+
 #define ETH_ADDR0       0x76
 #define ETH_ADDR1       0xe6
 #define ETH_ADDR2       0xe2

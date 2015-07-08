@@ -25,10 +25,10 @@ static struct dhcpclient_session data = {
 static struct timer retry_timer;
 
 /* static function prototypes. */
-static void _create_connection(void);
-static void _on_retry_timer(void);
-static void _handle_message(void);
-static void _configure_address(void);
+static inline void _create_connection(void);
+static inline void _on_retry_timer(void);
+static inline void _handle_message(void);
+static inline void _configure_address(void);
 
 void dhcpclient_init(void) {
     update_state(DHCPCLIENT_STATE_INIT);
@@ -52,6 +52,7 @@ void dhcpclient_process(void) {
             break;
         case DHCPCLIENT_STATE_ACK_RECEIVED:
             _configure_address();
+            update_state(DHCPCLIENT_STATE_ADDRESS_CONFIGURED);
             break;
         default:
             break;
@@ -59,6 +60,11 @@ void dhcpclient_process(void) {
 }
 
 void dhcpclient_appcall(void) {
+    if (current_state == DHCPCLIENT_STATE_ADDRESS_CONFIGURED) {
+        uip_close();
+        update_state(DHCPCLIENT_STATE_FINISHED);
+    }
+
     if (uip_newdata())
         _handle_message();
 
@@ -73,16 +79,13 @@ void dhcpclient_appcall(void) {
                 uip_send(data.buffer, data.length);
                 update_state(DHCPCLIENT_STATE_REQUEST_SENT);
                 break;
-            case DHCPCLIENT_STATE_ADDRESS_CONFIGURED:
-                uip_close();
-                update_state(DHCPCLIENT_STATE_FINISHED);
             default:
                 break;
         }
     }
 }
 
-static void _create_connection(void) {
+static inline void _create_connection(void) {
     uip_ipaddr_t addr;
     struct uip_udp_conn *c;
     uip_ipaddr(&addr,
@@ -96,7 +99,7 @@ static void _create_connection(void) {
     }
 }
 
-static void _on_retry_timer(void) {
+static inline void _on_retry_timer(void) {
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
             update_state(DHCPCLIENT_STATE_INIT);
@@ -107,8 +110,9 @@ static void _on_retry_timer(void) {
     }
 }
 
-static void _handle_message(void) {
+static inline void _handle_message(void) {
     memcpy(data.buffer, uip_appdata, uip_datalen());
+    data.length = uip_datalen();
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
             dhcp_process_offer(&data);
@@ -123,15 +127,7 @@ static void _handle_message(void) {
     }
 }
 
-static void _configure_address(void) {
-    //uip_ipaddr_t ip;
-    //uip_ipaddr_t netmask;
-    
-    //uip_ipaddr(ip, 192, 168, 7, 1);
-    //uip_ipaddr(netmask, 255, 255, 255, 0);
-    
-    //uip_sethostaddr(ip);
-    //uip_setnetmask(netmask);
-    
-    update_state(DHCPCLIENT_STATE_ADDRESS_CONFIGURED);
+static inline void _configure_address(void) {
+    uip_sethostaddr(&data.client_address);
+    uip_setnetmask(&data.netmask);
 }

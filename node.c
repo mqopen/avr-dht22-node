@@ -68,8 +68,10 @@ void node_process(void) {
     switch (current_state) {
         case NODE_DHCP_QUERYING:
             dhcpclient_process();
-            if (dhcpclient_is_done())
+            if (dhcpclient_is_done()) {
+                uart_println("dhcp done");
                 update_state(NODE_BROKER_DISCONNECTED);
+            }
             break;
         case NODE_BROKER_CONNECTION_ESTABLISHED:
             node_handle_connection_established();
@@ -146,7 +148,7 @@ static void node_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-// TODO: for debug only
+#ifdef CONFIG_DEBUG
 #define put_spacer()    uart_puts("  |  ")
 __attribute__ ((unused)) static void print_uip_flags(void) {
     if(uip_flags) {
@@ -163,6 +165,7 @@ __attribute__ ((unused)) static void print_uip_flags(void) {
         uart_println("no flags");
     }
 }
+#endif
 
 void node_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;

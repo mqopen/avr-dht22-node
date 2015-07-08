@@ -37,4 +37,7 @@
 
 #define member_size(type, member)   sizeof(((type *)0)->member)
 
+// TODO: move this typedef into dhcp related file
+typedef uint16_t dhcp_lease_time_t[2];
+
 #endif /* __COMMON_H__ */

@@ -7,6 +7,9 @@
 #define DHCPCLIENT_IP_SOURCE_PORT       68
 #define DHCPCLIENT_IP_DESTINATION_PORT  67
 
+/*
+ * Check if DHCP resolving is finished.
+ */
 #define dhcpclient_is_done()    (dhcpclient_state == DHCPCLIENT_STATE_FINISHED)
 
 enum dhcpclient_state {
@@ -27,7 +30,8 @@ struct dhcpclient_session {
     uip_ipaddr_t client_address;
     uip_ipaddr_t server_address;
     uip_ipaddr_t netmask;
-    uint16_t lease_time;
+    uip_ipaddr_t dns;
+    dhcp_lease_time_t lease_time;
 };
 
 extern enum dhcpclient_state dhcpclient_state;
