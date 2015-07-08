@@ -4,7 +4,7 @@
 #ifndef __SHAREDBUF_H__
 #define __SHAREDBUF_H__
 
-#include "dhcp.h"
+#include "dhcp/dhcp.h"
 
 #define SHAREDBUF_NODE_SEND_BUFFER_SIZE 100
 #define SHAREDBUF_NODE_UMQTT_RX_SIZE    150

@@ -6,7 +6,7 @@
 #include "dht.h"
 #include "node.h"
 #include "sharedbuf.h"
-#include "dhcpclient.h"
+#include "dhcp/dhcpclient.h"
 #include "config.h"
 
 #include "uart.h"
