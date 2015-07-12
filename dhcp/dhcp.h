@@ -14,11 +14,6 @@
 #define DHCP_MESSAGE_XID_SIZE           4
 #define DHCP_OPTION_MSG_TYPE_LENGTH     1
 
-#define dhcp_lease_time_copy(dest, src) do {                                \
-                        ((uint16_t *)(dest))[0] = ((uint16_t *)(src))[0];   \
-                        ((uint16_t *)(dest))[1] = ((uint16_t *)(src))[1];   \
-                    } while (0)
-
 static const uint8_t magic_cookie[] = {0x63, 0x82, 0x53, 0x63};
 
 struct dhcp_message {

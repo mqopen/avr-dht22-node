@@ -3,6 +3,8 @@
 #include "../uip/uiparp.h"
 #include "dhcp.h"
 
+#include "../uart.h"
+
 #define MSG(__d)                    ((struct dhcp_message *) __d->buffer)
 #define OPTIONS_OFFSET(__d)         (__d->length - sizeof(struct dhcp_message) + member_size(struct dhcp_message, options))
 
@@ -30,11 +32,18 @@ void dhcp_create_discover(struct dhcpsession *dhcp) {
 }
 
 bool dhcp_process_offer(struct dhcpsession *dhcp) {
+    /* Check if message is reply. */
+    if ((enum dhcp_op) MSG(dhcp)->op != DHCP_OP_BOOTREPLY)
+        return false;
     _parse_client_address(dhcp);
-    _parse_server_identifier(dhcp);
-    _parse_netmask(dhcp);
-    _parse_dns_server(dhcp);
-    _parse_lease_time(dhcp);
+    if (!_parse_server_identifier(dhcp))
+        return false;
+    if (!_parse_netmask(dhcp))
+        return false;
+    if (!_parse_dns_server(dhcp))
+        return false;
+    if (!_parse_lease_time(dhcp))
+        return false;
     return true;
 }
 
@@ -47,6 +56,9 @@ void dhcp_create_request(struct dhcpsession *dhcp) {
 }
 
 bool dhcp_process_ack(struct dhcpsession *dhcp) {
+    /* Check if message is reply. */
+    if ((enum dhcp_op) MSG(dhcp)->op != DHCP_OP_BOOTREPLY)
+        return false;
     return true;
 }
 
@@ -123,7 +135,7 @@ static bool _parse_netmask(struct dhcpsession *dhcp) {
 }
 
 static bool _parse_dns_server(struct dhcpsession *dhcp) {
-    struct dhcp_option_address *dns_server_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_SUBNET_MASK);
+    struct dhcp_option_address *dns_server_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_DNS_SERVER);
     if (dns_server_opt == NULL)
         return false;
     uip_ipaddr_copy(&dhcp->dns, &dns_server_opt->address);
@@ -134,8 +146,7 @@ static bool _parse_lease_time(struct dhcpsession *dhcp) {
     struct dhcp_option_lease_time *lease_time_opt = _find_option(MSG(dhcp), dhcp->length, DHCP_OPTION_LEASE_TIME);
     if (lease_time_opt == NULL)
         return false;
-    //uip_ipaddr_copy(&dhcp->dns, &lease_time_opt->address);
-    //dhcp_lease_time_copy(&dhcp->lease_time, &lease_time_opt->lease_time);
+    dhcp_lease_time_copy(lease_time_opt->lease_time, dhcp->lease_time);
     return true;
 }
 

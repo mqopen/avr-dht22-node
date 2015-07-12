@@ -13,7 +13,7 @@
                                     timer_restart(&retry_timer);        \
                                 } while (0)
 #define current_state           dhcpclient_state
-#define RETRY_TIMER_PERIOD      (CLOCK_SECOND * 1)
+#define RETRY_TIMER_PERIOD      (CLOCK_SECOND * 5)
 
 enum dhcpclient_state dhcpclient_state;
 
@@ -110,6 +110,7 @@ static inline void _create_connection(void) {
 static inline void _on_retry_timer(void) {
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
+        case DHCPCLIENT_STATE_REQUEST_SENT:
             update_state(DHCPCLIENT_STATE_INITIALIZED);
             break;
         default:

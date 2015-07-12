@@ -55,6 +55,9 @@ static struct timer dht_timer;
 /* Timer for limit reconnect attempts. */
 static struct timer disconnected_wait_timer;
 
+/* Timer for periodic re-leasing of IP address. */
+static struct timer dhcp_lease_timer;
+
 void node_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * 2);
@@ -69,10 +72,8 @@ void node_process(void) {
     switch (current_state) {
         case NODE_DHCP_QUERYING:
             dhcpclient_process();
-            if (dhcpclient_is_done()) {
-                uart_println("dhcp done");
+            if (dhcpclient_is_done())
                 update_state(NODE_BROKER_DISCONNECTED);
-            }
             break;
         case NODE_BROKER_CONNECTION_ESTABLISHED:
             node_handle_connection_established();
