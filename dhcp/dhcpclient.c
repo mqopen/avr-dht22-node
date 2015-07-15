@@ -17,7 +17,7 @@
 
 enum dhcpclient_state dhcpclient_state;
 
-static struct dhcpsession data = {
+struct dhcpsession dhcpclient_data = {
     .buffer = sharedbuf.dhcp.buffer,
     .length = 0
 };
@@ -37,10 +37,10 @@ void dhcpclient_init(void) {
     /* Clear shared memory. */
     sharedbuf_clear();
     /* Generate xid. */
-    data.xid[0] = (uint8_t) rand();
-    data.xid[1] = (uint8_t) rand();
-    data.xid[2] = (uint8_t) rand();
-    data.xid[3] = (uint8_t) rand();
+    dhcpclient_data.xid[0] = (uint8_t) rand();
+    dhcpclient_data.xid[1] = (uint8_t) rand();
+    dhcpclient_data.xid[2] = (uint8_t) rand();
+    dhcpclient_data.xid[3] = (uint8_t) rand();
 }
 
 void dhcpclient_process(void) {
@@ -51,11 +51,11 @@ void dhcpclient_process(void) {
             _create_connection();
             update_state(DHCPCLIENT_STATE_INITIALIZED);
         case DHCPCLIENT_STATE_INITIALIZED:
-            dhcp_create_discover(&data);
+            dhcp_create_discover(&dhcpclient_data);
             update_state(DHCPCLIENT_STATE_DISCOVER_PENDING);
             break;
         case DHCPCLIENT_STATE_OFFER_RECEIVED:
-            dhcp_create_request(&data);
+            dhcp_create_request(&dhcpclient_data);
             update_state(DHCPCLIENT_STATE_REQUEST_PENDING);
             break;
         case DHCPCLIENT_STATE_ACK_RECEIVED:
@@ -79,12 +79,12 @@ void dhcpclient_appcall(void) {
     if (uip_poll()) {
         switch (current_state) {
             case DHCPCLIENT_STATE_DISCOVER_PENDING:
-                /* Simply transmitt data stored in shared buffer. */
-                uip_send(data.buffer, data.length);
+                /* Simply transmitt dhcpclient_data stored in shared buffer. */
+                uip_send(dhcpclient_data.buffer, dhcpclient_data.length);
                 update_state(DHCPCLIENT_STATE_DISCOVER_SENT);
                 break;
             case DHCPCLIENT_STATE_REQUEST_PENDING:
-                uip_send(data.buffer, data.length);
+                uip_send(dhcpclient_data.buffer, dhcpclient_data.length);
                 update_state(DHCPCLIENT_STATE_REQUEST_SENT);
                 break;
             default:
@@ -120,16 +120,16 @@ static inline void _on_retry_timer(void) {
 }
 
 static inline void _handle_message(void) {
-    memcpy(data.buffer, uip_appdata, uip_datalen());
-    data.length = uip_datalen();
+    memcpy(dhcpclient_data.buffer, uip_appdata, uip_datalen());
+    dhcpclient_data.length = uip_datalen();
     switch (current_state) {
         case DHCPCLIENT_STATE_DISCOVER_SENT:
             // TODO: handle multiple offers
-            if (dhcp_process_offer(&data))
+            if (dhcp_process_offer(&dhcpclient_data))
                 update_state(DHCPCLIENT_STATE_OFFER_RECEIVED);
             break;
         case DHCPCLIENT_STATE_REQUEST_SENT:
-            if (dhcp_process_ack(&data))
+            if (dhcp_process_ack(&dhcpclient_data))
                 update_state(DHCPCLIENT_STATE_ACK_RECEIVED);
             break;
         default:
@@ -138,6 +138,6 @@ static inline void _handle_message(void) {
 }
 
 static inline void _configure_address(void) {
-    uip_sethostaddr(&data.client_address);
-    uip_setnetmask(&data.netmask);
+    uip_sethostaddr(&dhcpclient_data.client_address);
+    uip_setnetmask(&dhcpclient_data.netmask);
 }

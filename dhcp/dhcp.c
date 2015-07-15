@@ -169,9 +169,14 @@ static void *_find_option(struct dhcp_message *message, uint16_t message_length,
         uint8_t opt_len = (uint8_t) message->options[i + 1];
         if (opt == option)
             return (message->options) + i;
-        else
-            /* Option key + option length indicator + option value length. */
-            i += (2 + opt_len);
+        else {
+            if (opt_len == 0)
+                /* Avoid inifinite loop. */
+                return NULL;
+            else
+                /* Option key + option length indicator + option value length. */
+                i += (2 + opt_len);
+        }
     }
     return NULL;
 }

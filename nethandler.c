@@ -58,16 +58,15 @@ void nethandler_rx(void) {
 void nethandler_periodic(void) {
     int i;
     switch (node_system_state) {
-        case NODE_DHCP_QUERYING:
-        case NODE_DNS_QUERYING:
-            times(UIP_UDP_CONNS, i) {
-                uip_udp_periodic(i);
+        case NODE_MQTT:
+            times(UIP_CONNS, i) {
+                uip_periodic(i);
                 send_out();
             }
             break;
         default:
-            times(UIP_CONNS, i) {
-                uip_periodic(i);
+            times(UIP_UDP_CONNS, i) {
+                uip_udp_periodic(i);
                 send_out();
             }
             break;

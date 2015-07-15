@@ -26,6 +26,7 @@ enum dhcpclient_state {
 };
 
 extern enum dhcpclient_state dhcpclient_state;
+extern struct dhcpsession dhcpclient_data;
 
 void dhcpclient_init(void);
 void dhcpclient_process(void);
