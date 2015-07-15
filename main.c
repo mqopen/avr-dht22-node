@@ -29,8 +29,6 @@ void interface_init() {
 
     uip_setethaddr(mac);
     
-    struct timer periodic_timer;
-    struct timer arp_timer;
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
     timer_set(&arp_timer, CLOCK_SECOND * 10);
 }
