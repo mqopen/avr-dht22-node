@@ -10,13 +10,13 @@
 
 /* Static function prototypes. */
 static void _node_set_dhcp_lease_timer(void);
-static bool _node_test_dhcp_lease_timer(void);
+static void _node_test_dhcp_lease_timer(void);
 
 /* Current system state */
 enum node_system_state node_system_state;
 
 /* Timer for periodic re-leasing of IP address. */
-static struct timer dhcp_lease_sectimer;
+static struct sectimer dhcp_lease_sectimer;
 
 void node_init(void) {
     dhcpclient_init();
@@ -42,29 +42,46 @@ void node_process(void) {
     }
 }
 
-static void _node_set_dhcp_lease_timer(void) {
-    /* Debug only: re-lease IP address every 10 seconds. */
-    timer_set(&dhcp_lease_sectimer, CLOCK_SECOND * 10);
+void node_appcall(void) {
+    _node_test_dhcp_lease_timer();
+    if (current_state == NODE_MQTT)
+        mqttclient_appcall();
 }
 
-static bool _node_test_dhcp_lease_timer(void) {
+void node_udp_appcall(void) {
+    _node_test_dhcp_lease_timer();
+    switch (current_state) {
+        case NODE_DHCP_QUERYING:
+            dhcpclient_appcall();
+            break;
+        case NODE_DNS_QUERYING:
+            break;
+        default:
+            break;
+    }
+}
+
+static void _node_set_dhcp_lease_timer(void) {
+    /* Debug only: re-lease IP address every 10 seconds. */
+    sectimer_set(&dhcp_lease_sectimer, CLOCK_SECOND * 10);
+}
+
+static void _node_test_dhcp_lease_timer(void) {
     /* Test DHCP lease timer. */
     switch (current_state) {
         case NODE_DHCP_QUERYING:
             break;
         default:
-            if (timer_tryrestart(&dhcp_lease_sectimer)) {
+            if (sectimer_tryrestart(&dhcp_lease_sectimer)) {
                 uip_close();
                 dhcpclient_init();
                 update_state(NODE_DHCP_QUERYING);
-                return true;
             }
             break;
     }
-    return false;
 }
 
-#ifdef CONFIG_DEBUG
+#if CONFIG_DEBUG
 #define put_spacer()    uart_puts("  |  ")
 __attribute__ ((unused)) static void print_uip_flags(void) {
     if(uip_flags) {
@@ -82,23 +99,3 @@ __attribute__ ((unused)) static void print_uip_flags(void) {
     }
 }
 #endif
-
-void node_appcall(void) {
-    if (_node_test_dhcp_lease_timer())
-        return;
-    mqttclient_appcall();
-}
-
-void node_udp_appcall(void) {
-    if (_node_test_dhcp_lease_timer())
-        return;
-    switch (current_state) {
-        case NODE_DHCP_QUERYING:
-            dhcpclient_appcall();
-            break;
-        case NODE_DNS_QUERYING:
-            break;
-        default:
-            break;
-    }
-}

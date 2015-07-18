@@ -85,6 +85,7 @@
 /* Ignore warning on line 658 caused by some GCC weirdness (bug?) */
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
+#include <string.h>
 #include "uip.h"
 #include "uipopt.h"
 #include "uiparch.h"
@@ -92,8 +93,6 @@
 #if UIP_CONF_IPV6
 #include "uipneighbor.h"
 #endif /* UIP_CONF_IPV6 */
-
-#include <string.h>
 
 /* Variable definitions. */
 

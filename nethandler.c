@@ -27,6 +27,8 @@
 #include "enc28j60/network.h"
 #include "node.h"
 
+#include "uart.h"
+
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
@@ -71,8 +73,4 @@ void nethandler_periodic(void) {
             }
             break;
     }
-}
-
-void nethandler_periodic_arp(void) {
-    uip_arp_timer();
 }

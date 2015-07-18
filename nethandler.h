@@ -23,6 +23,5 @@
 
 void nethandler_rx(void);
 void nethandler_periodic(void);
-void nethandler_periodic_arp(void);
 
 #endif /* __NETHANDLER_H__ */
