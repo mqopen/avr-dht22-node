@@ -13,6 +13,21 @@
 #define ETH_ADDR4       0x2f
 #define ETH_ADDR5       0x44
 
+
+/* IP configuration. */
+#define CONFIG_DHCP     0
+#if !(CONFIG_DHCP)
+#define CONFIG_IP_ADDR0 192
+#define CONFIG_IP_ADDR1 168
+#define CONFIG_IP_ADDR2 7
+#define CONFIG_IP_ADDR3 1
+
+#define CONFIG_NETMASK0 255
+#define CONFIG_NETMASK1 255
+#define CONFIG_NETMASK2 255
+#define CONFIG_NETMASK3 0
+#endif
+
 /* SPI enc28j60 interface configuration. */
 #define ENC28J60_SPI_PORT       PORTB
 #define ENC28J60_SPI_DDR        DDRB

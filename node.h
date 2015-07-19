@@ -4,7 +4,9 @@
 #include "umqtt/umqtt.h"
 
 enum node_system_state {
+#if CONFIG_DHCP
     NODE_DHCP_QUERYING,
+#endif
     NODE_DNS_QUERYING,
     NODE_MQTT,
 };

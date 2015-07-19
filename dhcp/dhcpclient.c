@@ -18,7 +18,10 @@
 enum dhcpclient_state dhcpclient_state;
 
 struct dhcpsession dhcpclient_data = {
+// TODO: remove this directive
+#if CONFIG_DHCP
     .buffer = sharedbuf.dhcp.buffer,
+#endif
     .length = 0
 };
 
