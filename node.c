@@ -1,3 +1,5 @@
+#include "node.h"
+#include "config.h"
 #if CONFIG_DHCP
 #include "common/sectimer.h"
 #include "dhcp/dhcpclient.h"
@@ -5,7 +7,6 @@
 
 #include "uip/uip.h"
 #include "umqtt/mqttclient.h"
-#include "node.h"
 
 #include "uart.h"
 

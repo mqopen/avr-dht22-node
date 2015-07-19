@@ -20,8 +20,8 @@ OPTIMIZER_FLAGS = -Os
 CFLAGS_VALUES = pack-struct short-enums function-sections data-sections unsigned-char unsigned-bitfields no-strict-aliasing
 CFLAGS = $(addprefix -f,$(CFLAGS_VALUES))
 
-HEADER_CONFIG_FILES = uipconf.h config.h
-HEADER_CONFIG_FLAGS = $(addprefix -include ,$(HEADER_CONFIG_FILES))
+#HEADER_CONFIG_FILES = uipconf.h config.h
+#HEADER_CONFIG_FLAGS = $(addprefix -include ,$(HEADER_CONFIG_FILES))
 
 INCLUDE_PATHS = $(PWD)
 INCLUDE_FLAGS = $(addprefix -I,$(INCLUDE_PATHS))

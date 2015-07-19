@@ -20,6 +20,7 @@
 
 #include <util/delay.h>
 #include "common.h"
+#include "config.h"
 #include "dht.h"
 
 #define DHT_TIMEOUT                         400

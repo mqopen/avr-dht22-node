@@ -54,6 +54,7 @@
 
 #include <avr/pgmspace.h>
 #include "uipopt.h"
+#include "../config.h"
 
 /**
  * Repressentation of an IP address.

@@ -1,6 +1,7 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
+#include "config.h"
 #include "umqtt/umqtt.h"
 
 enum node_system_state {

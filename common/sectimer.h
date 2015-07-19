@@ -1,6 +1,7 @@
 #ifndef __SECTIMER_H__
 #define __SECTIMER_H__
 
+#include <stdbool.h>
 #include "../uip/timer.h"
 
 struct sectimer {

@@ -4,6 +4,7 @@
 #ifndef __SHAREDBUF_H__
 #define __SHAREDBUF_H__
 
+#include "config.h"
 #if CONFIG_DHCP
 #include "dhcp/dhcp.h"
 #endif

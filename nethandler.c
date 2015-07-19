@@ -25,6 +25,7 @@
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
+#include "common.h"
 #include "node.h"
 
 #include "uart.h"
