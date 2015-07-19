@@ -26,7 +26,7 @@ HEADER_CONFIG_FLAGS = $(addprefix -include ,$(HEADER_CONFIG_FILES))
 INCLUDE_PATHS = $(PWD)
 INCLUDE_FLAGS = $(addprefix -I,$(INCLUDE_PATHS))
 
-LDFLAGS = -Wl,-Map,$(PRG).map
+LDFLAGS = -Wl,--gc-sections,-Map,$(PRG).map
 
 CROSS	= avr-
 SHELL	= sh
