@@ -32,11 +32,7 @@ void node_init(void) {
     dhcpclient_init();
 #endif
     mqttclient_init();
-#if CONFIG_DHCP
-    update_state(NODE_DHCP_QUERYING);
-#else
-    update_state(NODE_MQTT);
-#endif
+    update_state(NODE_STATE_INIT);
 }
 
 void node_process(void) {

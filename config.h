@@ -15,7 +15,7 @@
 
 
 /* IP configuration. */
-#define CONFIG_DHCP     1
+#define CONFIG_DHCP     0
 #if !(CONFIG_DHCP)
 #define CONFIG_IP_ADDR0 192
 #define CONFIG_IP_ADDR1 168

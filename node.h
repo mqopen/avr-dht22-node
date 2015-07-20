@@ -4,6 +4,12 @@
 #include "config.h"
 #include "umqtt/umqtt.h"
 
+#if CONFIG_DHCP
+#define NODE_STATE_INIT NODE_DHCP_QUERYING
+#else
+#define NODE_STATE_INIT NODE_MQTT
+#endif
+
 enum node_system_state {
 #if CONFIG_DHCP
     NODE_DHCP_QUERYING,
