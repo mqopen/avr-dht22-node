@@ -20,6 +20,10 @@ Edit following values config.h configuration file:
 
 After configuration is done, build IoT node software with command `make`
 
+### Upload
+
+To upload software into AVR use command `make avrdude`
+
 ### Development
 
 Node has implemented code for DHCP client to dynamically assign IP address. This
