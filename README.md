@@ -19,3 +19,10 @@ Edit following values config.h configuration file:
 ### Building
 
 After configuration is done, build IoT node software with command `make`
+
+### Development
+
+Node has implemented code for DHCP client to dynamically assign IP address. This
+feature is currently in experimental phase and it is not well tested. Future
+versions should also include DNS client to obtain IP address of MQTT broker from
+local DNS server.
