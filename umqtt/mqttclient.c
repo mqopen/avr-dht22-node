@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) Ivo Slanina <ivo.slanina@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "uip/uip.h"
 #include "uip/timer.h"
 #include "dht.h"
@@ -75,11 +92,11 @@ void mqttclient_process(void) {
 
 void mqttclient_appcall(void) {
     struct umqtt_connection *conn = uip_conn->appstate.conn;
-    
+
     if (uip_connected()) {
         update_state(MQTTCLIENT_BROKER_CONNECTION_ESTABLISHED);
     }
-    
+
     if(uip_aborted() || uip_timedout() || uip_closed()) {
         if (current_state == MQTTCLIENT_BROKER_CONNECTING) {
             /* Another disconnect in reconnecting phase. Shut down for a while, then try again. */
@@ -90,12 +107,12 @@ void mqttclient_appcall(void) {
             mqtt.state = UMQTT_STATE_INIT;
         }
     }
-    
+
     if (uip_newdata()) {
         umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
         umqtt_process(conn);
     }
-    
+
     if (uip_rexmit()) {
         uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
     } else if (uip_poll() || uip_acked()) {

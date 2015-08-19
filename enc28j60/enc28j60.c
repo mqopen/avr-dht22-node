@@ -158,7 +158,7 @@ void enc28j60_phy_write(uint8_t address, uint16_t data) {
 
 void enc28j60_init(void) {
     enc28j60_spi_init();
-    
+
     // perform system reset
     enc28j60_op_write(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
     // check CLKRDY bit to see if reset is complete
@@ -226,7 +226,7 @@ void enc28j60_spi_init(void) {
     ENC28J60_SPI_DDR |= (_BV(ENC28J60_SPI_SCK) | _BV(ENC28J60_SPI_MOSI) | _BV(ENC28J60_SPI_SS));
     // set MISO as input
     ENC28J60_SPI_DDR &= ~(_BV(ENC28J60_SPI_MISO));
-    
+
     // enable SPI, master mode
     SPCR = _BV(SPE) | _BV(MSTR);
 }

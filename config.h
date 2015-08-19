@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) Ivo Slanina <ivo.slanina@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
@@ -17,10 +34,10 @@
 /* IP configuration. */
 #define CONFIG_DHCP     0
 #if !(CONFIG_DHCP)
-#define CONFIG_IP_ADDR0 192
-#define CONFIG_IP_ADDR1 168
-#define CONFIG_IP_ADDR2 7
-#define CONFIG_IP_ADDR3 1
+#define CONFIG_IP_ADDR0 10
+#define CONFIG_IP_ADDR1 0
+#define CONFIG_IP_ADDR2 0
+#define CONFIG_IP_ADDR3 56
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
@@ -46,18 +63,18 @@
 #define DHT_SDA                 PB1
 
 /* MQTT configuration. */
-#define MQTT_BROKER_IP_ADDR0    192
-#define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    7
-#define MQTT_BROKER_IP_ADDR3    111
+#define MQTT_BROKER_IP_ADDR0    10
+#define MQTT_BROKER_IP_ADDR1    0
+#define MQTT_BROKER_IP_ADDR2    0
+#define MQTT_BROKER_IP_ADDR3    120
 
 #define MQTT_BROKER_PORT        1883
 
-#define MQTT_TOPIC_TEMPERATURE  "sensors/temperature/test"
-#define MQTT_TOPIC_HUMIDITY     "sensors/humidity/test"
+#define MQTT_TOPIC_TEMPERATURE  "sensors/temperature"
+#define MQTT_TOPIC_HUMIDITY     "sensors/humidity"
 
 #define MQTT_KEEP_ALIVE         30
-#define MQTT_CLIENT_ID          "avr-mqtt-test"
+#define MQTT_CLIENT_ID          "avr-mqtt-cr"
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;

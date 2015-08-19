@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) Ivo Slanina <ivo.slanina@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <string.h>
 #include "../common.h"
 #include "../uip/uiparp.h"
@@ -80,7 +97,7 @@ static void _create_message(struct dhcpsession *dhcp) {
     memset(MSG(dhcp)->sname, 0, sizeof(MSG(dhcp)->sname));
     memset(MSG(dhcp)->file, 0, sizeof(MSG(dhcp)->file));
     memcpy(MSG(dhcp)->options, magic_cookie, sizeof(magic_cookie));
-    
+
     dhcp->length = sizeof(struct dhcp_message) - member_size(struct dhcp_message, options) + sizeof(magic_cookie);
 }
 
