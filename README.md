@@ -2,6 +2,10 @@
 
 Network enabled device for data exchange using MQTT protocol.
 
+### Wiring
+
+![IoT node wiring diagram](https://raw.githubusercontent.com/buben19/iot-node/master/pcb/mqtt-node.png "IoT node wiring diagram")
+
 ### Configuration
 
 Edit following values config.h configuration file:
