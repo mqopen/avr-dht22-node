@@ -155,15 +155,37 @@ static void _mqttclient_handle_disconnected_wait(void) {
 
 static void _mqttclient_send_data(void) {
     enum dht_read_status status = dht_read();
-    if(status == DHT_OK) {
-        // TODO: remove hardcoded constant
-        char buffer[20];
-        uint8_t len;
-        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
-        umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
-        len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
-        umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
+    // TODO: remove hardcoded constant
+    char buffer[20];
+    uint8_t len;
+    switch (status) {
+        case DHT_OK:
+            // If status is OK, publish measured data and return from function.
+            len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
+            umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
+            len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
+            umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
+            return;
+        case DHT_ERROR_CHECKSUM:
+            len = snprintf(buffer, sizeof(buffer), "E_CHECKSUM");
+            break;
+        case DHT_ERROR_TIMEOUT:
+            len = snprintf(buffer, sizeof(buffer), "E_TIMEOUT");
+            break;
+        case DHT_ERROR_CONNECT:
+            len = snprintf(buffer, sizeof(buffer), "E_CONNECT");
+            break;
+        case DHT_ERROR_ACK_L:
+            len = snprintf(buffer, sizeof(buffer), "E_ACK_L");
+            break;
+        case DHT_ERROR_ACK_H:
+            len = snprintf(buffer, sizeof(buffer), "E_ACK_H");
+            break;
     }
+
+    // Publish error codes.
+    umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
+    umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
 }
 
 static void _mqttclient_mqtt_init(void) {
