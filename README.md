@@ -2,7 +2,8 @@
 
 Network enabled device for data exchange using MQTT protocol. This device periodically
 reads data from [DHT22](http://www.aosong.com/en/products/details.asp?id=117) sensor
-and publish them to network over MQTT protocol.
+and publish them to network over MQTT protocol. This is part of my IoT project. You can
+read more about it on my [blog](http://buben19.blogspot.com/).
 
 ### Wiring
 
