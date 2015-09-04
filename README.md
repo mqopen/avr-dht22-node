@@ -1,6 +1,8 @@
 # IoT Node
 
-Network enabled device for data exchange using MQTT protocol.
+Network enabled device for data exchange using MQTT protocol. This device periodically
+reads data from [DHT22](http://www.aosong.com/en/products/details.asp?id=117) sensor
+and publish them to network over MQTT protocol.
 
 ### Wiring
 
@@ -19,6 +21,20 @@ Edit following values config.h configuration file:
 - `MQTT_TOPIC_HUMIDITY` - configure humidity topic name
 - `MQTT_KEEP_ALIVE` - MQTT keep alive interval
 - `MQTT_CLIENT_ID` - MQTT client ID
+
+### Data output
+
+Device sends humidity and temperature measurements on topic `MQTT_TOPIC_HUMIDITY` and
+`MQTT_TOPIC_TEMPERATURE` respectively. When reading from sensors is successful,
+payload is real positive (humidity, temperature) or negative (temperature only) number.
+
+When reading from sensor fails, payload for each topic is appropriate error code:
+
+- `E_CHECKSUM` - Data checksum is incorrect.
+- `E_TIMEOUT` - Data reading timeouted.
+- `E_CONNECT` - Sensor connection was failed.
+- `E_ACK_L` - Low state acknowledgement fails.
+- `E_ACK_H` - High state acknowledgement fails.
 
 ### Building
 
