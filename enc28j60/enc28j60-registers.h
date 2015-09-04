@@ -1,5 +1,6 @@
 #ifndef __ENC28J60_REGISTERS_H__
 #define __ENC28J60_REGISTERS_H__
+
 // ENC28J60 Control Registers
 // Control register definitions are a combination of address,
 // bank number, and Ethernet/MAC/PHY indicator bits.

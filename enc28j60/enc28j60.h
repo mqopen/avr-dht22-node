@@ -26,7 +26,6 @@
 #ifndef __ENC28J60_H__
 #define __ENC28J60_H__
 
-#include "global.h"
 #include "enc28j60-registers.h"
 
 // ENC28J60 EIE Register Bit Definitions

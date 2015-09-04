@@ -19,8 +19,8 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include "global.h"
-
+#include "../common.h"
+#include "../config.h"
 #include "enc28j60.h"
 
 #define enc28j60_assert_cs() \
@@ -294,7 +294,7 @@ unsigned int enc28j60_packet_receive(unsigned int maxlen, unsigned char *packet)
 
     // limit retrieve length
     // (we reduce the MAC-reported length by 4 to remove the CRC)
-    len = MIN(len, maxlen);
+    len = min(len, maxlen);
 
     // copy the packet from the receive buffer
     enc28j60_buffer_read(len, packet);
