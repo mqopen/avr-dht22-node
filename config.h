@@ -73,6 +73,8 @@
 #define MQTT_TOPIC_TEMPERATURE  "sensors/temperature"
 #define MQTT_TOPIC_HUMIDITY     "sensors/humidity"
 
+#define MQTT_PUBLISH_PERIOD     2
+
 #define MQTT_KEEP_ALIVE         30
 #define MQTT_CLIENT_ID          "avr-mqtt-cr"
 

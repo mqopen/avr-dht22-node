@@ -16,6 +16,7 @@
  */
 
 #include <stdio.h>
+#include "../config.h"
 #include "uip/uip.h"
 #include "uip/timer.h"
 #include "dht.h"
@@ -66,7 +67,7 @@ struct umqtt_connection mqtt = {
 
 void mqttclient_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
-    timer_set(&dht_timer, CLOCK_SECOND * 2);
+    timer_set(&dht_timer, CLOCK_SECOND * MQTT_PUBLISH_PERIOD);
     timer_set(&disconnected_wait_timer, CLOCK_SECOND);
 }
 
@@ -157,7 +158,7 @@ static void _mqttclient_send_data(void) {
     enum dht_read_status status = dht_read();
     // TODO: remove hardcoded constant
     char buffer[20];
-    uint8_t len;
+    uint8_t len = 0;
     switch (status) {
         case DHT_OK:
             // If status is OK, publish measured data and return from function.
