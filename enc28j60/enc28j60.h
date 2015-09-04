@@ -230,7 +230,7 @@ void enc28j60_set_mac(void);
 /// \param packet   Pointer to packet data.
 /// \param len2     Length of the secound packet in bytes, can be 0.
 /// \param packet2  Pointer to the secound packet data, can be NULL.
-void enc28j60_packet_send(unsigned int len1, unsigned char *packet1, unsigned int len2, unsigned char *packet2);
+void enc28j60_packet_send(uint16_t len1, uint8_t *packet1, uint16_t len2, uint8_t *packet2);
 
 //! Packet receive function.
 /// Gets a packet from the network receive buffer, if one is available.
@@ -238,7 +238,7 @@ void enc28j60_packet_send(unsigned int len1, unsigned char *packet1, unsigned in
 /// \param  maxlen  The maximum acceptable length of a retrieved packet.
 /// \param  packet  Pointer where packet data should be stored.
 /// \return Packet length in bytes if a packet was retrieved, zero otherwise.
-unsigned int enc28j60_packet_receive(unsigned int maxlen, unsigned char *packet);
+uint16_t enc28j60_packet_receive(uint16_t maxlen, uint8_t *packet);
 
 #endif
 //@}

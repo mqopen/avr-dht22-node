@@ -243,7 +243,7 @@ void enc28j60_set_mac(void) {
     enc28j60_write(MAADR0, ETH_ADDR5);
 }
 
-void enc28j60_packet_send(unsigned int len1, unsigned char *packet1, unsigned int len2, unsigned char *packet2) {
+void enc28j60_packet_send(uint16_t len1, uint8_t *packet1, uint16_t len2, uint8_t *packet2) {
     //Errata: Transmit Logic reset
     enc28j60_op_write(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
     enc28j60_op_write(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
@@ -266,7 +266,7 @@ void enc28j60_packet_send(unsigned int len1, unsigned char *packet1, unsigned in
     enc28j60_op_write(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
 }
 
-unsigned int enc28j60_packet_receive(unsigned int maxlen, unsigned char *packet) {
+uint16_t enc28j60_packet_receive(uint16_t maxlen, uint8_t *packet) {
     uint16_t rxstat;
     uint16_t len;
 
