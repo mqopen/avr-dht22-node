@@ -1,12 +1,23 @@
+/*
+ * Copyright (C) Ivo Slanina <ivo.slanina@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef __ENC28J60_REGISTERS_H__
 #define __ENC28J60_REGISTERS_H__
 
-// ENC28J60 Control Registers
-// Control register definitions are a combination of address,
-// bank number, and Ethernet/MAC/PHY indicator bits.
-// - Register address   (bits 0-4)
-// - Bank number        (bits 5-6)
-// - MAC/PHY indicator  (bit 7)
 #define ADDR_MASK   0x1F
 #define BANK_MASK   0x60
 #define SPRD_MASK   0x80
