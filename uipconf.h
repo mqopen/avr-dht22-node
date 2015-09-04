@@ -18,11 +18,6 @@
 #ifndef __UIPCONF_H__
 #define __UIPCONF_H__
 
-#include <inttypes.h>
-#include <avr/io.h>
-#include <stdio.h>
-#include <stdbool.h>
-
 /**
  * Statistics datatype
  *

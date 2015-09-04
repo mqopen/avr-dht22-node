@@ -39,9 +39,10 @@
  *         Adam Dunkels <adam@sics.se>
  */
 
-#include "uipneighbor.h"
-
+#include <stdio.h>
 #include <string.h>
+
+#include "uipneighbor.h"
 
 #define MAX_TIME 128
 

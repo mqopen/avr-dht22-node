@@ -18,6 +18,7 @@
 #ifndef __DHCP_H__
 #define __DHCP_H__
 
+#include <stdbool.h>
 #include "dhcpsession.h"
 #include "dhcpfields.h"
 #include "../common.h"

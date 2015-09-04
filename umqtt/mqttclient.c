@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include "uip/uip.h"
 #include "uip/timer.h"
 #include "dht.h"
