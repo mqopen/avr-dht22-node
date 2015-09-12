@@ -25,6 +25,7 @@ Edit following values config.h configuration file:
   at minimum 2 seconds.
 - `MQTT_KEEP_ALIVE` - MQTT keep alive interval.
 - `MQTT_CLIENT_ID` - MQTT client ID.
+- `MQTT_NODE_PRESENCE` - Set to non-zero to enable node presence messages.
 
 ### Data output
 
@@ -39,6 +40,8 @@ When reading from sensor fails, payload for each topic is appropriate error code
 - `E_CONNECT` - Sensor connection was failed.
 - `E_ACK_L` - Low state acknowledgement fails.
 - `E_ACK_H` - High state acknowledgement fails.
+
+### Node presence
 
 ### Building
 

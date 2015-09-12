@@ -20,6 +20,7 @@
 
 #include <avr/io.h>
 #include "node.h"
+#include "common.h"
 
 #define CONFIG_DEBUG    1
 
@@ -77,6 +78,10 @@
 
 #define MQTT_KEEP_ALIVE         30
 #define MQTT_CLIENT_ID          "avr-mqtt-cr"
+
+/* MQTT node presence */
+#define MQTT_NODE_PRESENCE      1
+#define MQTT_NODE_PRESENCE_TOPIC    "presence/" STR(MQTT_CLIENT_ID)
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;
