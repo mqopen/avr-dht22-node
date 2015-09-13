@@ -37,7 +37,7 @@
 #define CONFIG_IP_ADDR0 10
 #define CONFIG_IP_ADDR1 0
 #define CONFIG_IP_ADDR2 0
-#define CONFIG_IP_ADDR3 56
+#define CONFIG_IP_ADDR3 50
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
@@ -66,17 +66,17 @@
 #define MQTT_BROKER_IP_ADDR0    10
 #define MQTT_BROKER_IP_ADDR1    0
 #define MQTT_BROKER_IP_ADDR2    0
-#define MQTT_BROKER_IP_ADDR3    120
+#define MQTT_BROKER_IP_ADDR3    21
 
 #define MQTT_BROKER_PORT        1883
 
-#define MQTT_TOPIC_TEMPERATURE  "sensors/temperature"
-#define MQTT_TOPIC_HUMIDITY     "sensors/humidity"
+#define MQTT_TOPIC_TEMPERATURE  "bumblebee-nest/temperature"
+#define MQTT_TOPIC_HUMIDITY     "bumblebee-nest/humidity"
 
 #define MQTT_PUBLISH_PERIOD     2
 
 #define MQTT_KEEP_ALIVE         30
-#define MQTT_CLIENT_ID          "avr-mqtt-cr"
+#define MQTT_CLIENT_ID          "chrudim-bumblebee-nest"
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;
