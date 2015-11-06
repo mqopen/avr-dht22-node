@@ -20,9 +20,6 @@ OPTIMIZER_FLAGS = -Os
 CFLAGS_VALUES = pack-struct short-enums function-sections data-sections unsigned-char unsigned-bitfields no-strict-aliasing
 CFLAGS = $(addprefix -f,$(CFLAGS_VALUES))
 
-#HEADER_CONFIG_FILES = uipconf.h config.h
-#HEADER_CONFIG_FLAGS = $(addprefix -include ,$(HEADER_CONFIG_FILES))
-
 INCLUDE_PATHS = $(PWD)
 INCLUDE_FLAGS = $(addprefix -I,$(INCLUDE_PATHS))
 
@@ -42,10 +39,10 @@ OBJ	= $(subst .c,.o,$(CSRC))
 all: $(NAME).elf hex
 
 %.o: %.c
-	$(CC) $(MCU_FLAG) $(DEFINE_FLAGS) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(INCLUDE_FLAGS) $(HEADER_CONFIG_FLAGS) -c -o $@ $^ $(LIBS)
+	$(CC) $(MCU_FLAG) $(DEFINE_FLAGS) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(INCLUDE_FLAGS) -c -o $@ $^
 
 $(NAME).elf: $(OBJ)
-	$(CC) $(MCU_FLAG) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(MCU_FLAG) $(WARNING_FLAGS) $(OPTIMIZER_FLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 text: hex bin srec
 
@@ -78,4 +75,4 @@ define create-dep
 	rm -f $@.$$$$
 endef
 
-.PHONY: all avrdude clean rebuild text size
+.PHONY: all avrdude clean rebuild text size hex

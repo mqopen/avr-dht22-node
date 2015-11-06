@@ -27,17 +27,17 @@
 #define ETH_ADDR1       0xe6
 #define ETH_ADDR2       0xe2
 #define ETH_ADDR3       0x18
-#define ETH_ADDR4       0x2f
+#define ETH_ADDR4       0x3f
 #define ETH_ADDR5       0x44
 
 
 /* IP configuration. */
 #define CONFIG_DHCP     0
 #if !(CONFIG_DHCP)
-#define CONFIG_IP_ADDR0 10
-#define CONFIG_IP_ADDR1 0
-#define CONFIG_IP_ADDR2 0
-#define CONFIG_IP_ADDR3 50
+#define CONFIG_IP_ADDR0 192
+#define CONFIG_IP_ADDR1 168
+#define CONFIG_IP_ADDR2 10
+#define CONFIG_IP_ADDR3 151
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
@@ -63,20 +63,20 @@
 #define DHT_SDA                 PB1
 
 /* MQTT configuration. */
-#define MQTT_BROKER_IP_ADDR0    10
-#define MQTT_BROKER_IP_ADDR1    0
-#define MQTT_BROKER_IP_ADDR2    0
-#define MQTT_BROKER_IP_ADDR3    21
+#define MQTT_BROKER_IP_ADDR0    192
+#define MQTT_BROKER_IP_ADDR1    168
+#define MQTT_BROKER_IP_ADDR2    10
+#define MQTT_BROKER_IP_ADDR3    1
 
 #define MQTT_BROKER_PORT        1883
 
-#define MQTT_TOPIC_TEMPERATURE  "bumblebee-nest/temperature"
-#define MQTT_TOPIC_HUMIDITY     "bumblebee-nest/humidity"
+#define MQTT_TOPIC_TEMPERATURE  "test/temperature"
+#define MQTT_TOPIC_HUMIDITY     "test/humidity"
 
 #define MQTT_PUBLISH_PERIOD     2
 
 #define MQTT_KEEP_ALIVE         30
-#define MQTT_CLIENT_ID          "chrudim-bumblebee-nest"
+#define MQTT_CLIENT_ID          "hs-test"
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;
