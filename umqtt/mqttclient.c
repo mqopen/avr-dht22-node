@@ -17,10 +17,12 @@
 
 #include <stdio.h>
 #include "../config.h"
-#include "uip/uip.h"
-#include "uip/timer.h"
-#include "dht.h"
-#include "sharedbuf.h"
+#include "../uip/uip.h"
+#include "../uip/timer.h"
+#include "../dht.h"
+#include "../sharedbuf.h"
+#include "../actsig.h"
+#include "umqtt.h"
 #include "mqttclient.h"
 
 #define send_buffer_length      sizeof(sharedbuf.mqtt.send_buffer)
@@ -41,6 +43,8 @@ static struct timer disconnected_wait_timer;
 static uint8_t *_mqttclient_send_buffer = sharedbuf.mqtt.send_buffer;
 // TODO: make this variable uint16_t
 static int16_t _mqttclient_send_length;
+
+static struct actsig_signal _broker_signal;
 
 /* Static function prototypes. */
 static void _mqttclient_handle_connection_established();
@@ -69,6 +73,8 @@ void mqttclient_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * MQTT_PUBLISH_PERIOD);
     timer_set(&disconnected_wait_timer, CLOCK_SECOND);
+
+    actsig_init(&_broker_signal, PD6, &DDRD, &PORTD, 100);
 }
 
 void mqttclient_notify_broker_unreachable(void) {
@@ -77,6 +83,7 @@ void mqttclient_notify_broker_unreachable(void) {
 }
 
 void mqttclient_process(void) {
+    actsig_process(&_broker_signal);
     switch (current_state) {
         case MQTTCLIENT_BROKER_CONNECTION_ESTABLISHED:
             _mqttclient_handle_connection_established();
@@ -116,11 +123,13 @@ void mqttclient_appcall(void) {
     }
 
     if (uip_rexmit()) {
+        actsig_notify(&_broker_signal);
         uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
     } else if (uip_poll() || uip_acked()) {
         _mqttclient_send_length = umqtt_circ_pop(&conn->txbuff, _mqttclient_send_buffer, send_buffer_length);
         if (!_mqttclient_send_length)
             return;
+        actsig_notify(&_broker_signal);
         uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
     }
 }

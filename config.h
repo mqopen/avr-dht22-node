@@ -35,14 +35,14 @@
 /* IP configuration. */
 #define CONFIG_DHCP     0
 #if !(CONFIG_DHCP)
-#define CONFIG_IP_ADDR0 10
-#define CONFIG_IP_ADDR1 0
-#define CONFIG_IP_ADDR2 0
-#define CONFIG_IP_ADDR3 56
+#define CONFIG_IP_ADDR0 192
+#define CONFIG_IP_ADDR1 168
+#define CONFIG_IP_ADDR2 1
+#define CONFIG_IP_ADDR3 41
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
-#define CONFIG_NETMASK2 255
+#define CONFIG_NETMASK2 252
 #define CONFIG_NETMASK3 0
 #endif
 
@@ -64,10 +64,10 @@
 #define DHT_SDA                 PB1
 
 /* MQTT configuration. */
-#define MQTT_BROKER_IP_ADDR0    10
-#define MQTT_BROKER_IP_ADDR1    0
-#define MQTT_BROKER_IP_ADDR2    0
-#define MQTT_BROKER_IP_ADDR3    120
+#define MQTT_BROKER_IP_ADDR0    192
+#define MQTT_BROKER_IP_ADDR1    168
+#define MQTT_BROKER_IP_ADDR2    1
+#define MQTT_BROKER_IP_ADDR3    209
 
 #define MQTT_BROKER_PORT        1883
 
