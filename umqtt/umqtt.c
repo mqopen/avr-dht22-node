@@ -149,6 +149,53 @@ void umqtt_connect(struct umqtt_connection *conn, uint16_t kalive, char *cid) {
     conn->state = UMQTT_STATE_CONNECTING;
 }
 
+void umqtt_connect_last_will(struct umqtt_connection *conn, uint16_t kalive, char *cid, char *last_will_topic, char *last_will_msg) {
+    uint16_t cidlen = strlen(cid);
+    uint16_t will_topic_len = strlen(last_will_topic);
+    uint16_t will_msg_len = strlen(last_will_msg);
+    uint8_t fixed;
+    uint8_t remlen[4];
+    uint8_t variable[] = {
+        /* Protocol name. */
+        0,
+        4,
+        'M',
+        'Q',
+        'T',
+        'T',
+
+        /* Protocol level. */
+        0x04,
+
+        /* Connect flags. */
+        0b00100110,
+
+        /* Keep alive. */
+        kalive >> 8,
+        kalive & 0xff,
+    };
+    uint8_t payload[2 + cidlen + 2 + will_topic_len + 2 + will_msg_len];
+
+    fixed = umqtt_build_header(UMQTT_CONNECT, 0, 0, 0);
+
+    payload[0] = cidlen >> 8;
+    payload[1] = cidlen & 0xff;
+    memcpy(&payload[2], cid, cidlen);
+    payload[2 + cidlen] = will_topic_len >> 8;
+    payload[2 + cidlen + 1] = will_topic_len & 0xff;
+    memcpy(&payload[2 + cidlen + 2], last_will_topic, will_topic_len);
+    payload[2 + cidlen + 2 + will_topic_len] = will_msg_len >> 8;
+    payload[2 + cidlen + 2 + will_topic_len + 1] = will_msg_len & 0xff;
+    memcpy(&payload[2 + cidlen + 2 + will_topic_len + 2], last_will_msg, will_msg_len);
+
+    umqtt_circ_push(&conn->txbuff, &fixed, 1);
+    umqtt_circ_push(&conn->txbuff, remlen, umqtt_encode_length(sizeof(variable) + sizeof(payload), remlen));
+    umqtt_circ_push(&conn->txbuff, variable, sizeof(variable));
+    umqtt_circ_push(&conn->txbuff, payload, sizeof(payload));
+
+    conn->state = UMQTT_STATE_CONNECTING;
+}
+
 void umqtt_subscribe(struct umqtt_connection *conn, char *topic) {
     int16_t topiclen = strlen(topic);
     uint8_t fixed;
@@ -215,21 +262,21 @@ static void umqtt_packet_arrived(struct umqtt_connection *conn, uint8_t header, 
 
     umqtt_circ_pop(&conn->rxbuff, data, len);
     switch (umqtt_header_type(header)) {
-    case UMQTT_CONNACK:
-        if (data[1] == 0x00)
-            conn->state = UMQTT_STATE_CONNECTED;
-        else
-            conn->state = UMQTT_STATE_FAILED;
-        break;
-    case UMQTT_SUBACK:
-        conn->nack_subscribe--;
-        break;
-    case UMQTT_PINGRESP:
-        conn->nack_ping--;
-        break;
-    case UMQTT_PUBLISH:
-        umqtt_handle_publish(conn, data, len);
-        break;
+        case UMQTT_CONNACK:
+            if (data[1] == 0x00)
+                conn->state = UMQTT_STATE_CONNECTED;
+            else
+                conn->state = UMQTT_STATE_FAILED;
+            break;
+        case UMQTT_SUBACK:
+            conn->nack_subscribe--;
+            break;
+        case UMQTT_PINGRESP:
+            conn->nack_ping--;
+            break;
+        case UMQTT_PUBLISH:
+            umqtt_handle_publish(conn, data, len);
+            break;
     }
 }
 

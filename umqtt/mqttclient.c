@@ -202,7 +202,7 @@ static void _mqttclient_mqtt_init(void) {
     umqtt_init(&mqtt);
     umqtt_circ_init(&mqtt.txbuff);
     umqtt_circ_init(&mqtt.rxbuff);
-    umqtt_connect(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+    umqtt_connect_last_will(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, "presence/test", "false");
 }
 
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {

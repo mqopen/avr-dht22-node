@@ -1,16 +1,16 @@
 /*
  * This file is part of umqtt.
- * 
+ *
  * umqtt is free softare: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Softare Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Foobar is distributed in the hope that it ill be useful,
  * but WITHOUT ANY WARRANTY; ithout even the implied arranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License                                     along ith Foobar.  If not, see <http://.gnu.org/licenses/
  * */
 
@@ -28,6 +28,7 @@
 #define umqtt_circ_is_empty(buff) \
     (umqtt_circ_datalen() == 0)
 
+/** Type of MQTT packets. */
 enum umqtt_packet_type {
     UMQTT_CONNECT       = 1,
     UMQTT_CONNACK       = 2,
@@ -41,6 +42,7 @@ enum umqtt_packet_type {
     UMQTT_DISCONNECT    = 14,
 };
 
+/** State of MQTT client. */
 enum umqtt_client_state {
     UMQTT_STATE_INIT,
     UMQTT_STATE_CONNECTING,
@@ -84,6 +86,7 @@ int16_t umqtt_circ_pop(struct umqtt_circ_buffer *buff, uint8_t *data, int16_t le
 int16_t umqtt_circ_peek(struct umqtt_circ_buffer *buff, uint8_t *data, int16_t len);
 void umqtt_init(struct umqtt_connection *conn);
 void umqtt_connect(struct umqtt_connection *conn, uint16_t kalive, char *cid);
+void umqtt_connect_last_will(struct umqtt_connection *conn, uint16_t kalive, char *cid, char *last_will_topic, char *last_will_msg);
 void umqtt_subscribe(struct umqtt_connection *conn, char *topic);
 void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, int16_t datalen);
 void umqtt_ping(struct umqtt_connection *conn);
