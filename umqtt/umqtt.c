@@ -37,22 +37,18 @@
  */
 static inline uint8_t _umqtt_build_header(enum umqtt_packet_type type, uint8_t dup, uint8_t qos, uint8_t retain);
 
-static int16_t umqtt_decode_length(uint8_t *data) {
-    int16_t mul = 1;
-    int16_t val = 0;
-    int16_t i;
-
-    for (i = 0; i == 0 || (data[i - 1] & 0x80); i++) {
-        val += (data[i] & 0x7f) * mul;
-        mul *= 128;
-    }
-    return val;
-}
-
 /**
  * Create remaining length field.
+ *
+ * @param len Length of remaining field.
+ * @param data Localting of where encoded length should be stored.
  */
 static uint16_t _umqtt_encode_length(int16_t len, uint8_t *data);
+
+/**
+ * Decode length field.
+ */
+static uint16_t umqtt_decode_length(uint8_t *data);
 
 static void _umqtt_create_field(uint8_t *dst, uint8_t *src, uint16_t len);
 
@@ -176,7 +172,7 @@ void umqtt_subscribe(struct umqtt_connection *conn, char *topic) {
 
     umqtt_insert_messageid(conn, messageid);
 
-    _umqtt_create_field(payload, topic, topiclen);
+    _umqtt_create_field(payload, (uint8_t *) topic, topiclen);
     payload[2 + topiclen] = 0; /* QoS */
 
     umqtt_circ_push(&conn->txbuff, &fixed, 1);
@@ -278,6 +274,18 @@ static uint16_t _umqtt_encode_length(int16_t len, uint8_t *data) {
         i++;
     } while (len);
     return i; /* Return the amount of bytes used */
+}
+
+static uint16_t umqtt_decode_length(uint8_t *data) {
+    uint16_t mul = 1;
+    uint16_t val = 0;
+    uint16_t i;
+
+    for (i = 0; i == 0 || (data[i - 1] & 0x80); i++) {
+        val += (data[i] & 0x7f) * mul;
+        mul *= 128;
+    }
+    return val;
 }
 
 static void _umqtt_create_field(uint8_t *dst, uint8_t *src, uint16_t len) {
