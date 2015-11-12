@@ -183,9 +183,10 @@ void umqtt_subscribe(struct umqtt_connection *conn, char *topic) {
     conn->nack_subscribe++;
 }
 
-void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, int16_t datalen) {
-    int16_t toplen = strlen(topic);
-    uint8_t fixed = _umqtt_build_header(UMQTT_PUBLISH, 0, 0, 0);
+void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, uint16_t datalen, uint8_t flags) {
+    uint16_t toplen = strlen(topic);
+    uint8_t retain = flags & _BV(UMQTT_OPT_RETAIN) ? 1 : 0;
+    uint8_t fixed = _umqtt_build_header(UMQTT_PUBLISH, 0, 0, retain);
     uint8_t remlen[4];
     uint8_t len[2];
 

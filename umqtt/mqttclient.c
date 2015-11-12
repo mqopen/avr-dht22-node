@@ -50,9 +50,9 @@ static struct actsig_signal _broker_signal;
 static struct umqtt_connect_config _connection_config = {
     .keep_alive = MQTT_KEEP_ALIVE,
     .client_id = MQTT_CLIENT_ID,
-    .will_topic = "presence/test",
-    .will_message = (uint8_t *) "false",
-    .will_message_len = 5,
+    .will_topic = MQTT_NODE_PRESENCE_TOPIC,
+    .will_message = (uint8_t *) MQTT_NODE_PRESENCE_MSG_OFFLINE,
+    .will_message_len = sizeof(MQTT_NODE_PRESENCE_MSG_OFFLINE),
 };
 
 /* Static function prototypes. */
@@ -62,7 +62,7 @@ static void _mqttclient_handle_disconnected_wait(void);
 static void _mqttclient_send_data(void);
 static void _mqttclient_mqtt_init(void);
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn);
-static void _umqttclient_handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
+static void _umqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len);
 
 /** MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
@@ -133,7 +133,11 @@ void mqttclient_appcall(void) {
 
         /* Check for connection event. */
         if (previous_state != UMQTT_STATE_CONNECTED && mqtt.state == UMQTT_STATE_CONNECTED) {
-            umqtt_publish(&mqtt, "presence/test", (uint8_t *) "true", 5);
+            umqtt_publish(&mqtt,
+                            MQTT_NODE_PRESENCE_TOPIC,
+                            (uint8_t *) MQTT_NODE_PRESENCE_MSG_ONLINE,
+                            sizeof(MQTT_NODE_PRESENCE_MSG_ONLINE),
+                            _BV(UMQTT_OPT_RETAIN));
         }
     }
 
@@ -187,9 +191,9 @@ static void _mqttclient_send_data(void) {
         case DHT_OK:
             /* If status is OK, publish measured data and return from function. */
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
-            umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
+            umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len, 0);
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
-            umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
+            umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len, 0);
             return;
         case DHT_ERROR_CHECKSUM:
             len = snprintf(buffer, sizeof(buffer), "E_CHECKSUM");
@@ -209,8 +213,8 @@ static void _mqttclient_send_data(void) {
     }
 
     /* Publish error codes. */
-    umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
-    umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
+    umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len, 0);
+    umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len, 0);
 }
 
 static void _mqttclient_mqtt_init(void) {

@@ -77,11 +77,14 @@
 #define MQTT_PUBLISH_PERIOD     2
 
 #define MQTT_KEEP_ALIVE         30
-#define MQTT_CLIENT_ID          "hs-test"
+#define _MQTT_CLIENT_ID          hs-test
+#define MQTT_CLIENT_ID          "" STR(_MQTT_CLIENT_ID) ""
 
 /* MQTT node presence */
-#define MQTT_NODE_PRESENCE      1
-#define MQTT_NODE_PRESENCE_TOPIC    "presence/" STR(MQTT_CLIENT_ID)
+#define MQTT_NODE_PRESENCE              1
+#define MQTT_NODE_PRESENCE_TOPIC        "presence/" STR(_MQTT_CLIENT_ID)
+#define MQTT_NODE_PRESENCE_MSG_ONLINE   "online"
+#define MQTT_NODE_PRESENCE_MSG_OFFLINE  "offline"
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;

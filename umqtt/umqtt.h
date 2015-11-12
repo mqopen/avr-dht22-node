@@ -40,6 +40,9 @@
 #define UMQTT_CONNECT_FLAG_PASSWORD         6
 #define UMQTT_CONNECT_FLAG_USERNAME         7
 
+/** UMQTT flags */
+#define UMQTT_OPT_RETAIN                    0
+
 /** Type of MQTT packets. */
 enum umqtt_packet_type {
     UMQTT_CONNECT       = 1,        /**< CONNECT */
@@ -155,7 +158,7 @@ void umqtt_subscribe(struct umqtt_connection *conn, char *topic);
  * @param data Message payload.
  * @param datalen Message payload length.
  */
-void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, int16_t datalen);
+void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, uint16_t datalen, uint8_t flags);
 
 /**
  * Send PINGREQ message to MQTT broker.
