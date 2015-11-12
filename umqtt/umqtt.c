@@ -123,8 +123,13 @@ void umqtt_connect(struct umqtt_connection *conn, struct umqtt_connect_config *c
     uint8_t remlen[4];
 
     uint8_t flags = _BV(UMQTT_CONNECT_FLAG_CLEAN_SESSION);
-    if (will_topic_len > 0)
-        flags |= _BV(UMQTT_CONNECT_FLAG_WILL) | _BV(UMQTT_CONNECT_FLAG_WILL_RETAIN);
+
+    /* Last will related flags. */
+    if (will_topic_len > 0) {
+        flags |= _BV(UMQTT_CONNECT_FLAG_WILL);
+        if (config->flags & _BV(UMQTT_OPT_RETAIN))
+            flags |= _BV(UMQTT_CONNECT_FLAG_WILL_RETAIN);
+    }
     uint8_t variable[] = {
         /* Protocol name. */
         0,

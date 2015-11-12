@@ -53,6 +53,7 @@ static struct umqtt_connect_config _connection_config = {
     .will_topic = MQTT_NODE_PRESENCE_TOPIC,
     .will_message = (uint8_t *) MQTT_NODE_PRESENCE_MSG_OFFLINE,
     .will_message_len = sizeof(MQTT_NODE_PRESENCE_MSG_OFFLINE),
+    .flags = _BV(UMQTT_OPT_RETAIN),
 };
 
 /* Static function prototypes. */
