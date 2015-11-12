@@ -46,6 +46,15 @@ static int16_t _mqttclient_send_length;
 
 static struct actsig_signal _broker_signal;
 
+/** Connection configuration. */
+static struct umqtt_connect_config _connection_config = {
+    .keep_alive = MQTT_KEEP_ALIVE,
+    .client_id = MQTT_CLIENT_ID,
+    .will_topic = "presence/test",
+    .will_message = (uint8_t *) "false",
+    .will_message_len = 5,
+};
+
 /* Static function prototypes. */
 static void _mqttclient_handle_connection_established();
 static void _mqttclient_broker_connect(void);
@@ -55,7 +64,7 @@ static void _mqttclient_mqtt_init(void);
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn);
 static void _umqttclient_handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
 
-/* MQTT connection structure instance. */
+/** MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
     .txbuff = {
         .start = sharedbuf.mqtt.mqtt_tx,
@@ -202,7 +211,7 @@ static void _mqttclient_mqtt_init(void) {
     umqtt_init(&mqtt);
     umqtt_circ_init(&mqtt.txbuff);
     umqtt_circ_init(&mqtt.rxbuff);
-    umqtt_connect_last_will(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID, "presence/test", "false");
+    umqtt_connect(&mqtt, &_connection_config);
 }
 
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {
