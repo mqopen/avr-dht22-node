@@ -49,20 +49,12 @@ static int16_t umqtt_decode_length(uint8_t *data) {
     return val;
 }
 
-static int16_t umqtt_encode_length(int16_t len, uint8_t *data) {
-    int16_t digit;
-    int16_t i = 0;
+/**
+ * Create remaining length field.
+ */
+static uint16_t _umqtt_encode_length(int16_t len, uint8_t *data);
 
-    do {
-        digit = len % 128;
-        len /= 128;
-        if (len > 0)
-            digit |= 0x80;
-        data[i] = digit;
-        i++;
-    } while (len);
-    return i; /* Return the amount of bytes used */
-}
+static void _umqtt_create_field(uint8_t *dst, uint8_t *src, uint16_t len);
 
 void umqtt_circ_init(struct umqtt_circ_buffer *buff) {
     buff->pointer = buff->start;
@@ -156,32 +148,27 @@ void umqtt_connect(struct umqtt_connection *conn, struct umqtt_connect_config *c
         config->keep_alive >> 8,
         config->keep_alive & 0xff,
     };
-    uint8_t payload[will_topic_len > 0 ? 2 + cidlen : 2 + cidlen + 2 + will_topic_len + 2 + config->will_message_len];
+    uint16_t payload_len = 2 + cidlen;
+    if (will_topic_len > 0)
+        payload_len += 2 + will_topic_len + 2 + config->will_message_len;
+    uint8_t payload[payload_len];
 
-    payload[0] = cidlen >> 8;
-    payload[1] = cidlen & 0xff;
-    memcpy(&payload[2], config->client_id, cidlen);
-
-    /* Last will. */
+    _umqtt_create_field(payload, (uint8_t *) config->client_id, cidlen);
     if (will_topic_len > 0) {
-        payload[2 + cidlen] = will_topic_len >> 8;
-        payload[2 + cidlen + 1] = will_topic_len & 0xff;
-        memcpy(&payload[2 + cidlen + 2], config->will_topic, will_topic_len);
-        payload[2 + cidlen + 2 + will_topic_len] = config->will_message_len >> 8;
-        payload[2 + cidlen + 2 + will_topic_len + 1] = config->will_message_len & 0xff;
-        memcpy(&payload[2 + cidlen + 2 + will_topic_len + 2], config->will_message, config->will_message_len);
+        _umqtt_create_field(payload + 2 + cidlen, (uint8_t *) config->will_topic, will_topic_len);
+        _umqtt_create_field(payload + 2 + cidlen + 2 + will_topic_len, config->will_message, config->will_message_len);
     }
 
     umqtt_circ_push(&conn->txbuff, &fixed, 1);
-    umqtt_circ_push(&conn->txbuff, remlen, umqtt_encode_length(sizeof(variable) + sizeof(payload), remlen));
+    umqtt_circ_push(&conn->txbuff, remlen, _umqtt_encode_length(sizeof(variable) + payload_len, remlen));
     umqtt_circ_push(&conn->txbuff, variable, sizeof(variable));
-    umqtt_circ_push(&conn->txbuff, payload, sizeof(payload));
+    umqtt_circ_push(&conn->txbuff, payload, payload_len);
 
     conn->state = UMQTT_STATE_CONNECTING;
 }
 
 void umqtt_subscribe(struct umqtt_connection *conn, char *topic) {
-    int16_t topiclen = strlen(topic);
+    uint16_t topiclen = strlen(topic);
     uint8_t fixed = _umqtt_build_header(UMQTT_SUBSCRIBE, 0, 1, 0);
     uint8_t remlen[4];
     uint8_t messageid[2];
@@ -189,13 +176,11 @@ void umqtt_subscribe(struct umqtt_connection *conn, char *topic) {
 
     umqtt_insert_messageid(conn, messageid);
 
-    payload[0] = topiclen >> 8; /* String length */
-    payload[1] = topiclen & 0xff;
-    memcpy(&payload[2], topic, topiclen);
+    _umqtt_create_field(payload, topic, topiclen);
     payload[2 + topiclen] = 0; /* QoS */
 
     umqtt_circ_push(&conn->txbuff, &fixed, 1);
-    umqtt_circ_push(&conn->txbuff, remlen, umqtt_encode_length(sizeof(messageid) + sizeof(payload), remlen));
+    umqtt_circ_push(&conn->txbuff, remlen, _umqtt_encode_length(sizeof(messageid) + sizeof(payload), remlen));
     umqtt_circ_push(&conn->txbuff, messageid, sizeof(messageid));
     umqtt_circ_push(&conn->txbuff, payload, sizeof(payload));
 
@@ -209,7 +194,7 @@ void umqtt_publish(struct umqtt_connection *conn, char *topic, uint8_t *data, in
     uint8_t len[2];
 
     umqtt_circ_push(&conn->txbuff, &fixed, 1);
-    umqtt_circ_push(&conn->txbuff, remlen, umqtt_encode_length(2 + toplen + datalen, remlen));
+    umqtt_circ_push(&conn->txbuff, remlen, _umqtt_encode_length(2 + toplen + datalen, remlen));
 
     len[0] = toplen >> 8;
     len[1] = toplen & 0xff;
@@ -278,4 +263,25 @@ void umqtt_process(struct umqtt_connection *conn) {
 
 static inline uint8_t _umqtt_build_header(enum umqtt_packet_type type, uint8_t dup, uint8_t qos, uint8_t retain) {
     return (type << 4) | (dup << 3) | (qos << 1) | retain;
+}
+
+static uint16_t _umqtt_encode_length(int16_t len, uint8_t *data) {
+    uint8_t digit;
+    uint16_t i = 0;
+
+    do {
+        digit = len % 128;
+        len /= 128;
+        if (len > 0)
+            digit |= 0x80;
+        data[i] = digit;
+        i++;
+    } while (len);
+    return i; /* Return the amount of bytes used */
+}
+
+static void _umqtt_create_field(uint8_t *dst, uint8_t *src, uint16_t len) {
+    dst[0] = len >> 8;
+    dst[1] = len & 0xff;
+    memcpy(&dst[2], src, len);
 }

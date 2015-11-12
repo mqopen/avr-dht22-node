@@ -31,13 +31,13 @@
 
 static enum mqttclient_state mqttclient_state;
 
-/* Timer for ending MQTT Keep Alive messages. */
+/** Timer for ending MQTT Keep Alive messages. */
 static struct timer keep_alive_timer;
 
-/* Timer for sending DHT measurements. */
+/** Timer for sending DHT measurements. */
 static struct timer dht_timer;
 
-/* Timer for limit reconnect attempts. */
+/** Timer for limit reconnect attempts. */
 static struct timer disconnected_wait_timer;
 
 static uint8_t *_mqttclient_send_buffer = sharedbuf.mqtt.send_buffer;
@@ -127,8 +127,14 @@ void mqttclient_appcall(void) {
     }
 
     if (uip_newdata()) {
+        enum umqtt_client_state previous_state = mqtt.state;
         umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
         umqtt_process(conn);
+
+        /* Check for connection event. */
+        if (previous_state != UMQTT_STATE_CONNECTED && mqtt.state == UMQTT_STATE_CONNECTED) {
+            umqtt_publish(&mqtt, "presence/test", (uint8_t *) "true", 5);
+        }
     }
 
     if (uip_rexmit()) {
@@ -179,7 +185,7 @@ static void _mqttclient_send_data(void) {
     uint8_t len = 0;
     switch (status) {
         case DHT_OK:
-            // If status is OK, publish measured data and return from function.
+            /* If status is OK, publish measured data and return from function. */
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
             umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
@@ -202,7 +208,7 @@ static void _mqttclient_send_data(void) {
             break;
     }
 
-    // Publish error codes.
+    /* Publish error codes. */
     umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
     umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
 }
@@ -218,5 +224,5 @@ static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-static void _umqttclient_handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
+static void _umqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len) {
 }
