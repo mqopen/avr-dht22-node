@@ -77,6 +77,12 @@ struct timer {
     clock_time_t interval;
 };
 
+/**
+ * Initiate timer.
+ *
+ * @param t Timer object.
+ * @param i Timer interval.
+ */
 #define timer_set(t, i)     do {                            \
                                 (t)->interval = (i);        \
                                 (t)->start = clock_time();  \

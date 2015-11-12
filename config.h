@@ -20,6 +20,7 @@
 
 #include <avr/io.h>
 #include "node.h"
+#include "common.h"
 
 #define CONFIG_DEBUG    1
 
@@ -36,12 +37,12 @@
 #if !(CONFIG_DHCP)
 #define CONFIG_IP_ADDR0 192
 #define CONFIG_IP_ADDR1 168
-#define CONFIG_IP_ADDR2 10
-#define CONFIG_IP_ADDR3 151
+#define CONFIG_IP_ADDR2 1
+#define CONFIG_IP_ADDR3 41
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
-#define CONFIG_NETMASK2 255
+#define CONFIG_NETMASK2 252
 #define CONFIG_NETMASK3 0
 #endif
 
@@ -65,8 +66,8 @@
 /* MQTT configuration. */
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    10
-#define MQTT_BROKER_IP_ADDR3    1
+#define MQTT_BROKER_IP_ADDR2    1
+#define MQTT_BROKER_IP_ADDR3    209
 
 #define MQTT_BROKER_PORT        1883
 
@@ -77,6 +78,10 @@
 
 #define MQTT_KEEP_ALIVE         30
 #define MQTT_CLIENT_ID          "hs-test"
+
+/* MQTT node presence */
+#define MQTT_NODE_PRESENCE      1
+#define MQTT_NODE_PRESENCE_TOPIC    "presence/" STR(MQTT_CLIENT_ID)
 
 /* TCP connections. */
 typedef struct node_appstate uip_tcp_appstate_t;

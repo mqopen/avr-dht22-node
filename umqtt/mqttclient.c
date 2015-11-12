@@ -17,10 +17,12 @@
 
 #include <stdio.h>
 #include "../config.h"
-#include "uip/uip.h"
-#include "uip/timer.h"
-#include "dht.h"
-#include "sharedbuf.h"
+#include "../uip/uip.h"
+#include "../uip/timer.h"
+#include "../dht.h"
+#include "../sharedbuf.h"
+#include "../actsig.h"
+#include "umqtt.h"
 #include "mqttclient.h"
 
 #define send_buffer_length      sizeof(sharedbuf.mqtt.send_buffer)
@@ -29,18 +31,29 @@
 
 static enum mqttclient_state mqttclient_state;
 
-/* Timer for ending MQTT Keep Alive messages. */
+/** Timer for ending MQTT Keep Alive messages. */
 static struct timer keep_alive_timer;
 
-/* Timer for sending DHT measurements. */
+/** Timer for sending DHT measurements. */
 static struct timer dht_timer;
 
-/* Timer for limit reconnect attempts. */
+/** Timer for limit reconnect attempts. */
 static struct timer disconnected_wait_timer;
 
 static uint8_t *_mqttclient_send_buffer = sharedbuf.mqtt.send_buffer;
 // TODO: make this variable uint16_t
 static int16_t _mqttclient_send_length;
+
+static struct actsig_signal _broker_signal;
+
+/** Connection configuration. */
+static struct umqtt_connect_config _connection_config = {
+    .keep_alive = MQTT_KEEP_ALIVE,
+    .client_id = MQTT_CLIENT_ID,
+    .will_topic = "presence/test",
+    .will_message = (uint8_t *) "false",
+    .will_message_len = 5,
+};
 
 /* Static function prototypes. */
 static void _mqttclient_handle_connection_established();
@@ -51,7 +64,7 @@ static void _mqttclient_mqtt_init(void);
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn);
 static void _umqttclient_handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len);
 
-/* MQTT connection structure instance. */
+/** MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
     .txbuff = {
         .start = sharedbuf.mqtt.mqtt_tx,
@@ -69,6 +82,8 @@ void mqttclient_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * MQTT_PUBLISH_PERIOD);
     timer_set(&disconnected_wait_timer, CLOCK_SECOND);
+
+    actsig_init(&_broker_signal, PD6, &DDRD, &PORTD, 100);
 }
 
 void mqttclient_notify_broker_unreachable(void) {
@@ -77,6 +92,7 @@ void mqttclient_notify_broker_unreachable(void) {
 }
 
 void mqttclient_process(void) {
+    actsig_process(&_broker_signal);
     switch (current_state) {
         case MQTTCLIENT_BROKER_CONNECTION_ESTABLISHED:
             _mqttclient_handle_connection_established();
@@ -111,16 +127,24 @@ void mqttclient_appcall(void) {
     }
 
     if (uip_newdata()) {
+        enum umqtt_client_state previous_state = mqtt.state;
         umqtt_circ_push(&conn->rxbuff, uip_appdata, uip_datalen());
         umqtt_process(conn);
+
+        /* Check for connection event. */
+        if (previous_state != UMQTT_STATE_CONNECTED && mqtt.state == UMQTT_STATE_CONNECTED) {
+            umqtt_publish(&mqtt, "presence/test", (uint8_t *) "true", 5);
+        }
     }
 
     if (uip_rexmit()) {
+        actsig_notify(&_broker_signal);
         uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
     } else if (uip_poll() || uip_acked()) {
         _mqttclient_send_length = umqtt_circ_pop(&conn->txbuff, _mqttclient_send_buffer, send_buffer_length);
         if (!_mqttclient_send_length)
             return;
+        actsig_notify(&_broker_signal);
         uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
     }
 }
@@ -161,7 +185,7 @@ static void _mqttclient_send_data(void) {
     uint8_t len = 0;
     switch (status) {
         case DHT_OK:
-            // If status is OK, publish measured data and return from function.
+            /* If status is OK, publish measured data and return from function. */
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
             umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
             len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
@@ -184,7 +208,7 @@ static void _mqttclient_send_data(void) {
             break;
     }
 
-    // Publish error codes.
+    /* Publish error codes. */
     umqtt_publish(&mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len);
     umqtt_publish(&mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len);
 }
@@ -193,12 +217,12 @@ static void _mqttclient_mqtt_init(void) {
     umqtt_init(&mqtt);
     umqtt_circ_init(&mqtt.txbuff);
     umqtt_circ_init(&mqtt.rxbuff);
-    umqtt_connect(&mqtt, MQTT_KEEP_ALIVE, MQTT_CLIENT_ID);
+    umqtt_connect(&mqtt, &_connection_config);
 }
 
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-static void _umqttclient_handle_message(struct umqtt_connection __attribute__((unused)) *conn, char *topic, uint8_t *data, int len) {
+static void _umqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len) {
 }
