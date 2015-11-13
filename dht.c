@@ -36,7 +36,7 @@ struct dht_data_raw {
     uint8_t temperature_integral;
     uint8_t temperature_decimal;
     uint8_t checksum;
-};
+} __attribute__((packed));
 
 /* Data from last measurement. */
 struct dht_data dht_data;
@@ -63,8 +63,6 @@ enum dht_read_status _dht_read(void) {
     uint16_t delta = 0;
     uint16_t loop_count;
 
-    /* Magic constant for now. */
-    uint8_t leading_zero_bits = 36;
     DHT_SDA_OUTPUT();
     DHT_SDA_LOW();
 
@@ -89,30 +87,59 @@ enum dht_read_status _dht_read(void) {
         if (--loop_count == 0) return DHT_ERROR_ACK_H;
     }
 
-    loop_count = DHT_TIMEOUT;
-    for (i = 40; i != 0; ) {
-        state = bit_is_set(DHT_PIN, DHT_SDA);
-        if (state == 0 && previous_state != 0) {
-            if (i > leading_zero_bits) {
-                zero_loop = min(zero_loop, loop_count);
-                delta = (DHT_TIMEOUT - zero_loop) / 4;
-            } else if (loop_count <= (zero_loop - delta)) {
-                data |= mask;
+    uint8_t in;
+    uint8_t j;
+    uint8_t to_cnt;
+    for (i = 0; i < DHT_DATA_BYTE_LEN; i++) {
+        in = 0;
+        for (j = 0; j < 8; j++) {
+            to_cnt = 0;
+            while (bit_is_set(DHT_PIN, DHT_SDA)) {
+                _delay_us(2);
+                if (to_cnt++ > 25)
+                    return DHT_ERROR_TIMEOUT;
             }
-            mask >>= 1;
-            if (mask == 0) {
-                mask = DHT_INITIAL_BITMASK;
-                *(((uint8_t *) (&received_data)) + idx) = data;
-                idx++;
-                data = 0;
+            _delay_us(5);
+
+            to_cnt = 0;
+            while (bit_is_clear(DHT_PIN, DHT_SDA)) {
+                _delay_us(2);
+                if (to_cnt++ > 28)
+                    return DHT_ERROR_TIMEOUT;
             }
-            --i;
-            loop_count = DHT_TIMEOUT;
+            _delay_us(50);
+            in <<= 1;
+            if (bit_is_set(DHT_PIN, DHT_SDA)) {
+                in |= 1;
+            }
         }
-        previous_state = state;
-        if (--loop_count == 0)
-            return DHT_ERROR_TIMEOUT;
+        *(((uint8_t *) (&received_data)) + i) = in;
     }
+
+    //loop_count = DHT_TIMEOUT;
+    //for (i = DHT_BIT_COUNT; i != 0; ) {
+        //state = bit_is_set(DHT_PIN, DHT_SDA);
+        //if (state == 0 && previous_state != 0) {
+            //if (i > DHT_LEADING_ZERO_BITS) {
+                //zero_loop = min(zero_loop, loop_count);
+                //delta = (DHT_TIMEOUT - zero_loop) / 4;
+            //} else if (loop_count <= (zero_loop - delta)) {
+                //data |= mask;
+            //}
+            //mask >>= 1;
+            //if (mask == 0) {
+                //mask = DHT_INITIAL_BITMASK;
+                //*(((uint8_t *) (&received_data)) + idx) = data;
+                //idx++;
+                //data = 0;
+            //}
+            //--i;
+            //loop_count = DHT_TIMEOUT;
+        //}
+        //previous_state = state;
+        //if (--loop_count == 0)
+            //return DHT_ERROR_TIMEOUT;
+    //}
     DHT_SDA_OUTPUT();
     DHT_SDA_HIGH();
     return DHT_OK;

@@ -18,6 +18,9 @@
 #ifndef __DHT_H__
 #define __DHT_H__
 
+/** Number of bytes to read. */
+#define DHT_DATA_BYTE_LEN       5
+
 struct dht_data {
     uint16_t humidity;
     int16_t temperature;
