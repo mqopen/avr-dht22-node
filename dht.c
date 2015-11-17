@@ -53,95 +53,61 @@ void dht_init(void) {
 }
 
 enum dht_read_status _dht_read(void) {
-    uint8_t mask = DHT_INITIAL_BITMASK;
-    uint8_t idx = 0;
-    uint8_t data = 0;
-    uint8_t state;
-    uint8_t previous_state = 0;
+    //uint8_t *data = (uint8_t *) &received_data;
+    uint16_t timeout;
+    uint8_t result;
     uint8_t i;
-    uint16_t zero_loop = DHT_TIMEOUT;
-    uint16_t delta = 0;
-    uint16_t loop_count;
-
-    DHT_SDA_OUTPUT();
-    DHT_SDA_LOW();
-
-    /* Magic constant for now. */
-    _delay_us(1100);
-
-    DHT_SDA_INPUT();
-    DHT_SDA_HIGH();
-
-    loop_count = DHT_TIMEOUT * 2;
-    while (bit_is_set(DHT_PIN, DHT_SDA)) {
-        if (--loop_count == 0) return DHT_ERROR_CONNECT;
-    }
-
-    loop_count = DHT_TIMEOUT;
-    while (bit_is_clear(DHT_PIN, DHT_SDA)) {
-        if (--loop_count == 0) return DHT_ERROR_ACK_L;
-    }
-
-    loop_count = DHT_TIMEOUT;
-    while (bit_is_set(DHT_PIN, DHT_SDA)) {
-        if (--loop_count == 0) return DHT_ERROR_ACK_H;
-    }
-
-    uint8_t in;
     uint8_t j;
-    uint8_t to_cnt;
-    for (i = 0; i < DHT_DATA_BYTE_LEN; i++) {
-        in = 0;
-        for (j = 0; j < 8; j++) {
-            to_cnt = 0;
-            while (bit_is_set(DHT_PIN, DHT_SDA)) {
-                _delay_us(2);
-                if (to_cnt++ > 25)
-                    return DHT_ERROR_TIMEOUT;
-            }
-            _delay_us(5);
 
-            to_cnt = 0;
+    //memset(data, 0, DHT_DATA_BYTE_LEN);
+
+    /* Reset port. */
+    DHT_SDA_OUTPUT();
+    DHT_SDA_HIGH();
+    _delay_ms(100);
+
+    /* Send request. */
+    DHT_SDA_LOW();
+    _delay_us(1100);
+    DHT_SDA_HIGH();
+    DHT_SDA_INPUT();
+    _delay_us(40);
+
+    if (bit_is_set(DHT_PIN, DHT_SDA))
+        return DHT_ERROR_CONNECT;
+    _delay_us(80);
+
+    if (bit_is_clear(DHT_PIN, DHT_SDA))
+        return DHT_ERROR_ACK_L;
+    _delay_us(80);
+
+    for (j = 0; j < DHT_DATA_BYTE_LEN; j++) {
+        result = 0;
+        for (i = 0; i < 8; i++) {
+            timeout = 0;
             while (bit_is_clear(DHT_PIN, DHT_SDA)) {
-                _delay_us(2);
-                if (to_cnt++ > 28)
+                if (timeout++ > 200)
                     return DHT_ERROR_TIMEOUT;
             }
-            _delay_us(50);
-            in <<= 1;
-            if (bit_is_set(DHT_PIN, DHT_SDA)) {
-                in |= 1;
+
+            _delay_us(30);
+            if (bit_is_set(DHT_PIN, DHT_SDA))
+                result |= _BV(7 - i);
+
+            timeout = 0;
+            while (bit_is_set(DHT_PIN, DHT_SDA)) {
+                if(timeout++ > 200)
+                    return DHT_ERROR_TIMEOUT;
             }
         }
-        *(((uint8_t *) (&received_data)) + i) = in;
+        *(((uint8_t *) (&received_data)) + j) = result;
     }
 
-    //loop_count = DHT_TIMEOUT;
-    //for (i = DHT_BIT_COUNT; i != 0; ) {
-        //state = bit_is_set(DHT_PIN, DHT_SDA);
-        //if (state == 0 && previous_state != 0) {
-            //if (i > DHT_LEADING_ZERO_BITS) {
-                //zero_loop = min(zero_loop, loop_count);
-                //delta = (DHT_TIMEOUT - zero_loop) / 4;
-            //} else if (loop_count <= (zero_loop - delta)) {
-                //data |= mask;
-            //}
-            //mask >>= 1;
-            //if (mask == 0) {
-                //mask = DHT_INITIAL_BITMASK;
-                //*(((uint8_t *) (&received_data)) + idx) = data;
-                //idx++;
-                //data = 0;
-            //}
-            //--i;
-            //loop_count = DHT_TIMEOUT;
-        //}
-        //previous_state = state;
-        //if (--loop_count == 0)
-            //return DHT_ERROR_TIMEOUT;
-    //}
+    /* Reset port. */
     DHT_SDA_OUTPUT();
     DHT_SDA_HIGH();
+    _delay_ms(100);
+
     return DHT_OK;
 }
 
