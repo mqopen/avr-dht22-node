@@ -53,13 +53,10 @@ void dht_init(void) {
 }
 
 enum dht_read_status _dht_read(void) {
-    //uint8_t *data = (uint8_t *) &received_data;
     uint16_t timeout;
     uint8_t result;
     uint8_t i;
     uint8_t j;
-
-    //memset(data, 0, DHT_DATA_BYTE_LEN);
 
     /* Reset port. */
     DHT_SDA_OUTPUT();
@@ -113,6 +110,8 @@ enum dht_read_status _dht_read(void) {
 
 enum dht_read_status dht_read(void) {
     enum dht_read_status result = _dht_read();
+    if (result != DHT_OK)
+        return result;
     received_data.humidity_integral &= 0x03;
     received_data.temperature_integral &= 0x83;
 
