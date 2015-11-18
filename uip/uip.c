@@ -96,7 +96,7 @@
 
 /* Variable definitions. */
 
-/* 
+/*
  * The IP address of this host. If it is defined to be fixed (by
  * setting UIP_FIXEDADDR to 1 in uipopt.h), the address is set
  * here. Otherwise, the address
@@ -1197,13 +1197,13 @@ reset:
     /* And send out the RST packet! */
     goto tcp_send_noconn;
 
-    /* 
+    /*
      * This label will be jumped to if we matched the incoming packet
      * with a connection in LISTEN. In that case, we should create a new
      * connection and send a SYNACK in return.
      */
 found_listen:
-    /* 
+    /*
      * First we check if there are any connections avaliable. Unused
      * connections are kept in the same table as used connections, but
      * unused ones have the tcpstate set to CLOSED. Also, connections in
@@ -1225,7 +1225,7 @@ found_listen:
     }
 
     if (uip_connr == 0) {
-        /* 
+        /*
          * All connections are used already, we drop packet and hope that
          * the remote end will retransmit the packet at a time when we
          * have more spare connections.
@@ -1318,7 +1318,7 @@ tcp_send_synack:
 found:
     uip_conn = uip_connr;
     uip_flags = 0;
-    /* 
+    /*
      * We do a very naive form of TCP reset processing; we just accept
      * any RST and kill our connection. We should in fact check if the
      * sequence number of this reset is wihtin our advertised window
@@ -1333,7 +1333,7 @@ found:
     }
     /* Calculated the length of the data, if the application has sent any data to us. */
     c = (BUF->tcpoffset >> 4) << 2;
-    /* 
+    /*
      * uip_len will contain the length of the actual TCP data. This is
      * calculated by subtracing the length of the TCP header (in
      * c) and the length of the IP header (20 bytes).
@@ -1402,7 +1402,7 @@ found:
 
     /* Do different things depending on in what state the connection is. */
     switch (uip_connr->tcpstateflags & UIP_TS_MASK) {
-    /* 
+    /*
      * CLOSED and LISTEN are not handled here. CLOSE_WAIT is not
      * implemented, since we force the application to close when the
      * peer sends a FIN (hence the application goes directly from
@@ -1465,7 +1465,7 @@ found:
                          * can skip past them.
                          */
                         if (uip_buf[UIP_TCPIP_HLEN + UIP_LLH_LEN + 1 + c] == 0) {
-                            /* 
+                            /*
                              * If the length field is zero, the options are malformed
                              * and we don't process them further.
                              */
@@ -1509,7 +1509,6 @@ found:
          * state. We require that there is no outstanding data; otherwise the
          * sequence numbers will be screwed up.
          */
-
         if (BUF->flags & TCP_FIN && !(uip_connr->tcpstateflags & UIP_STOPPED)) {
             if (uip_outstanding(uip_connr))
                 goto drop;
@@ -1526,9 +1525,9 @@ tcp_send_finack:
             goto tcp_send_nodata;
         }
 
-        /* 
+        /*
          * Check the URG flag. If this is set, the segment carries urgent
-         * data that we must pass to the application. 
+         * data that we must pass to the application.
          */
         if ((BUF->flags & TCP_URG) != 0) {
 #if UIP_URGDATA > 0
@@ -1627,7 +1626,7 @@ appsend:
                 if ((uip_flags & UIP_ACKDATA) != 0)
                     uip_connr->len = 0;
 
-                /* 
+                /*
                  * If the ->len variable is non-zero the connection has
                  * already data in transit and cannot send anymore right now.
                  */
@@ -1845,19 +1844,6 @@ void uip_send(const void *data, int len) {
     if (len > 0) {
         if (data != uip_sappdata)
             memcpy(uip_sappdata, (data), uip_slen);
-    }
-}
-
-// send data from the program memory
-void uip_send_P(PGM_VOID_P data, int len) {
-    if (len > 0) {
-        uip_slen = len;
-
-        // note removed per http://code.google.com/p/avr-uip/issues/detail?id=24
-        // really the code was wrong because it was taken from uip_send where both
-        // pointers pointed to the same address space.  uip_send_P they point into
-        // prog mem and sram
-        memcpy_P(uip_sappdata, (data), uip_slen);
     }
 }
 /** @} */

@@ -27,7 +27,7 @@
     ENC28J60_CONTROL_PORT &= ~(_BV(ENC28J60_CONTROL_CS))
 
 #define enc28j60_release_cs() \
-    ENC28J60_CONTROL_PORT |= (_BV(ENC28J60_CONTROL_CS))
+    ENC28J60_CONTROL_PORT |= _BV(ENC28J60_CONTROL_CS)
 
 #define enc28j60_loop_spi_transmission_complete() \
     while(!(SPSR & _BV(SPIF)))

@@ -18,7 +18,14 @@
 #ifndef __NETHANDLER_H__
 #define __NETHANDLER_H__
 
+/**
+ * Receive IP packet.
+ */
 void nethandler_rx(void);
+
+/**
+ * Periodic call.
+ */
 void nethandler_periodic(void);
 
-#endif /* __NETHANDLER_H__ */
+#endif

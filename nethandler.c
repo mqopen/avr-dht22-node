@@ -18,24 +18,18 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
 #include "common.h"
 #include "node.h"
 
-#include "uart.h"
-
 #define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-#define send_out()  do {                        \
-                        if (uip_len > 0) {      \
-                            uip_arp_out();      \
-                            network_send();     \
-                        }                       \
-                    } while (0)
+/**
+ * Send data out.
+ */
+static inline void _nethandler_send_out(void);
 
 void nethandler_rx(void) {
     uip_len = network_read();
@@ -44,7 +38,7 @@ void nethandler_rx(void) {
             case UIP_ETHTYPE_IP:
                 uip_arp_ipin();
                 uip_input();
-                send_out();
+                _nethandler_send_out();
                 break;
             case UIP_ETHTYPE_ARP:
                 uip_arp_arpin();
@@ -56,19 +50,26 @@ void nethandler_rx(void) {
 }
 
 void nethandler_periodic(void) {
-    int i;
+    uint8_t i;
     switch (node_system_state) {
         case NODE_MQTT:
             times(UIP_CONNS, i) {
                 uip_periodic(i);
-                send_out();
+                _nethandler_send_out();
             }
             break;
         default:
             times(UIP_UDP_CONNS, i) {
                 uip_udp_periodic(i);
-                send_out();
+                _nethandler_send_out();
             }
             break;
+    }
+}
+
+static inline void _nethandler_send_out(void) {
+     if (uip_len > 0) {
+        uip_arp_out();
+        network_send();
     }
 }

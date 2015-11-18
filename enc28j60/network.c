@@ -4,22 +4,22 @@
 #include "enc28j60.h"
 #include "network.h"
 
-unsigned int network_read(void) {
-    return ((uint16_t) enc28j60_packet_receive(UIP_BUFSIZE, (uint8_t *)uip_buf));
+inline uint16_t network_read(void) {
+    return enc28j60_packet_receive(UIP_BUFSIZE, uip_buf);
 }
 
 void network_send(void) {
     if (uip_len <= UIP_LLH_LEN + 40)
-        enc28j60_packet_send(uip_len, (uint8_t *)uip_buf, 0, 0);
+        enc28j60_packet_send(uip_len, uip_buf, 0, 0);
     else
-        enc28j60_packet_send(54, (uint8_t *)uip_buf , uip_len - UIP_LLH_LEN - 40, (uint8_t *)uip_appdata);
+        enc28j60_packet_send(54, uip_buf , uip_len - UIP_LLH_LEN - 40, uip_appdata);
 }
 
 void network_init(void) {
-    //Initialise the device
+    /* Initialize the device. */
     enc28j60_init();
 
-    //Configure leds
+    /* Configure leds. */
     enc28j60_phy_write(PHLCON,
                         PHLCON_LACFG_LINK_STATUS |
                             PHLCON_LBCFG_TRANSMIT_RECEIVE_ACTIVITY |

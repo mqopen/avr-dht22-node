@@ -29,7 +29,7 @@
 #define DHT_SDA_HIGH()      (DHT_PORT |= _BV(DHT_SDA))
 #define DHT_SDA_LOW()       (DHT_PORT &= ~(_BV(DHT_SDA)))
 
-/* Raw data sent by sensor */
+/** Raw data sent by sensor */
 struct dht_data_raw {
     uint8_t humidity_integral;
     uint8_t humidity_decimal;

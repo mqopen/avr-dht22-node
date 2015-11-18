@@ -140,8 +140,7 @@ void uip_arp_timer(void) {
     ++arptime;
     for (i = 0; i < UIP_ARPTAB_SIZE; ++i) {
         tabptr = &arp_table[i];
-        if ((tabptr->ipaddr[0] | tabptr->ipaddr[1]) != 0 &&
-            arptime - tabptr->time >= UIP_ARP_MAXAGE)
+        if ((tabptr->ipaddr[0] | tabptr->ipaddr[1]) != 0 && arptime - tabptr->time >= UIP_ARP_MAXAGE)
             memset(tabptr->ipaddr, 0, 4);
     }
 }
