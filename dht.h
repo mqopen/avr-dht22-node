@@ -31,8 +31,7 @@ enum dht_read_status {
     DHT_ERROR_CHECKSUM,
     DHT_ERROR_TIMEOUT,
     DHT_ERROR_CONNECT,
-    DHT_ERROR_ACK_L,
-    DHT_ERROR_ACK_H
+    DHT_ERROR_ACK,
 };
 
 extern struct dht_data dht_data;

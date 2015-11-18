@@ -1843,7 +1843,7 @@ void uip_send(const void *data, int len) {
     uip_slen = len;
     if (len > 0) {
         if (data != uip_sappdata)
-            memcpy(uip_sappdata, (data), uip_slen);
+            memcpy(uip_sappdata, data, uip_slen);
     }
 }
 /** @} */

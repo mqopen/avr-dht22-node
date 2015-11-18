@@ -52,6 +52,7 @@ int main (void) {
     _ip_init();
 #endif
 
+    /* Enable interrupts. */
     sei();
 
     for (;;) {

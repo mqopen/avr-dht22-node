@@ -63,7 +63,12 @@ static void _mqttclient_handle_disconnected_wait(void);
 static void _mqttclient_send_data(void);
 static void _mqttclient_mqtt_init(void);
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn);
-static void _umqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len);
+static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len);
+
+/**
+ * Send data over network.
+ */
+static inline void _mqttclient_send(void);
 
 /** MQTT connection structure instance. */
 struct umqtt_connection mqtt = {
@@ -75,7 +80,7 @@ struct umqtt_connection mqtt = {
         .start = sharedbuf.mqtt.mqtt_rx,
         .length = SHAREDBUF_NODE_UMQTT_RX_SIZE,
     },
-    .message_callback = _umqttclient_handle_message,
+    .message_callback = _mqttclient_handle_message,
     .state = UMQTT_STATE_INIT
 };
 
@@ -83,12 +88,7 @@ void mqttclient_init(void) {
     timer_set(&keep_alive_timer, CLOCK_SECOND * MQTT_KEEP_ALIVE / 2);
     timer_set(&dht_timer, CLOCK_SECOND * MQTT_PUBLISH_PERIOD);
     timer_set(&disconnected_wait_timer, CLOCK_SECOND);
-
     actsig_init(&_broker_signal, PD6, &DDRD, &PORTD, 100);
-}
-
-void mqttclient_notify_broker_unreachable(void) {
-    timer_restart(&disconnected_wait_timer);
     update_state(MQTTCLIENT_BROKER_DISCONNECTED);
 }
 
@@ -119,7 +119,8 @@ void mqttclient_appcall(void) {
     if(uip_aborted() || uip_timedout() || uip_closed()) {
         if (current_state == MQTTCLIENT_BROKER_CONNECTING) {
             /* Another disconnect in reconnecting phase. Shut down for a while, then try again. */
-            mqttclient_notify_broker_unreachable();
+            timer_restart(&disconnected_wait_timer);
+            update_state(MQTTCLIENT_BROKER_DISCONNECTED);
         } else if (current_state != MQTTCLIENT_BROKER_DISCONNECTED_WAIT) {
             /* We are not waiting for atother reconnect try. */
             update_state(MQTTCLIENT_BROKER_DISCONNECTED);
@@ -134,6 +135,8 @@ void mqttclient_appcall(void) {
 
         /* Check for connection event. */
         if (previous_state != UMQTT_STATE_CONNECTED && mqtt.state == UMQTT_STATE_CONNECTED) {
+
+            /* Send presence message. */
             umqtt_publish(&mqtt,
                             MQTT_NODE_PRESENCE_TOPIC,
                             (uint8_t *) MQTT_NODE_PRESENCE_MSG_ONLINE,
@@ -143,14 +146,12 @@ void mqttclient_appcall(void) {
     }
 
     if (uip_rexmit()) {
-        actsig_notify(&_broker_signal);
-        uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
+        _mqttclient_send();
     } else if (uip_poll() || uip_acked()) {
         _mqttclient_send_length = umqtt_circ_pop(&conn->txbuff, _mqttclient_send_buffer, send_buffer_length);
         if (!_mqttclient_send_length)
             return;
-        actsig_notify(&_broker_signal);
-        uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
+        _mqttclient_send();
     }
 }
 
@@ -205,11 +206,8 @@ static void _mqttclient_send_data(void) {
         case DHT_ERROR_CONNECT:
             len = snprintf(buffer, sizeof(buffer), "E_CONNECT");
             break;
-        case DHT_ERROR_ACK_L:
-            len = snprintf(buffer, sizeof(buffer), "E_ACK_L");
-            break;
-        case DHT_ERROR_ACK_H:
-            len = snprintf(buffer, sizeof(buffer), "E_ACK_H");
+        case DHT_ERROR_ACK:
+            len = snprintf(buffer, sizeof(buffer), "E_ACK");
             break;
     }
 
@@ -229,5 +227,10 @@ static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-static void _umqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len) {
+static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len) {
+}
+
+static inline void _mqttclient_send(void) {
+    actsig_notify(&_broker_signal);
+    uip_send(_mqttclient_send_buffer, _mqttclient_send_length);
 }

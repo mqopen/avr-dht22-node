@@ -27,7 +27,6 @@ enum mqttclient_state {
 };
 
 void mqttclient_init(void);
-void mqttclient_notify_broker_unreachable(void);
 void mqttclient_process(void);
 void mqttclient_appcall(void);
 

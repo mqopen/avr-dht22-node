@@ -60,18 +60,14 @@ struct neighbor_entry {
 static struct neighbor_entry entries[ENTRIES];
 
 
-void
-uip_neighbor_init(void)
-{
+void uip_neighbor_init(void) {
     int i;
 
     for (i = 0; i < ENTRIES; ++i)
         entries[i].time = MAX_TIME;
 }
 
-void
-uip_neighbor_periodic(void)
-{
+void uip_neighbor_periodic(void) {
     int i;
 
     for (i = 0; i < ENTRIES; ++i) {
@@ -80,9 +76,7 @@ uip_neighbor_periodic(void)
     }
 }
 
-void
-uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr)
-{
+void uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr) {
     int i, oldest;
     uint8_t oldest_time;
 
@@ -115,9 +109,7 @@ uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr)
     memcpy(&entries[oldest].addr, addr, sizeof(struct uip_neighbor_addr));
 }
 
-static struct neighbor_entry *
-find_entry(uip_ipaddr_t ipaddr)
-{
+static struct neighbor_entry * find_entry(uip_ipaddr_t ipaddr) {
     int i;
 
     for (i = 0; i < ENTRIES; ++i) {
@@ -127,9 +119,7 @@ find_entry(uip_ipaddr_t ipaddr)
     return NULL;
 }
 
-void
-uip_neighbor_update(uip_ipaddr_t ipaddr)
-{
+void uip_neighbor_update(uip_ipaddr_t ipaddr) {
     struct neighbor_entry *e;
 
     e = find_entry(ipaddr);
@@ -137,9 +127,7 @@ uip_neighbor_update(uip_ipaddr_t ipaddr)
         e->time = 0;
 }
 
-struct uip_neighbor_addr *
-uip_neighbor_lookup(uip_ipaddr_t ipaddr)
-{
+struct uip_neighbor_addr * uip_neighbor_lookup(uip_ipaddr_t ipaddr) {
     struct neighbor_entry *e;
 
     e = find_entry(ipaddr);

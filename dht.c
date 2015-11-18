@@ -78,7 +78,7 @@ enum dht_read_status _dht_read(void) {
     _delay_us(80);
 
     if (bit_is_clear(DHT_PIN, DHT_SDA))
-        return DHT_ERROR_ACK_L;
+        return DHT_ERROR_ACK;
     _delay_us(80);
 
     for (j = 0; j < DHT_DATA_BYTE_LEN; j++) {
