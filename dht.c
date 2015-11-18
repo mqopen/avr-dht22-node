@@ -31,28 +31,25 @@
 
 /** Raw data sent by sensor */
 struct dht_data_raw {
-    uint8_t humidity_integral;
-    uint8_t humidity_decimal;
-    uint8_t temperature_integral;
-    uint8_t temperature_decimal;
+    uint8_t humidity_msb;
+    uint8_t humidity_lsb;
+    uint8_t temperature_msb;
+    uint8_t temperature_lsb;
     uint8_t checksum;
-} __attribute__((packed));
+} __attribute__((__packed__));
 
 /* Data from last measurement. */
 struct dht_data dht_data;
 
-/* Current sensor reading. This structure could be build on the stack. */
-static struct dht_data_raw received_data;
-
 /* Translation unit private function prototypes */
-uint8_t _dht_read(void);
+uint8_t _dht_read(void *buf);
 
 void dht_init(void) {
     DHT_SDA_OUTPUT();
     DHT_SDA_HIGH();
 }
 
-enum dht_read_status _dht_read(void) {
+enum dht_read_status _dht_read(void *buf) {
     uint16_t timeout;
     uint8_t result;
     uint8_t i;
@@ -97,7 +94,7 @@ enum dht_read_status _dht_read(void) {
                     return DHT_ERROR_TIMEOUT;
             }
         }
-        *(((uint8_t *) (&received_data)) + j) = result;
+        *(((uint8_t *) buf) + j) = result;
     }
 
     /* Reset port. */
@@ -109,27 +106,22 @@ enum dht_read_status _dht_read(void) {
 }
 
 enum dht_read_status dht_read(void) {
-    enum dht_read_status result = _dht_read();
+    struct dht_data_raw _raw_data;
+    enum dht_read_status result = _dht_read(&_raw_data);
     if (result != DHT_OK)
         return result;
-    received_data.humidity_integral &= 0x03;
-    received_data.temperature_integral &= 0x83;
 
     /* Checksum */
-    uint8_t sum = received_data.humidity_integral       +
-                    received_data.humidity_decimal      +
-                    received_data.temperature_integral  +
-                    received_data.temperature_decimal;
-    if (received_data.checksum != sum) {
+    uint8_t sum = _raw_data.humidity_msb        +
+                    _raw_data.humidity_lsb      +
+                    _raw_data.temperature_msb   +
+                    _raw_data.temperature_lsb;
+    if (_raw_data.checksum != sum) {
         return DHT_ERROR_CHECKSUM;
     }
 
-    dht_data.humidity = (received_data.humidity_integral << 8) | received_data.humidity_decimal;
-    dht_data.temperature = (received_data.temperature_integral << 8) | received_data.temperature_decimal;
-
-    /* Check negative temperature */
-    if(received_data.temperature_integral & DHT_NEGATIVE_TEMPERATURE_BITMASK)
-        dht_data.temperature = -dht_data.temperature;
+    dht_data.humidity = (_raw_data.humidity_msb << 8) | _raw_data.humidity_lsb;
+    dht_data.temperature = (_raw_data.temperature_msb << 8) | _raw_data.temperature_lsb;
 
     return result;
 }
