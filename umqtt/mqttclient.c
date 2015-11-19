@@ -16,6 +16,7 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "../config.h"
 #include "../uip/uip.h"
 #include "../uip/timer.h"
@@ -26,10 +27,11 @@
 #include "mqttclient.h"
 
 #define send_buffer_length      sizeof(sharedbuf.mqtt.send_buffer)
-#define current_state           mqttclient_state
-#define update_state(state)     (mqttclient_state = state)
+#define current_state           _mqttclient_state
+#define update_state(state)     (_mqttclient_state = state)
 
-static enum mqttclient_state mqttclient_state;
+/** Current MQTT client state. */
+static enum mqttclient_state _mqttclient_state;
 
 /** Timer for ending MQTT Keep Alive messages. */
 static struct timer keep_alive_timer;
@@ -40,11 +42,16 @@ static struct timer dht_timer;
 /** Timer for limit reconnect attempts. */
 static struct timer disconnected_wait_timer;
 
+/** Send data buffer. */
 static uint8_t *_mqttclient_send_buffer = sharedbuf.mqtt.send_buffer;
-// TODO: make this variable uint16_t
-static int16_t _mqttclient_send_length;
 
+/** Send data length. */
+static uint16_t _mqttclient_send_length;
+
+/** Signaling network activity. */
 static struct actsig_signal _broker_signal;
+
+static bool _send_in_progress = false;
 
 /** Connection configuration. */
 static struct umqtt_connect_config _connection_config = {
@@ -57,7 +64,12 @@ static struct umqtt_connect_config _connection_config = {
 };
 
 /* Static function prototypes. */
-static void _mqttclient_handle_connection_established();
+
+/**
+ * Process working MQTT client.
+ */
+static inline void _mqttclient_handle_connection_established();
+
 static void _mqttclient_broker_connect(void);
 static void _mqttclient_handle_disconnected_wait(void);
 static void _mqttclient_send_data(void);
@@ -116,7 +128,7 @@ void mqttclient_appcall(void) {
         update_state(MQTTCLIENT_BROKER_CONNECTION_ESTABLISHED);
     }
 
-    if(uip_aborted() || uip_timedout() || uip_closed()) {
+    if (uip_aborted() || uip_timedout() || uip_closed()) {
         if (current_state == MQTTCLIENT_BROKER_CONNECTING) {
             /* Another disconnect in reconnecting phase. Shut down for a while, then try again. */
             timer_restart(&disconnected_wait_timer);
@@ -155,14 +167,21 @@ void mqttclient_appcall(void) {
     }
 }
 
-static void _mqttclient_handle_connection_established(void) {
-    if (mqtt.state == UMQTT_STATE_CONNECTED) {
-        if (timer_tryrestart(&keep_alive_timer))
-            _mqttclient_umqtt_keep_alive(&mqtt);
-        if (timer_tryrestart(&dht_timer))
-            _mqttclient_send_data();
-    } else if (mqtt.state == UMQTT_STATE_INIT) {
+static inline void _mqttclient_handle_connection_established(void) {
+    if (mqtt.state == UMQTT_STATE_INIT) {
         _mqttclient_mqtt_init();
+    }
+    if (!_send_in_progress) {
+        if (mqtt.state == UMQTT_STATE_CONNECTED) {
+            if (timer_tryrestart(&keep_alive_timer)) {
+                _mqttclient_umqtt_keep_alive(&mqtt);
+                return;
+            }
+            if (timer_tryrestart(&dht_timer)) {
+                _mqttclient_send_data();
+                return;
+            }
+        }
     }
 }
 

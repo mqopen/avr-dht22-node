@@ -170,7 +170,8 @@ uint16_t uip_surglen;
 #endif /* UIP_URGDATA > 0 */
 
 /* The uip_len is either 8 or 16 bits, depending on the maximum packet size. */
-uint16_t uip_len, uip_slen;
+uint16_t uip_len;
+uint16_t uip_slen;
 
 /*
  * The uip_flags variable is used for communication between the TCP/IP
