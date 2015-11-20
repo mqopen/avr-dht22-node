@@ -127,6 +127,7 @@ void mqttclient_appcall(void) {
 
     if (uip_connected()) {
         update_state(MQTTCLIENT_BROKER_CONNECTION_ESTABLISHED);
+        return;
     }
 
     if (uip_aborted() || uip_timedout() || uip_closed()) {
@@ -139,6 +140,7 @@ void mqttclient_appcall(void) {
             update_state(MQTTCLIENT_BROKER_DISCONNECTED);
             mqtt.state = UMQTT_STATE_INIT;
         }
+        return;
     }
 
     if (uip_newdata()) {
@@ -156,22 +158,26 @@ void mqttclient_appcall(void) {
                             sizeof(MQTT_NODE_PRESENCE_MSG_ONLINE),
                             _BV(UMQTT_OPT_RETAIN));
         }
+        return;
     }
 
     if (uip_acked()) {
         _is_sending = false;
+        return;
     }
 
     if (uip_rexmit()) {
         _mqttclient_send();
+        return;
     }
 
     if (uip_poll()) {
-        _is_sending = true;
         _mqttclient_send_length = umqtt_circ_pop(&conn->txbuff, _mqttclient_send_buffer, send_buffer_length);
-        if (!_mqttclient_send_length)
-            return;
-        _mqttclient_send();
+        if (_mqttclient_send_length) {
+            _is_sending = true;
+            _mqttclient_send();
+        }
+        return;
     }
 }
 
