@@ -51,7 +51,8 @@ static uint16_t _mqttclient_send_length;
 /** Signaling network activity. */
 static struct actsig_signal _broker_signal;
 
-static bool _send_in_progress = false;
+/** Keep track if some send is in progress. */
+static bool _is_sending = false;
 
 /** Connection configuration. */
 static struct umqtt_connect_config _connection_config = {
@@ -157,9 +158,16 @@ void mqttclient_appcall(void) {
         }
     }
 
+    if (uip_acked()) {
+        _is_sending = false;
+    }
+
     if (uip_rexmit()) {
         _mqttclient_send();
-    } else if (uip_poll() || uip_acked()) {
+    }
+
+    if (uip_poll()) {
+        _is_sending = true;
         _mqttclient_send_length = umqtt_circ_pop(&conn->txbuff, _mqttclient_send_buffer, send_buffer_length);
         if (!_mqttclient_send_length)
             return;
@@ -171,7 +179,7 @@ static inline void _mqttclient_handle_connection_established(void) {
     if (mqtt.state == UMQTT_STATE_INIT) {
         _mqttclient_mqtt_init();
     }
-    if (!_send_in_progress) {
+    if (!_is_sending) {
         if (mqtt.state == UMQTT_STATE_CONNECTED) {
             if (timer_tryrestart(&keep_alive_timer)) {
                 _mqttclient_umqtt_keep_alive(&mqtt);
