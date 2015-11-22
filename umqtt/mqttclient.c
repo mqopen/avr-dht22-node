@@ -74,11 +74,38 @@ static inline void _mqttclient_process_connected();
  * Create connection to MQTT broker.
  */
 static void _mqttclient_broker_connect(void);
+
+/**
+ * Handle disconnect.
+ */
 static void _mqttclient_handle_disconnected_wait(void);
+
+/**
+ * Send data.
+ */
 static void _mqttclient_send_data(void);
+
+/**
+ * Initiate MQTT client.
+ */
 static void _mqttclient_mqtt_init(void);
+
+/**
+ * Send keep alive message.
+ *
+ * @param conn MQTT connection.
+ */
 static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn);
-static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len);
+
+/**
+ * Handle incomming message.
+ *
+ * @param conn MQTT connection.
+ * @param topic Topic name.
+ * @param data Topic payload.
+ * @param len Payload length.
+ */
+static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, uint16_t len);
 
 /**
  * Handle new arrived data.
@@ -257,6 +284,7 @@ static void _mqttclient_send_data(void) {
     umqtt_publish(&_mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len, 0);
 }
 
+// TODO: move umqttt initialization into mqttclient_init()
 static void _mqttclient_mqtt_init(void) {
     umqtt_init(&_mqtt);
     umqtt_circ_init(&_mqtt.txbuff);
@@ -268,7 +296,7 @@ static void _mqttclient_umqtt_keep_alive(struct umqtt_connection *conn) {
     umqtt_ping(conn);
 }
 
-static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, int len) {
+static void _mqttclient_handle_message(struct umqtt_connection *conn, char *topic, uint8_t *data, uint16_t len) {
 }
 
 static inline void _mqttclient_send(void) {

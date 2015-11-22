@@ -34,7 +34,14 @@ struct actsig_signal {
     struct timer signal_timer;  /**< Notify timer. */
 };
 
+/**
+ * Initiate signal notify.
+ */
 void actsig_init(struct actsig_signal *signal, uint8_t pin, volatile uint8_t *ddr, volatile uint8_t *port, uint16_t interval);
+
+/**
+ * Signal activity.
+ */
 void actsig_notify(struct actsig_signal *signal);
 void actsig_set_normal_on(struct actsig_signal *signal);
 void actsig_set_normal_off(struct actsig_signal *signal);

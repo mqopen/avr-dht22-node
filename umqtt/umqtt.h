@@ -89,8 +89,8 @@ struct umqtt_connection {
     struct umqtt_circ_buffer txbuff;        /**< TX buffer. */
     struct umqtt_circ_buffer rxbuff;        /**< RX buffer. */
 
-    /** Pointer to message nahler function. */
-    void (*message_callback)(struct umqtt_connection *, char *topic, uint8_t *data, int16_t len);
+    /** Pointer to message handler function. */
+    void (*message_callback)(struct umqtt_connection *, char *topic, uint8_t *data, uint16_t len);
 
     /* Private */
     /* ack counters - incremented on sending, decremented on ack */
