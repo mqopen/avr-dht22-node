@@ -37,12 +37,12 @@
 #if !(CONFIG_DHCP)
 #define CONFIG_IP_ADDR0 192
 #define CONFIG_IP_ADDR1 168
-#define CONFIG_IP_ADDR2 10
-#define CONFIG_IP_ADDR3 2
+#define CONFIG_IP_ADDR2 1
+#define CONFIG_IP_ADDR3 41
 
 #define CONFIG_NETMASK0 255
 #define CONFIG_NETMASK1 255
-#define CONFIG_NETMASK2 255
+#define CONFIG_NETMASK2 252
 #define CONFIG_NETMASK3 0
 #endif
 
@@ -63,11 +63,17 @@
 #define DHT_PIN                 PINB
 #define DHT_SDA                 PB1
 
+/* Signal LED configuration */
+#define CONFIG_SIGNAL_LED_PIN       PD6
+#define CONFIG_SIGNAL_LED_DDR       DDRD
+#define CONFIG_SIGNAL_LED_PORT      PORTD
+#define CONFIG_SIGNAL_LED_INTERVAL  0.5
+
 /* MQTT configuration. */
 #define MQTT_BROKER_IP_ADDR0    192
 #define MQTT_BROKER_IP_ADDR1    168
-#define MQTT_BROKER_IP_ADDR2    10
-#define MQTT_BROKER_IP_ADDR3    1
+#define MQTT_BROKER_IP_ADDR2    1
+#define MQTT_BROKER_IP_ADDR3    209
 
 #define MQTT_BROKER_PORT        1883
 
@@ -94,4 +100,4 @@ typedef struct node_appstate uip_tcp_appstate_t;
 typedef struct node_udp_appstate uip_udp_appstate_t;
 #define UIP_UDP_APPCALL node_udp_appcall
 
-#endif /*__CONFIG_H__*/
+#endif

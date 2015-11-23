@@ -15,16 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <avr/interrupt.h>
-#include <string.h>
-#include <stdlib.h>
 #include "uip/uip.h"
 #include "uip/uiparp.h"
 #include "enc28j60/network.h"
 #include "common.h"
 #include "node.h"
-
-#define BUF (((struct uip_eth_hdr *)&uip_buf[0]))
 
 /**
  * Send data out.
@@ -34,7 +29,7 @@ static inline void _nethandler_send_out(void);
 void nethandler_rx(void) {
     uip_len = network_read();
     if (uip_len > 0) {
-        switch (ntohs(BUF->type)) {
+        switch (ntohs(((struct uip_eth_hdr *) &uip_buf[0])->type)) {
             case UIP_ETHTYPE_IP:
                 uip_arp_ipin();
                 uip_input();

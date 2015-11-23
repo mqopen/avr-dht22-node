@@ -16,8 +16,34 @@
  */
 
 #include <avr/io.h>
+#include <stdbool.h>
 #include "uip/timer.h"
 #include "actsig.h"
+
+/* Static function prototypes. */
+
+/**
+ * Toggle signal pin.
+ *
+ * @param signal Signal object.
+ */
+static void _actsig_toggle(struct actsig_signal *signal);
+
+/**
+ * Set signal on.
+ *
+ * @param signal Signal object.
+ */
+static inline void _actsig_set_on(struct actsig_signal *signal);
+
+/**
+ * Set signal off.
+ *
+ * @param signal Signal object.
+ */
+static inline void _actsig_set_off(struct actsig_signal *signal);
+
+/* Implementation. */
 
 void actsig_init(struct actsig_signal *signal, uint8_t pin, volatile uint8_t *ddr, volatile uint8_t *port, uint16_t interval) {
     signal->pin = pin;
@@ -27,30 +53,66 @@ void actsig_init(struct actsig_signal *signal, uint8_t pin, volatile uint8_t *dd
     signal->normal_state = false;
     signal->is_signaling = false;
 
-    timer_set(&signal->signal_timer, CLOCK_SECOND * interval / 1000);
+    timer_set(&signal->signal_timer, CLOCK_SECOND * interval);
 
+    /* Set output. */
     *ddr |= _BV(pin);
+
+    /* Set high state. */
     *port |= _BV(pin);
 }
 
 void actsig_notify(struct actsig_signal *signal) {
     if (!signal->is_signaling) {
-        *signal->port &= ~(_BV(signal->pin));
+        _actsig_toggle(signal);
         signal->is_signaling = true;
         timer_restart(&signal->signal_timer);
     }
 }
 
 void actsig_set_normal_on(struct actsig_signal *signal) {
-
+    signal->normal_state = true;
+    _actsig_set_on(signal);
 }
 
 void actsig_set_normal_off(struct actsig_signal *signal) {
+    signal->normal_state = false;
+    _actsig_set_off(signal);
 }
 
 void actsig_process(struct actsig_signal *signal) {
-    if (timer_tryrestart(&signal->signal_timer)) {
-        *signal->port |= _BV(signal->pin);
+    if (signal->is_signaling && timer_expired(&signal->signal_timer)) {
+        _actsig_toggle(signal);
         signal->is_signaling = false;
     }
+}
+
+void _actsig_toggle(struct actsig_signal *signal) {
+    if (signal->normal_state) {
+        /* Signal is normaly on. */
+        if (signal->is_signaling) {
+            /* Signal is currently off. */
+            _actsig_set_on(signal);
+        } else {
+            /* Signal is currently on. */
+            _actsig_set_off(signal);
+        }
+    } else {
+        /* Signal is normaly off. */
+        if (signal->is_signaling) {
+            /* Signal is currently on. */
+            _actsig_set_off(signal);
+        } else {
+            /* Signal is currently off. */
+            _actsig_set_on(signal);
+        }
+    }
+}
+
+static inline void _actsig_set_on(struct actsig_signal *signal) {
+    *signal->port &= ~(_BV(signal->pin));
+}
+
+static inline void _actsig_set_off(struct actsig_signal *signal) {
+    *signal->port |= _BV(signal->pin);
 }

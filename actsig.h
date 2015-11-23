@@ -36,15 +36,35 @@ struct actsig_signal {
 
 /**
  * Initiate signal notify.
+ *
+ * @param signal Signal object.
+ * @param pin Signal pin.
+ * @param ddr Pointer to signal data direction register.
+ * @param port Pointer to signal output port register.
+ * @param interval Signaling interval.
  */
 void actsig_init(struct actsig_signal *signal, uint8_t pin, volatile uint8_t *ddr, volatile uint8_t *port, uint16_t interval);
 
 /**
  * Signal activity.
+ *
+ * @param signal Signal object.
  */
 void actsig_notify(struct actsig_signal *signal);
+
+/**
+ * @param signal Signal object.
+ */
 void actsig_set_normal_on(struct actsig_signal *signal);
+
+/**
+ * @param signal Signal object.
+ */
 void actsig_set_normal_off(struct actsig_signal *signal);
+
+/**
+ * @param signal Signal object.
+ */
 void actsig_process(struct actsig_signal *signal);
 
 #endif
