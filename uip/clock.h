@@ -59,7 +59,6 @@
  *
  * This function initializes the clock library and should be called
  * from the main() function of the system.
- *
  */
 void clock_init(void);
 
@@ -68,7 +67,7 @@ void clock_init(void);
  *
  * This function returns the current system clock time.
  *
- * \return The current clock time, measured in system ticks.
+ * @return The current clock time, measured in system ticks.
  */
 clock_time_t clock_time(void);
 

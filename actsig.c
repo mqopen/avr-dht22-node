@@ -53,7 +53,8 @@ void actsig_init(struct actsig_signal *signal, uint8_t pin, volatile uint8_t *dd
     signal->normal_state = false;
     signal->is_signaling = false;
 
-    timer_set(&signal->signal_timer, CLOCK_SECOND * interval);
+    // TODO: fix this
+    timer_set(&signal->signal_timer, CLOCK_SECOND / 2);
 
     /* Set output. */
     *ddr |= _BV(pin);
