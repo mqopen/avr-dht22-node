@@ -121,7 +121,11 @@ enum dht_read_status dht_read(void) {
     }
 
     dht_data.humidity = (_raw_data.humidity_msb << 8) | _raw_data.humidity_lsb;
-    dht_data.temperature = (_raw_data.temperature_msb << 8) | _raw_data.temperature_lsb;
+    dht_data.temperature = ((_raw_data.temperature_msb & 0x7f) << 8) | _raw_data.temperature_lsb;
+
+    if ((_raw_data.temperature_msb & 0x80)) {
+        dht_data.temperature = -dht_data.temperature;
+    }
 
     return result;
 }

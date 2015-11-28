@@ -288,12 +288,23 @@ static void _mqttclient_send_data(void) {
     // TODO: remove hardcoded constant
     char buffer[20];
     uint8_t len = 0;
+    int16_t _val_integral;
+    uint16_t _val_decimal;
     switch (status) {
         case DHT_OK:
             /* If status is OK, publish measured data and return from function. */
-            len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.humidity / 10, dht_data.humidity % 10);
+            _val_integral = dht_data.humidity / 10;
+            _val_decimal = dht_data.humidity % 10;
+            len = snprintf(buffer, sizeof(buffer), "%d.%u", _val_integral, _val_decimal);
             umqtt_publish(&_mqtt, MQTT_TOPIC_HUMIDITY, (uint8_t *)buffer, len, 0);
-            len = snprintf(buffer, sizeof(buffer), "%d.%d", dht_data.temperature / 10, dht_data.temperature % 10);
+            if (dht_data.temperature < 0) {
+                _val_integral = dht_data.temperature / 10;
+                _val_decimal = -dht_data.temperature % 10;
+            } else {
+                _val_integral = dht_data.temperature / 10;
+                _val_decimal = dht_data.temperature % 10;
+            }
+            len = snprintf(buffer, sizeof(buffer), "%d.%u", _val_integral, _val_decimal);
             umqtt_publish(&_mqtt, MQTT_TOPIC_TEMPERATURE, (uint8_t *)buffer, len, 0);
             return;
         case DHT_ERROR_CHECKSUM:
