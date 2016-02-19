@@ -5,29 +5,25 @@ reads data from [DHT22](http://www.aosong.com/en/products/details.asp?id=117) se
 and publish them to network over MQTT protocol. This is part of my IoT project. You can
 read more about it on my [blog](http://buben19.blogspot.com/).
 
-### Wiring
-
-![IoT node wiring diagram](https://raw.githubusercontent.com/buben19/iot-node/master/pcb/mqtt-node.png "IoT node wiring diagram")
-
-### Configuration
+## Configuration
 
 Edit following values config.h configuration file:
 
-- `ETH_ADDR0` ... `ETH_ADDR5` - Edit those values to unique MAC address.
-- `CONFIG_IP_ADDR0` ... `CONFIG_IP_ADDR` - Edit those values to assign LAN address.
-- `CONFIG_NETMASK0` ... `CONFIG_NETMASK3` - Edit those values to assign netmask.
-- `MQTT_BROKER_IP_ADDR0` ... `MQTT_BROKER_IP_ADDR0` - Edit those values to assign
-  MQTT broker IP address.
-- `MQTT_BROKER_PORT` - Configure MQTT broker port.
-- `MQTT_TOPIC_TEMPERATURE` - Configure temperature topic name.
-- `MQTT_TOPIC_HUMIDITY` - Configure humidity topic name.
-- `MQTT_PUBLISH_PERIOD` - Data publish period in seconds. DHT22 sensor requires
-  at minimum 2 seconds.
-- `MQTT_KEEP_ALIVE` - MQTT keep alive interval.
-- `MQTT_CLIENT_ID` - MQTT client ID.
-- `MQTT_NODE_PRESENCE` - Set to non-zero to enable node presence messages.
+ - `ETH_ADDR0` ... `ETH_ADDR5` - Edit those values to unique MAC address.
+ - `CONFIG_IP_ADDR0` ... `CONFIG_IP_ADDR` - Edit those values to assign LAN address.
+ - `CONFIG_NETMASK0` ... `CONFIG_NETMASK3` - Edit those values to assign netmask.
+ - `MQTT_BROKER_IP_ADDR0` ... `MQTT_BROKER_IP_ADDR0` - Edit those values to assign
+    MQTT broker IP address.
+ - `MQTT_BROKER_PORT` - Configure MQTT broker port.
+ - `MQTT_TOPIC_TEMPERATURE` - Configure temperature topic name.
+ - `MQTT_TOPIC_HUMIDITY` - Configure humidity topic name.
+ - `MQTT_PUBLISH_PERIOD` - Data publish period in seconds. DHT22 sensor requires
+   at minimum 2 seconds.
+ - `MQTT_KEEP_ALIVE` - MQTT keep alive interval.
+ - `MQTT_CLIENT_ID` - MQTT client ID.
+ - `MQTT_NODE_PRESENCE` - Set to non-zero to enable node presence messages.
 
-### Data output
+## Data output
 
 Device sends humidity and temperature measurements on topic `MQTT_TOPIC_HUMIDITY` and
 `MQTT_TOPIC_TEMPERATURE` respectively. When reading from sensors is successful,
@@ -35,15 +31,14 @@ payload is real positive (humidity, temperature) or negative (temperature only) 
 
 When reading from sensor fails, payload for each topic is appropriate error code:
 
-- `E_CHECKSUM` - Data checksum is incorrect.
-- `E_TIMEOUT` - Data reading timeouted.
-- `E_CONNECT` - Sensor connection was failed.
-- `E_ACK_L` - Low state acknowledgement fails.
-- `E_ACK_H` - High state acknowledgement fails.
+ - `E_CHECKSUM` - Data checksum is incorrect.
+ - `E_TIMEOUT` - Data reading timeouted.
+ - `E_CONNECT` - Sensor connection was failed.
+ - `E_ACK` - Error when expecting ACK signal from DHT-22 sensor.
 
 ### Node presence
 
-### Building
+## Building
 
 After configuration is done, build IoT node software with command `make`
 
@@ -51,7 +46,7 @@ After configuration is done, build IoT node software with command `make`
 
 To upload software into AVR use command `make avrdude`
 
-### Development
+## Development
 
 Node has implemented code for DHCP client to dynamically assign IP address. This
 feature is currently in experimental phase and it is not well tested. Future
