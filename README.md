@@ -28,6 +28,8 @@ Edit following values config.h configuration file:
  - `MQTT_KEEP_ALIVE` - MQTT keep alive interval.
  - `MQTT_CLIENT_ID` - MQTT client ID.
  - `MQTT_NODE_PRESENCE` - Set to non-zero to enable node presence messages.
+ - `MQTT_NODE_PRESENCE_MSG_ONLINE` - Presence online message.
+ - `MQTT_NODE_PRESENCE_MSG_ONLINE` - Presence offline message.
 
 ## Data output
 
@@ -43,6 +45,8 @@ When reading from sensor fails, payload for each topic is appropriate error code
  - `E_ACK` - Error when expecting ACK signal from DHT-22 sensor.
 
 ### Node presence
+
+When device connects to the broke, it will send presence message defined in `MQTT_NODE_PRESENCE_MSG_ONLINE` to topic `presence/<device_name>` with retain bit. It also defines last will message defined in `MQTT_NODE_PRESENCE_MSG_ONLINE` to the same topic.
 
 ## Building
 
