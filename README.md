@@ -7,6 +7,12 @@ read more about it on my [blog](http://buben19.blogspot.com/).
 
 ## Configuration
 
+Copy sample configuration file to create node config:
+
+    $ cd src
+    $ cp config.h.sample config.h
+    $ vi config.h
+
 Edit following values config.h configuration file:
 
  - `ETH_ADDR0` ... `ETH_ADDR5` - Edit those values to unique MAC address.
