@@ -4,3 +4,4 @@
 *.hex
 .map
 dhcpd.leases*
+src/config.h
