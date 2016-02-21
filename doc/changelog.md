@@ -4,7 +4,7 @@
 
  - Initial version.
  - Functionality for reading data from DHT-22 sensor.
- - Sending data over MQTT
+ - Sending data over MQTT.
  - MQTT presence message with retain bit.
  - MQTT last will message.
  - Some basic code for DHCP client.
