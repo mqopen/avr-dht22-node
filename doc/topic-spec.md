@@ -31,6 +31,8 @@ All service topics should set retain flag.
    - `ethernet` - Ethernet LAN connection.
    - `wifi` - Wi-Fi connection.
    - `nrf24` - NRF24 wireless connection.
+ - `info/<devname>/voltage` - Input voltage. For battery powered devices.
+ - `info/<devname>/ip` - Device IP address.
 
 ### Where
 
